@@ -261,6 +261,13 @@
   .fix-room{flex:0 0 auto; font-weight:800; color:#1b2b3d;}
   .fix-who{font-weight:700; color:var(--accent); word-break:break-all;}
   .fix-who.none{color:#93a2b3; font-weight:600;}
+  /* 항목 옆 사장님 전용 / 직원 가능 표시 */
+  .lockmini{display:inline-block; margin-left:4px; padding:1px 6px; border-radius:999px;
+    background:#fff3d6; color:#8a6213; font-size:10px; font-weight:800; letter-spacing:-.2px;
+    white-space:nowrap; vertical-align:middle;}
+  .freechip{display:inline-block; margin-left:4px; padding:1px 6px; border-radius:999px;
+    background:var(--green-soft); color:var(--green); font-size:10px; font-weight:800;
+    letter-spacing:-.2px; white-space:nowrap; vertical-align:middle;}
   .fix-more{flex:0 0 auto; align-self:center; font-size:11px; font-weight:800; color:var(--accent);
     background:var(--accent-soft); border-radius:999px; padding:5px 9px;}
   .fix-log{border-top:1px solid var(--line); background:#f8fafd; padding:9px 12px 10px;
@@ -371,7 +378,7 @@
     <span class="fix-more" id="fixMore">이력 보기</span>
   </button>
   <div class="fix-log hidden" id="fixLog">
-    <p class="fix-log-t">최근 수정 기록</p>
+    <p class="fix-log-t">최근 수정 기록 <span class="lockmini">🔒 삭제는 사장님만</span></p>
     <div id="fixLogList"></div>
     <p class="fix-empty hidden" id="fixEmpty">아직 수정 기록이 없어요. 항목을 고치거나 아래 [💾 저장]을 누르면 여기에 남습니다.</p>
   </div>
@@ -436,7 +443,7 @@
 
   <!-- 사장님 요청 메모: 사장님만 적고, 직원은 읽기만 -->
   <section class="card" id="ownerReqCard">
-    <h2><span class="dot"></span>사장님 요청 메모 <span class="lockchip" data-staffonly="1">🔒 사장님만</span> <span class="whochip none" id="whoReq">작성: 아직 없음</span></h2>
+    <h2><span class="dot"></span>사장님 요청 메모 <span class="lockchip">🔒 사장님만</span> <span class="whochip none" id="whoReq">작성: 아직 없음</span></h2>
     <textarea id="reqMemo" data-input="reqMemo" data-lock="1" rows="3" placeholder="직원에게 전달할 요청사항을 적어 주세요 (예: 오늘 3층 침구 전부 교체)"></textarea>
     <div class="photos" id="reqPhotos"></div>
     <p class="ph-sum hidden" id="reqSum"></p>
@@ -444,7 +451,7 @@
 
   <!-- 인원 · 숙박 -->
   <section class="card">
-    <h2><span class="dot"></span>인원 · 숙박 <span class="lockchip" data-staffonly="1">🔒 사장님만</span> <span class="badge" id="roomTag">헤윰 · 3층</span></h2>
+    <h2><span class="dot"></span>인원 · 숙박 <span class="lockchip">🔒 사장님만</span> <span class="badge" id="roomTag">헤윰 · 3층</span></h2>
 
     <div class="field">
       <div class="label">성인 <span class="hint">명</span></div>
@@ -505,10 +512,10 @@
 
   <!-- 비품 -->
   <section class="card">
-    <h2><span class="dot"></span>비품 비치 <span class="lockchip" data-staffonly="1">🔒 사장님만 · 침구세탁은 직원도</span></h2>
+    <h2><span class="dot"></span>비품 비치 <span class="lockchip">🔒 사장님만 · 침구세탁은 직원도</span></h2>
 
     <div class="field">
-      <div class="label">작은 수건 <span class="hint">장</span></div>
+      <div class="label">작은 수건 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="smallTowel" data-delta="-1" aria-label="작은 수건 줄이기">−</button>
         <input type="number" class="num" id="numSmallTowel" data-input="num" data-field="smallTowel" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="70" step="1" value="0" aria-label="작은 수건 장수">
@@ -523,7 +530,7 @@
     </div>
 
     <div class="field">
-      <div class="label">큰 수건 <span class="hint">장</span></div>
+      <div class="label">큰 수건 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="bigTowel" data-delta="-1" aria-label="큰 수건 줄이기">−</button>
         <input type="number" class="num" id="numBigTowel" data-input="num" data-field="bigTowel" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="70" step="1" value="0" aria-label="큰 수건 장수">
@@ -538,7 +545,7 @@
     </div>
 
     <div class="field">
-      <div class="label">토퍼 비치</div>
+      <div class="label">토퍼 비치 <span class="lockmini">🔒 사장님만</span></div>
       <div class="seg">
         <button type="button" class="yes" data-act="set" data-field="topper" data-value="true">비치함 <span class="sub">O</span></button>
         <button type="button" class="no" data-act="set" data-field="topper" data-value="false">없음 <span class="sub">X</span></button>
@@ -546,13 +553,13 @@
     </div>
 
     <div class="field">
-      <div class="label">추가 이불</div>
+      <div class="label">추가 이불 <span class="lockmini">🔒 사장님만</span></div>
       <div class="seg">
         <button type="button" class="yes" data-act="set" data-field="blanket" data-value="true">있음 <span class="sub">O</span></button>
         <button type="button" class="no" data-act="set" data-field="blanket" data-value="false">없음 <span class="sub">X</span></button>
       </div>
       <div id="blanketRow" class="hidden" style="margin-top:8px">
-        <div class="label">이불 채수 <span class="hint">채</span></div>
+        <div class="label">이불 채수 <span class="lockmini">🔒 사장님만</span> <span class="hint">채</span></div>
         <div class="stepper">
           <button type="button" data-act="step" data-field="blanketCount" data-delta="-1" aria-label="이불 채수 줄이기">−</button>
         <input type="number" class="num" id="numBlanket" data-input="num" data-field="blanketCount" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="20" step="1" value="1" aria-label="이불 채수">
@@ -562,7 +569,7 @@
     </div>
 
     <div class="field">
-      <div class="label">키즈룸</div>
+      <div class="label">키즈룸 <span class="lockmini">🔒 사장님만</span></div>
       <div class="seg">
         <button type="button" class="yes" data-act="set" data-field="kidsRoom" data-value="true">오픈 <span class="sub">O</span></button>
         <button type="button" class="no" data-act="set" data-field="kidsRoom" data-value="false">닫음 <span class="sub">X</span></button>
@@ -570,13 +577,13 @@
     </div>
 
     <div class="field">
-      <div class="label">고객 짐보관 요청 <span class="lockchip" data-staffonly="1">🔒 사장님만</span></div>
+      <div class="label">고객 짐보관 요청 <span class="lockchip">🔒 사장님만</span></div>
       <div class="seg">
         <button type="button" class="yes" data-act="set" data-field="luggage" data-value="true">있음 <span class="sub">O</span></button>
         <button type="button" class="no" data-act="set" data-field="luggage" data-value="false">없음 <span class="sub">X</span></button>
       </div>
       <div id="luggageTimeBox" class="hidden" style="margin-top:10px">
-        <div class="label">짐보관 시간대 <span class="hint">시작~끝</span></div>
+        <div class="label">짐보관 시간대 <span class="lockmini">🔒 사장님만</span> <span class="hint">시작~끝</span></div>
         <div class="quick" id="luggageQuick">
           <button type="button" data-act="luggageTime" data-lock="1" data-value="10:00-14:00">10~14시</button>
           <button type="button" data-act="luggageTime" data-lock="1" data-value="11:00-15:00">11~15시</button>
@@ -591,7 +598,7 @@
     </div>
 
     <div class="field">
-      <div class="label">큰 쓰레기봉투 <span class="hint">장</span></div>
+      <div class="label">큰 쓰레기봉투 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="bigBag" data-delta="-1" aria-label="큰 봉투 줄이기">−</button>
         <input type="number" class="num" id="numBigBag" data-input="num" data-field="bigBag" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="40" step="1" value="0" aria-label="큰 쓰레기봉투 장수">
@@ -607,7 +614,7 @@
     </div>
 
     <div class="field">
-      <div class="label">작은 쓰레기봉투 <span class="hint">장</span></div>
+      <div class="label">작은 쓰레기봉투 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="smallBag" data-delta="-1" aria-label="작은 봉투 줄이기">−</button>
         <input type="number" class="num" id="numSmallBag" data-input="num" data-field="smallBag" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="40" step="1" value="0" aria-label="작은 쓰레기봉투 장수">
@@ -623,7 +630,7 @@
     </div>
 
     <div class="field">
-      <div class="label">침구세탁 출고수량 <span class="hint">채 · 직원도 입력</span></div>
+      <div class="label">침구세탁 출고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryOut" data-delta="-1" aria-label="침구세탁 출고 줄이기">−</button>
         <input type="number" class="num" id="numLaundryOut" data-input="num" data-field="laundryOut" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 출고수량">
@@ -638,7 +645,7 @@
     </div>
 
     <div class="field">
-      <div class="label">침구세탁 입고수량 <span class="hint">채 · 직원도 입력</span></div>
+      <div class="label">침구세탁 입고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryIn" data-delta="-1" aria-label="침구세탁 입고 줄이기">−</button>
         <input type="number" class="num" id="numLaundryIn" data-input="num" data-field="laundryIn" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 입고수량">
@@ -655,7 +662,7 @@
 
   <!-- 이벤트 상차림: 사장님만 고른다(있음/없음 · 우드/전통상 · 메모) -->
   <section class="card" id="eventCard">
-    <h2><span class="dot"></span>이벤트 상차림 <span class="lockchip" data-staffonly="1">🔒 사장님만</span></h2>
+    <h2><span class="dot"></span>이벤트 상차림 <span class="lockchip">🔒 사장님만</span></h2>
 
     <div class="field">
       <div class="label">상차림 <span class="hint">있음 / 없음</span></div>
@@ -786,7 +793,7 @@
       <span class="kk-sub" id="kkSub">헤윰+오롯 둘 다</span>
     </button>
     <div class="bar-row">
-      <button type="button" class="btn-reset" data-act="reset" data-lock="1">초기화</button>
+      <button type="button" class="btn-reset" data-act="reset" data-lock="1">🔒 초기화</button>
       <button type="button" class="btn-save" id="btnSave" data-act="save">
         <span>💾 저장</span><span class="sv-sub" id="saveSub">자동 저장</span>
       </button>
