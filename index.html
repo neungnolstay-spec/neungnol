@@ -339,7 +339,6 @@
       <span class="fix-title" id="fixTitle">최종 수정</span>
       <span class="fix-line"><span class="fix-room">헤윰 · 3층</span><span class="fix-who none" id="fixHeyum">아직 없음</span></span>
       <span class="fix-line"><span class="fix-room">오롯 · 6층</span><span class="fix-who none" id="fixOrot">아직 없음</span></span>
-      <span class="fix-line hidden" id="fixCustomRow"><span class="fix-room" id="fixCustomName">직접입력</span><span class="fix-who none" id="fixCustom">아직 없음</span></span>
     </span>
     <span class="fix-more" id="fixMore">이력 보기</span>
   </button>
@@ -394,13 +393,7 @@
           <span class="sub">능놀스테이</span><span>오롯 · 6층</span>
           <span class="room-badge" id="badge-orot">미입력</span>
         </button>
-        <button type="button" class="wide" data-act="stay" data-value="custom">
-          <span class="sub">기타</span><span>직접입력</span>
-          <span class="room-badge" id="badge-custom">미입력</span>
-        </button>
       </div>
-      <input type="text" id="stayCustom" class="hidden" data-input="stayCustom" data-lock="1"
-             placeholder="숙소·호실 이름 (예: 능놀스테이 온새 5층)" style="margin-top:8px">
     </div>
 
     <div class="field">
@@ -721,15 +714,7 @@
 
   <!-- 미리보기 -->
   <section class="card" id="preview">
-    <h2><span class="dot"></span>카톡 전송 문구</h2>
-
-    <div class="field">
-      <div class="label">보낼 범위 <span class="hint">기본은 헤윰+오롯 둘 다예요</span></div>
-      <div class="seg">
-        <button type="button" data-act="sendMode" data-value="current">현재 객실만</button>
-        <button type="button" data-act="sendMode" data-value="both">헤윰+오롯 둘 다</button>
-      </div>
-    </div>
+    <h2><span class="dot"></span>카톡 전송 문구 <span class="badge" id="sendScopeTag">헤윰+오롯 둘 다</span></h2>
 
     <pre id="previewText"></pre>
     <p class="note">이 문구 그대로 카톡에 붙여넣으면 됩니다. <b>카카오톡 전송</b>을 쓰면 맨 아래에 '앱에서 이어서 작성하기' 주소가 함께 붙어요. 수정은 위 항목을 다시 눌러 주세요.</p>
@@ -740,7 +725,7 @@
   <div class="bar-inner">
     <button type="button" class="btn-kakao" id="btnKakao" data-act="kakao">
       <span class="kk-ico">💬</span><span>카카오톡 전송</span>
-      <span class="kk-sub" id="kkSub">현재 객실</span>
+      <span class="kk-sub" id="kkSub">헤윰+오롯 둘 다</span>
     </button>
     <div class="bar-row">
       <button type="button" class="btn-reset" data-act="reset" data-lock="1">초기화</button>
@@ -1306,10 +1291,10 @@
     if (v && typeof v === 'object' && v.byDate && typeof v.byDate === 'object') {
       // 지금 방식(v3): 날짜별 저장
       if (RE_DATE.test(text(v.date))) s.date = v.date;
-      if (typeof v.active === 'string' && ROOM_KEYS.indexOf(v.active) >= 0) s.active = v.active;
+      if (typeof v.active === 'string' && BOTH_KEYS.indexOf(v.active) >= 0) s.active = v.active;
       if (typeof v.writer === 'string') s.writer = v.writer;
       if (isStaffName(v.lastStaff)) s.lastStaff = v.lastStaff;
-      if (v.sendMode === 'both' || v.sendMode === 'current') s.sendMode = v.sendMode;
+      s.sendMode = 'both';
       if (typeof v.pw === 'string' && v.pw) s.pw = v.pw;
       if (isArray(v.log)) s.log = cleanLog(v.log);
       s.meters = cleanMeters(v.meters);
@@ -1323,9 +1308,9 @@
       var d2 = (RE_DATE.test(text(v.date))) ? v.date : todayISO();
       s.byDate[d2] = emptyDayFrom(v.rooms);
       if (RE_DATE.test(text(v.date))) s.date = v.date;
-      if (typeof v.active === 'string' && ROOM_KEYS.indexOf(v.active) >= 0) s.active = v.active;
+      if (typeof v.active === 'string' && BOTH_KEYS.indexOf(v.active) >= 0) s.active = v.active;
       if (typeof v.writer === 'string') s.writer = v.writer;
-      if (v.sendMode === 'both' || v.sendMode === 'current') s.sendMode = v.sendMode;
+      s.sendMode = 'both';
     } else {
       // 더 예전(v1): 한 객실짜리 값 → 그 객실 칸으로
       var lv = readJSON(LEGACY_KEY);
@@ -1342,7 +1327,8 @@
         day1.rooms[lkey].touched = true;
         s.byDate[lday] = day1;
         s.date = lday;
-        s.active = lkey;
+        // 예전에 '기타(직접입력)'로 저장한 내용은 그 자리에 그대로 두고, 화면은 헤윰으로 연다
+        s.active = (BOTH_KEYS.indexOf(lkey) >= 0) ? lkey : HEYUM;
         if (typeof lv.writer === 'string') s.writer = lv.writer;
       }
     }
@@ -2170,14 +2156,6 @@
     if (t) t.textContent = '최종 수정 · ' + formatDateKo(state.date);
     setFixLine('fixHeyum', HEYUM);
     setFixLine('fixOrot', OROT);
-    var custom = lastFixFor(CUSTOM);
-    var crow = el('fixCustomRow');
-    var cname = el('fixCustomName');
-    if (crow) {
-      if (custom) crow.classList.remove('hidden'); else crow.classList.add('hidden');
-    }
-    if (cname) cname.textContent = shortName(CUSTOM);
-    if (custom) setFixLine('fixCustom', CUSTOM);
     var more = el('fixMore');
     if (more) more.textContent = fixOpen ? '접기' : '이력 보기';
     var toggle = el('fixToggle');
@@ -2479,15 +2457,12 @@
       var r = state.rooms[k];
       out.push(r.touched ? roomMessage(k, r) : stubMessage(k));
     }
-    // 직접입력 객실을 쓰고 있으면 그 객실도 함께 보낸다
-    if (state.rooms[CUSTOM] && state.rooms[CUSTOM].touched) {
-      out.push(roomMessage(CUSTOM, state.rooms[CUSTOM]));
-    }
     return out.join('\n\n' + DIVIDER + '\n\n');
   }
 
+  // 보낼 문구는 항상 헤윰·오롯 둘 다(범위 선택 없음)
   function buildOutgoing() {
-    return state.sendMode === 'both' ? buildBoth() : buildCurrent();
+    return buildBoth();
   }
 
   // ---------- 공유 링크(#s=…) : 저장된 내용을 주소에 담아 서로서로 넘기기 ----------
@@ -2574,7 +2549,7 @@
       v: SHARE_VERSION,
       d: text(state.date),
       w: text(state.writer),
-      m: state.sendMode === 'both' ? 'b' : 'c',
+      m: 'b',
       a: ROOM_SHORT[state.active] || 'h',
       r: {}
     };
@@ -2856,11 +2831,13 @@
     // 받는 사람의 작성자(모드)는 바꾸지 않는다. 사장님 링크를 직원이 열어도 직원으로 남는다.
     if (p.writer && isStaffName(p.writer) && !isOwner()) state.writer = p.writer;
     if (p.log && p.log.length) mergeLog(p.log);
-    state.sendMode = p.sendMode;
-    if (p.active) state.active = SHORT_ROOM[p.active];
+    // 보낼 범위는 항상 둘 다다
+    state.sendMode = 'both';
+    var aKey = p.active ? SHORT_ROOM[p.active] : '';
+    if (aKey && BOTH_KEYS.indexOf(aKey) >= 0) state.active = aKey;
     else if (p.rooms.h) state.active = HEYUM;
     else if (p.rooms.o) state.active = OROT;
-    else state.active = CUSTOM;
+    else state.active = HEYUM;
     return names.join(', ');
   }
 
@@ -3263,13 +3240,9 @@
     each('[data-act="stay"]', function (b) {
       setOn(b, b.getAttribute('data-value') === state.active);
     });
-    var sc = el('stayCustom');
-    if (state.active === CUSTOM) sc.classList.remove('hidden'); else sc.classList.add('hidden');
-    if (syncText) setInputValue('stayCustom', text(room.stayCustom));
 
     setBadge('badge-heyum', HEYUM);
     setBadge('badge-orot', OROT);
-    setBadge('badge-custom', CUSTOM);
 
     el('roomTag').textContent = shortName(state.active);
     el('brandSub').textContent = shortName(state.active) + ' · ' +
@@ -3326,13 +3299,11 @@
     setInputValue('luggageFrom', safeTime(room.luggageFrom, '11:00'));
     setInputValue('luggageTo', safeTime(room.luggageTo, '15:00'));
 
-    each('[data-act="sendMode"]', function (b) {
-      setOn(b, b.getAttribute('data-value') === state.sendMode);
-    });
-
-    var both = state.sendMode === 'both';
+    // 보낼 범위는 항상 헤윰+오롯 둘 다다(범위를 고르는 탭은 없앴다)
+    var scopeTag = el('sendScopeTag');
+    if (scopeTag) scopeTag.textContent = '헤윰+오롯 둘 다';
     var ksub = el('kkSub');
-    if (ksub) ksub.textContent = both ? '헤윰+오롯 둘 다' : shortName(state.active);
+    if (ksub) ksub.textContent = '헤윰+오롯 둘 다';
     el('sheetRoomBtn').textContent = '현재 객실(' + shortName(state.active) + ')만 비우기';
 
     el('previewText').textContent = buildOutgoing();
@@ -3436,8 +3407,7 @@
   // [카카오톡 전송] : 문구+링크를 복사해 두고 동시에 공유 시트를 띄운다
   function doKakao() {
     var msg = buildShareText();
-    var both = state.sendMode === 'both';
-    var title = '능놀스테이 체크리스트' + (both ? ' (헤윰+오롯)' : ' (' + shortName(state.active) + ')');
+    var title = '능놀스테이 체크리스트 (헤윰+오롯)';
     var copied = silentCopy(msg);
     saveNow();
     if (navigator.share) {
@@ -3539,15 +3509,11 @@
       render(false);
     } else if (act === 'stay') {
       var next = btn.getAttribute('data-value');
-      if (ROOM_KEYS.indexOf(next) >= 0 && next !== state.active) {
+      if (BOTH_KEYS.indexOf(next) >= 0 && next !== state.active) {
         state.active = next;
         render(true);
         saveNow();
       }
-    } else if (act === 'sendMode') {
-      state.sendMode = (btn.getAttribute('data-value') === 'both') ? 'both' : 'current';
-      render(false);
-      saveNow();
     } else if (act === 'writer') {
       selectWriter(btn.getAttribute('data-value'));
     } else if (act === 'luggageTime') {
@@ -4197,11 +4163,12 @@
     room: function (key) { return state.rooms[key]; },
     active: function () { return state.active; },
     setActive: function (key) {
-      if (ROOM_KEYS.indexOf(key) >= 0) { state.active = key; render(true); }
+      if (BOTH_KEYS.indexOf(key) >= 0) { state.active = key; render(true); }
       return state.active;
     },
+    // 보낼 범위는 항상 헤윰+오롯 둘 다다(예전 검증 코드와의 호환용)
     setSendMode: function (mode) {
-      state.sendMode = (mode === 'both') ? 'both' : 'current';
+      state.sendMode = 'both';
       render(false);
       return state.sendMode;
     },
