@@ -2161,6 +2161,13 @@
     if (on) n.textContent = '⏳ 사장님 승인 대기 중';
   }
 
+  // 다시 그릴 필요가 있는지 판단하는 서명(입력 중 매 글자마다 미리보기를 새로 만들지 않게)
+  function pendSig(pe) {
+    if (!pe) return 'none';
+    return text(pe.at) + '|' + photoIds(pe.before ? pe.before.photos : null).join(',') +
+      '|' + photoIds(pe.after ? pe.after.photos : null).join(',');
+  }
+
   // 항목별 배지 · 사장님 변경 전/후 미리보기 · 상단 승인 대기 요약을 그린다
   function renderPendingUi() {
     var staff = !isOwner();
@@ -2183,10 +2190,15 @@
       var box = el('pendBox-' + key);
       if (!box) continue;
       if (pe && !staff) {
-        clearNode(box);
-        box.appendChild(pendCard({ date: state.date, room: state.active, key: key, pe: pe }));
+        var sig = pendSig(pe);
+        if (box.__pendSig !== sig) {
+          box.__pendSig = sig;
+          clearNode(box);
+          box.appendChild(pendCard({ date: state.date, room: state.active, key: key, pe: pe }));
+        }
         box.classList.remove('hidden');
       } else {
+        box.__pendSig = '';
         clearNode(box);
         box.classList.add('hidden');
       }
@@ -2198,10 +2210,15 @@
       var mb = el('pendBox-' + kind);
       if (!mb) continue;
       if (mp && !staff) {
-        clearNode(mb);
-        mb.appendChild(pendCard({ date: state.date, month: monthKey(), room: 'meter', key: kind, pe: mp }));
+        var msig = pendSig(mp);
+        if (mb.__pendSig !== msig) {
+          mb.__pendSig = msig;
+          clearNode(mb);
+          mb.appendChild(pendCard({ date: state.date, month: monthKey(), room: 'meter', key: kind, pe: mp }));
+        }
         mb.classList.remove('hidden');
       } else {
+        mb.__pendSig = '';
         clearNode(mb);
         mb.classList.add('hidden');
       }
@@ -2215,10 +2232,17 @@
     if (cnt) cnt.textContent = list.length + '건';
     var box2 = el('approveList');
     if (box2) {
-      clearNode(box2);
-      for (var j = 0; j < list.length; j++) {
-        var ctx = list[j];
-        box2.appendChild(pendCard({ date: ctx.date, month: ctx.month, room: ctx.room, key: ctx.key, pe: ctx.pe }));
+      var allSig = '';
+      for (var s = 0; s < list.length; s++) {
+        allSig += list[s].date + '|' + list[s].room + '|' + list[s].key + '|' + pendSig(list[s].pe) + ';';
+      }
+      if (box2.__pendSig !== allSig) {
+        box2.__pendSig = allSig;
+        clearNode(box2);
+        for (var j = 0; j < list.length; j++) {
+          var ctx = list[j];
+          box2.appendChild(pendCard({ date: ctx.date, month: ctx.month, room: ctx.room, key: ctx.key, pe: ctx.pe }));
+        }
       }
     }
     var empty = el('approveEmpty');
