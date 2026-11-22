@@ -48,6 +48,7 @@
   .brand span{display:block; font-size:11.5px; color:var(--muted); margin-top:1px;}
   /* 실시간 동기화 상태(제목 아래 줄에 작게) */
   .brand #brandSub{display:inline;}
+  .brand .syncbadge{display:inline-block;}
   .syncbadge{display:inline-block; vertical-align:middle; margin:3px 0 0 6px; padding:2px 7px;
     border-radius:999px; background:#eef1f5; color:#7c8899; font-size:10px; font-weight:800;
     letter-spacing:-.2px; white-space:nowrap; line-height:1.4;}
@@ -79,6 +80,7 @@
   .label{font-size:12.5px; color:var(--muted); font-weight:700; margin-bottom:7px;
     display:flex; align-items:center; justify-content:space-between; gap:8px;}
   .label .hint{font-weight:600; font-size:11.5px; color:#8b98a8;}
+  .label .lbl-main{display:inline-flex; align-items:center; gap:2px; min-width:0;}
   /* 세그먼트(원터치) */
   .seg{display:flex; gap:5px; background:#f1f4f8; padding:4px; border-radius:14px;}
   .seg button{flex:1; min-height:46px; border:0; background:transparent; border-radius:11px;
@@ -515,7 +517,7 @@
     <h2><span class="dot"></span>비품 비치 <span class="lockchip">🔒 사장님만 · 침구세탁은 직원도</span></h2>
 
     <div class="field">
-      <div class="label">작은 수건 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
+      <div class="label"><span class="lbl-main">작은 수건 <span class="lockmini">🔒 사장님만</span></span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="smallTowel" data-delta="-1" aria-label="작은 수건 줄이기">−</button>
         <input type="number" class="num" id="numSmallTowel" data-input="num" data-field="smallTowel" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="70" step="1" value="0" aria-label="작은 수건 장수">
@@ -530,7 +532,7 @@
     </div>
 
     <div class="field">
-      <div class="label">큰 수건 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
+      <div class="label"><span class="lbl-main">큰 수건 <span class="lockmini">🔒 사장님만</span></span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="bigTowel" data-delta="-1" aria-label="큰 수건 줄이기">−</button>
         <input type="number" class="num" id="numBigTowel" data-input="num" data-field="bigTowel" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="70" step="1" value="0" aria-label="큰 수건 장수">
@@ -559,7 +561,7 @@
         <button type="button" class="no" data-act="set" data-field="blanket" data-value="false">없음 <span class="sub">X</span></button>
       </div>
       <div id="blanketRow" class="hidden" style="margin-top:8px">
-        <div class="label">이불 채수 <span class="lockmini">🔒 사장님만</span> <span class="hint">채</span></div>
+        <div class="label"><span class="lbl-main">이불 채수 <span class="lockmini">🔒 사장님만</span></span> <span class="hint">채</span></div>
         <div class="stepper">
           <button type="button" data-act="step" data-field="blanketCount" data-delta="-1" aria-label="이불 채수 줄이기">−</button>
         <input type="number" class="num" id="numBlanket" data-input="num" data-field="blanketCount" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="20" step="1" value="1" aria-label="이불 채수">
@@ -583,7 +585,7 @@
         <button type="button" class="no" data-act="set" data-field="luggage" data-value="false">없음 <span class="sub">X</span></button>
       </div>
       <div id="luggageTimeBox" class="hidden" style="margin-top:10px">
-        <div class="label">짐보관 시간대 <span class="lockmini">🔒 사장님만</span> <span class="hint">시작~끝</span></div>
+        <div class="label"><span class="lbl-main">짐보관 시간대 <span class="lockmini">🔒 사장님만</span></span> <span class="hint">시작~끝</span></div>
         <div class="quick" id="luggageQuick">
           <button type="button" data-act="luggageTime" data-lock="1" data-value="10:00-14:00">10~14시</button>
           <button type="button" data-act="luggageTime" data-lock="1" data-value="11:00-15:00">11~15시</button>
@@ -598,7 +600,7 @@
     </div>
 
     <div class="field">
-      <div class="label">큰 쓰레기봉투 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
+      <div class="label"><span class="lbl-main">큰 쓰레기봉투 <span class="lockmini">🔒 사장님만</span></span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="bigBag" data-delta="-1" aria-label="큰 봉투 줄이기">−</button>
         <input type="number" class="num" id="numBigBag" data-input="num" data-field="bigBag" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="40" step="1" value="0" aria-label="큰 쓰레기봉투 장수">
@@ -614,7 +616,7 @@
     </div>
 
     <div class="field">
-      <div class="label">작은 쓰레기봉투 <span class="lockmini">🔒 사장님만</span> <span class="hint">장</span></div>
+      <div class="label"><span class="lbl-main">작은 쓰레기봉투 <span class="lockmini">🔒 사장님만</span></span> <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="smallBag" data-delta="-1" aria-label="작은 봉투 줄이기">−</button>
         <input type="number" class="num" id="numSmallBag" data-input="num" data-field="smallBag" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="40" step="1" value="0" aria-label="작은 쓰레기봉투 장수">
@@ -630,7 +632,7 @@
     </div>
 
     <div class="field">
-      <div class="label">침구세탁 출고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></div>
+      <div class="label"><span class="lbl-main">침구세탁 출고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryOut" data-delta="-1" aria-label="침구세탁 출고 줄이기">−</button>
         <input type="number" class="num" id="numLaundryOut" data-input="num" data-field="laundryOut" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 출고수량">
@@ -645,7 +647,7 @@
     </div>
 
     <div class="field">
-      <div class="label">침구세탁 입고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></div>
+      <div class="label"><span class="lbl-main">침구세탁 입고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryIn" data-delta="-1" aria-label="침구세탁 입고 줄이기">−</button>
         <input type="number" class="num" id="numLaundryIn" data-input="num" data-field="laundryIn" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 입고수량">
