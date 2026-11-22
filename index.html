@@ -62,6 +62,11 @@
     font-size:12.5px; font-weight:800; border-radius:999px; padding:8px 11px; line-height:1.2;
   }
   .refresh:active{background:#eef2f8;}
+  /* 좁은 폰에서는 글자를 빼고 아이콘만(버튼 이름은 aria-label) */
+  @media (max-width:400px){
+    .refresh .lbl{display:none;}
+    .refresh{padding:9px 11px; font-size:15px;}
+  }
   /* 카드 */
   .card{background:var(--card); border-radius:var(--r); padding:14px 14px 16px; margin:12px 12px 0;
     box-shadow:0 1px 2px rgba(16,30,50,.05);}
@@ -351,7 +356,7 @@
     <span id="brandSub">누르기만 하면 카톡 전달까지</span><span class="syncbadge" id="syncBadge" data-sync="local" title="같은 주소를 연 폰끼리 맞춰지는 상태">오프라인(로컬 저장)</span>
   </div>
   <a class="peek" href="#preview">문구 보기</a>
-  <button type="button" class="refresh" id="btnRefresh" data-act="refresh" aria-label="다른 기기에서 고친 내용을 바로 불러오기">🔄 새로고침</button>
+  <button type="button" class="refresh" id="btnRefresh" data-act="refresh" aria-label="다른 기기에서 고친 내용을 바로 불러오기">🔄<span class="lbl"> 새로고침</span></button>
 </header>
 
 <!-- 최종 수정 현황: 누가 언제 고쳤는지 맨 위에서 바로 -->
