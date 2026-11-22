@@ -57,6 +57,11 @@
     flex:0 0 auto; text-decoration:none; color:var(--accent); font-size:13.5px; font-weight:700;
     background:var(--accent-soft); border-radius:999px; padding:9px 13px;
   }
+  .refresh{
+    flex:0 0 auto; border:1px solid var(--line); background:#fff; color:#31445c;
+    font-size:12.5px; font-weight:800; border-radius:999px; padding:8px 11px; line-height:1.2;
+  }
+  .refresh:active{background:#eef2f8;}
   /* 카드 */
   .card{background:var(--card); border-radius:var(--r); padding:14px 14px 16px; margin:12px 12px 0;
     box-shadow:0 1px 2px rgba(16,30,50,.05);}
@@ -346,6 +351,7 @@
     <span id="brandSub">누르기만 하면 카톡 전달까지</span><span class="syncbadge" id="syncBadge" data-sync="local" title="같은 주소를 연 폰끼리 맞춰지는 상태">오프라인(로컬 저장)</span>
   </div>
   <a class="peek" href="#preview">문구 보기</a>
+  <button type="button" class="refresh" id="btnRefresh" data-act="refresh" aria-label="다른 기기에서 고친 내용을 바로 불러오기">🔄 새로고침</button>
 </header>
 
 <!-- 최종 수정 현황: 누가 언제 고쳤는지 맨 위에서 바로 -->
@@ -3775,6 +3781,8 @@
       delFixEntry(btn.getAttribute('data-idx'));
     } else if (act === 'kakao') {
       doKakao();
+    } else if (act === 'refresh') {
+      refreshNow();
     } else if (act === 'closeNotice') {
       hideShareNotice();
     } else if (act === 'modeBadge') {
@@ -4186,7 +4194,7 @@
   }
 
   // 다른 기기의 저장분을 이 기기 화면·저장소에 그대로 옮긴다
-  function doApplyRemote(data) {
+  function doApplyRemote(data, quiet, readOnly) {
     var at = Math.round(num(data.updatedAt, 0));
     if (at > 0 && at <= syncedAt) return false;
     // 지금 이 기기 내용을 한 번 백업해 둔다(사진 본문은 localStorage에 그대로 남아 있다)
@@ -4215,8 +4223,8 @@
     saveNow();
     fetchMissingImages(function () {
       render(true);
-      toast('다른 기기에서 저장한 최신 내용을 불러왔어요');
-    });
+      if (!quiet) toast('다른 기기에서 저장한 최신 내용을 불러왔어요');
+    }, readOnly);
     return true;
   }
 
@@ -4229,7 +4237,7 @@
   }
 
   // 이 기기에 없는 사진을 DB에서 받아 저장소에 넣는다
-  function fetchMissingImages(done) {
+  function fetchMissingImages(done, readOnly) {
     var ids = missingImageIds();
     if (!ids.length || !fbImgRoot) { done(); return; }
     var left = ids.length, finished = false;
@@ -4254,9 +4262,9 @@
             if (typeof v === 'string' && v) {
               saveImage(id, v);
             } else {
-              // DB에 사진이 빠져 있는데 이 기기에 있으면 다시 올려 맞춘다
+              // DB에 사진이 빠져 있는데 이 기기에 있으면 다시 올려 맞춘다(새로고침은 읽기만 한다)
               var have = readImage(id);
-              if (have) {
+              if (have && !readOnly) {
                 try {
                   fbImgRoot.child(id).set(have, function (err) {
                     if (!err) markImageSynced(id);
@@ -4305,6 +4313,54 @@
         } catch (e) { tick(); }
       })(todo[i]);
     }
+  }
+
+  // 다른 기기에서 고친 내용이 화면에 바로 안 보일 때: 지금 서버에서 한 번만 다시 읽어(once) 적용한다.
+  // 이 버튼은 읽기만 한다(올리지 않음).
+  function refreshNow() {
+    if (!syncStarted) { try { startCloud(); } catch (e0) {} }
+    if (!fbStateRef) {
+      toast('오프라인이에요. 인터넷이 연결되면 최신 내용으로 맞춰져요.');
+      return 'offline';
+    }
+    var result = '';
+    function done(kind) { if (!result) result = kind; }
+    try {
+      fbStateRef.once('value', function (snap) {
+        var data = null;
+        try { data = (snap && snap.val) ? snap.val() : null; } catch (e) { data = null; }
+        if (!data || typeof data !== 'object' || !data.byDate) {
+          done('empty');
+          toast('서버에 저장된 내용이 아직 없어요. 이 기기 내용을 그대로 보여드려요.');
+          return;
+        }
+        var at = Math.round(num(data.updatedAt, 0));
+        if (!(at > 0) || at <= syncedAt) {
+          done('same');
+          toast('이미 최신 내용이에요');
+          return;
+        }
+        done('applied');
+        if (typingFresh() || unsavedTyping()) {
+          pendingRemote = data;
+          scheduleRemoteFlush();
+          toast('최신 내용을 불러올게요. 입력이 끝나면 반영돼요.');
+          return;
+        }
+        doApplyRemote(data, true, true);
+        toast('최신 내용을 불러왔어요');
+      }, function () {
+        done('offline');
+        toast('오프라인이에요. 인터넷이 연결되면 최신 내용으로 맞춰져요.');
+      });
+    } catch (e2) {
+      done('offline');
+      toast('오프라인이에요. 인터넷이 연결되면 최신 내용으로 맞춰져요.');
+    }
+    // 실시간 리스너가 끊겼을 때를 대비해 다시 붙인다(같은 콜백은 한 번만 등록된다).
+    // once로 먼저 받은 뒤에 붙여야 방금 받은 내용을 다시 '이미 최신'으로 덮어쓰지 않는다.
+    try { fbStateRef.on('value', onRemoteState, onRemoteError); } catch (e3) {}
+    return result;
   }
 
   // [💾 저장]이 부르는 업로드: 사진 → 내용 순서로 올리고 결과를 토스트로 알린다
@@ -4605,6 +4661,7 @@
     showNotice: showShareNotice,
     hideNotice: hideShareNotice,
     doKakao: doKakao,
+    refresh: refreshNow,
     doSave: doSave,
     saveNow: saveNow,
     log: function () { return state.log.slice(0); },
