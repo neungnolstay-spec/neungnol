@@ -153,6 +153,42 @@
   .notice b{display:block; font-size:14px; letter-spacing:-.3px; margin-bottom:3px; color:#0a5b3f;}
   .notice .n-x{flex:0 0 auto; border:0; background:transparent; color:#4b7f66;
     font-size:15px; font-weight:800; padding:0 4px; line-height:1.4;}
+  /* 모드 표시줄(직원/사장님) */
+  .modebar{display:flex; align-items:center; gap:8px; width:calc(100% - 24px); max-width:576px;
+    margin:10px auto 0; padding:10px 12px; border-radius:14px; border:1px solid #f0dfae;
+    background:#fff8e1; color:#6b4e00; font-size:12.5px; font-weight:700; text-align:left;}
+  .modebar .m-ico{font-size:16px; line-height:1;}
+  .modebar .m-txt{font-size:13.5px; font-weight:800; letter-spacing:-.3px;}
+  .modebar .m-sub{flex:1; min-width:0; font-size:11.5px; font-weight:600; color:#8a6c1d;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .modebar .m-go{flex:0 0 auto; font-size:11.5px; font-weight:800; color:#7a5b00;
+    background:rgba(0,0,0,.06); border-radius:999px; padding:4px 9px;}
+  .modebar.owner{background:#10306b; border-color:#10306b; color:#fff;}
+  .modebar.owner .m-sub{color:#c3d6ff;}
+  .modebar.owner .m-go{color:#10306b; background:#fff;}
+  /* 잠금 표시 */
+  .lockchip{margin-left:auto; font-size:10.5px; font-weight:800; color:#8a6213;
+    background:#fff3d6; border:1px solid #f0dfae; border-radius:999px; padding:2px 8px;}
+  .locked{opacity:.45 !important; cursor:default;}
+  input[readonly], textarea[readonly]{background:#f2f5f9; color:#7c8899;}
+  /* 날짜 이동 */
+  .datenav{display:flex; gap:6px; margin-top:8px;}
+  .datenav button{flex:1; min-height:42px; border:1px solid var(--line); background:#fff;
+    border-radius:11px; font-size:13.5px; font-weight:700; color:#42536a;}
+  .datenav button.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent);}
+  .datechips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .datechips .empty{display:none;}
+  .chip{border:1px solid var(--line); background:#fff; border-radius:999px; padding:7px 11px;
+    font-size:12.5px; font-weight:700; color:#5a6a7e; min-height:34px;}
+  .chip.has{color:var(--green); border-color:#bfe6d0; background:var(--green-soft);}
+  .chip.on{border-color:var(--accent); background:var(--accent); color:#fff;}
+  /* 비밀번호 시트 */
+  .pw-label{font-size:12px; font-weight:700; color:var(--muted); margin:10px 0 5px;}
+  .pw-input{width:100%; min-height:54px; border:1px solid var(--line); border-radius:13px;
+    background:#fbfcfe; font-size:24px; font-weight:800; letter-spacing:8px; text-align:center;
+    padding:8px 12px; font-family:inherit; color:var(--ink);}
+  .pw-err{font-size:12.5px; font-weight:700; color:#b42318; margin:8px 0 0; line-height:1.4;}
+  .sheet-btn.primary{background:var(--accent); color:#fff;}
   /* 토스트 */
   #toast{position:fixed; left:50%; bottom:calc(132px + env(safe-area-inset-bottom)); transform:translate(-50%, 12px);
     z-index:60; max-width:88vw; text-align:center; background:rgba(20,32,46,.94); color:#fff;
@@ -196,6 +232,13 @@
   <a class="peek" href="#preview">문구 보기</a>
 </header>
 
+<button type="button" class="modebar" id="modeBar" data-act="modeBadge">
+  <span class="m-ico" id="modeIco">🔒</span>
+  <span class="m-txt" id="modeTxt">직원 모드</span>
+  <span class="m-sub" id="modeSub">특이사항·비품 요청만 적을 수 있어요</span>
+  <span class="m-go" id="modeGo">사장님 모드로</span>
+</button>
+
 <main>
   <!-- 전달받은 체크리스트 안내(공유 링크로 열었을 때만 보임) -->
   <div class="notice hidden" id="shareNotice">
@@ -212,8 +255,14 @@
     <h2><span class="dot"></span>기본 정보</h2>
 
     <div class="field">
-      <div class="label">날짜</div>
+      <div class="label">날짜 <span class="hint">날짜마다 따로 저장돼요</span></div>
       <input type="date" id="date" data-input="date">
+      <div class="datenav">
+        <button type="button" data-act="dateStep" data-value="-1">◀ 어제</button>
+        <button type="button" id="btnToday" data-act="dateToday">오늘</button>
+        <button type="button" data-act="dateStep" data-value="1">내일 ▶</button>
+      </div>
+      <div class="datechips" id="dateChips"></div>
     </div>
 
     <div class="field">
@@ -232,7 +281,7 @@
           <span class="room-badge" id="badge-custom">미입력</span>
         </button>
       </div>
-      <input type="text" id="stayCustom" class="hidden" data-input="stayCustom"
+      <input type="text" id="stayCustom" class="hidden" data-input="stayCustom" data-lock="1"
              placeholder="숙소·호실 이름 (예: 능놀스테이 온새 5층)" style="margin-top:8px">
     </div>
 
@@ -255,7 +304,7 @@
 
   <!-- 인원 · 숙박 -->
   <section class="card">
-    <h2><span class="dot"></span>인원 · 숙박 <span class="badge" id="roomTag">헤윰 · 3층</span></h2>
+    <h2><span class="dot"></span>인원 · 숙박 <span class="lockchip" data-staffonly="1">🔒 사장님만</span> <span class="badge" id="roomTag">헤윰 · 3층</span></h2>
 
     <div class="field">
       <div class="label">성인 <span class="hint">명</span></div>
@@ -286,7 +335,7 @@
         <button type="button" data-act="set" data-field="nationality" data-value="외국인">외국인</button>
         <button type="button" data-act="set" data-field="nationality" data-value="혼합(한국+외국)">혼합 <span class="sub">한국+외국</span></button>
       </div>
-      <input type="text" id="natMemo" data-input="natMemo" placeholder="인원 메모 (선택) 예: 성인 2 한국 · 1 외국"
+      <input type="text" id="natMemo" data-input="natMemo" data-lock="1" placeholder="인원 메모 (선택) 예: 성인 2 한국 · 1 외국"
              style="margin-top:8px">
     </div>
 
@@ -316,7 +365,7 @@
 
   <!-- 비품 -->
   <section class="card">
-    <h2><span class="dot"></span>비품 비치</h2>
+    <h2><span class="dot"></span>비품 비치 <span class="lockchip" data-staffonly="1">🔒 사장님만</span></h2>
 
     <div class="field">
       <div class="label">작은 수건 <span class="hint">장</span></div>
@@ -478,6 +527,39 @@
 
 <div id="toast" role="status" aria-live="polite"></div>
 
+<!-- 사장님 모드 잠금 해제 / 비밀번호 변경 -->
+<div id="modeSheet" class="sheet-bg hidden" data-act="closeModeSheet">
+  <div class="sheet">
+    <b id="modeTitle">사장님 모드</b>
+    <p class="sheet-note" id="modeNote">사장님 비밀번호를 입력해 주세요.</p>
+
+    <div id="pwBlock">
+      <input type="tel" id="pwInput" class="pw-input" inputmode="numeric" maxlength="8"
+             autocomplete="off" placeholder="••••">
+      <p class="pw-err hidden" id="pwErr"></p>
+    </div>
+
+    <div id="pwChangeBlock" class="hidden">
+      <div class="pw-label">지금 비밀번호</div>
+      <input type="tel" id="pwCur" class="pw-input" inputmode="numeric" maxlength="8"
+             autocomplete="off" placeholder="••••">
+      <div class="pw-label">새 비밀번호 (숫자 4자리)</div>
+      <input type="tel" id="pwNew" class="pw-input" inputmode="numeric" maxlength="8"
+             autocomplete="off" placeholder="••••">
+      <p class="pw-err hidden" id="pwErr2"></p>
+    </div>
+
+    <button type="button" class="sheet-btn primary" id="modeMainBtn" data-act="modeSubmit">사장님 모드로 열기</button>
+
+    <div id="modeMenuBtns" class="hidden">
+      <button type="button" class="sheet-btn" data-act="modeChangeOpen">비밀번호 변경</button>
+      <button type="button" class="sheet-btn danger" data-act="modeLock">직원 모드로 잠그기</button>
+    </div>
+
+    <button type="button" class="sheet-btn ghost" data-act="closeModeSheet">취소</button>
+  </div>
+</div>
+
 <!-- 지우기 범위 선택 -->
 <div id="sheet" class="sheet-bg hidden" data-act="closeSheet">
   <div class="sheet">
@@ -495,9 +577,19 @@
 (function () {
   'use strict';
 
-  // 저장 키: v2(객실별 분리 저장). 예전 v1 저장분은 첫 실행 때 자동으로 옮겨 온다.
-  var KEY = 'stay_checklist.v2';
+  // 저장 키: v3(날짜별 저장). 예전 v2·v1 저장분은 첫 실행 때 날짜별로 옮겨 온다.
+  var KEY = 'stay_checklist.v3';
+  var KEY_V2 = 'stay_checklist.v2';
   var LEGACY_KEY = 'stay_checklist.v1';
+  var RE_DATE = /^\d{4}-\d{2}-\d{2}$/;
+  var DEFAULT_PW = '0000';
+
+  // 사장님만 고칠 수 있는 항목(직원 모드에서는 보기 전용)
+  var OWNER_ONLY = {
+    adult: 1, child: 1, nights: 1, smallTowel: 1, bigTowel: 1, blanketCount: 1,
+    bigBag: 1, smallBag: 1, nationality: 1, natMemo: 1, checkin: 1,
+    topper: 1, blanket: 1, kidsRoom: 1, stayCustom: 1
+  };
 
   var HEYUM = '능놀스테이 헤윰(3층)';
   var OROT = '능놀스테이 오롯(6층)';
@@ -581,6 +673,15 @@
     };
   }
 
+  // 비밀번호는 그대로 저장하지 않고 해시로만 둔다(앱을 들여다봐도 번호가 안 보이게)
+  function hashPw(s) {
+    var h = 5381, i, str = 'stay#' + text(s);
+    for (i = 0; i < str.length; i++) h = (((h << 5) + h) ^ str.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+  }
+
+  function validPw(v) { return /^\d{4}$/.test(text(v)); }
+
   function baseState() {
     var s = {
       date: todayISO(),
@@ -588,6 +689,9 @@
       writerCustom: '',
       active: HEYUM,
       sendMode: 'current',
+      mode: 'staff',
+      pw: hashPw(DEFAULT_PW),
+      byDate: {},
       rooms: {}
     };
     for (var i = 0; i < ROOM_KEYS.length; i++) s.rooms[ROOM_KEYS[i]] = emptyRoom();
@@ -609,7 +713,19 @@
 
   function writeStore() {
     if (!canStore) return false;
-    try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; }
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        v: 3,
+        date: state.date,
+        active: state.active,
+        writer: state.writer,
+        writerCustom: state.writerCustom,
+        sendMode: state.sendMode,
+        pw: state.pw,
+        byDate: state.byDate
+      }));
+      return true;
+    } catch (e) { return false; }
   }
 
   // 저장된 객실 값을 안전하게 읽어 온다(형식이 깨져 있어도 기본값 유지)
@@ -644,59 +760,113 @@
 
   var dateRolled = false;
 
+  // 날짜 하나의 객실 묶음(없으면 빈 값으로 만든다)
+  function dayObj(date) {
+    if (!RE_DATE.test(text(date))) date = todayISO();
+    if (!state.byDate[date] || typeof state.byDate[date] !== 'object') state.byDate[date] = { rooms: {} };
+    var d = state.byDate[date];
+    if (!d.rooms || typeof d.rooms !== 'object') d.rooms = {};
+    for (var i = 0; i < ROOM_KEYS.length; i++) {
+      var k = ROOM_KEYS[i];
+      if (!d.rooms[k] || typeof d.rooms[k] !== 'object') d.rooms[k] = emptyRoom();
+    }
+    return d;
+  }
+
+  function dayHasContent(date) {
+    var d = state.byDate[date];
+    if (!d || !d.rooms) return false;
+    for (var i = 0; i < ROOM_KEYS.length; i++) {
+      var r = d.rooms[ROOM_KEYS[i]];
+      if (r && r.touched) return true;
+    }
+    return false;
+  }
+
+  function readJSON(key) {
+    var raw = readStore(key);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  }
+
+  function emptyDayFrom(srcRooms) {
+    var day = { rooms: {} };
+    for (var i = 0; i < ROOM_KEYS.length; i++) {
+      var k = ROOM_KEYS[i];
+      day.rooms[k] = emptyRoom();
+      if (srcRooms && srcRooms[k]) readRoomInto(day.rooms[k], srcRooms[k]);
+    }
+    return day;
+  }
+
   function load() {
     var s = baseState();
-    var raw = readStore(KEY);
-    var v = null;
-    if (raw) {
-      try { v = JSON.parse(raw); } catch (e1) { v = null; }
-    }
+    var v = readJSON(KEY);
+    if (!v || typeof v !== 'object') v = readJSON(KEY_V2);
+    var dk, i, k;
 
-    if (v && typeof v === 'object') {
-      if (typeof v.date === 'string') s.date = v.date;
+    if (v && typeof v === 'object' && v.byDate && typeof v.byDate === 'object') {
+      // 지금 방식(v3): 날짜별 저장
+      if (RE_DATE.test(text(v.date))) s.date = v.date;
+      if (typeof v.active === 'string' && ROOM_KEYS.indexOf(v.active) >= 0) s.active = v.active;
       if (typeof v.writer === 'string') s.writer = v.writer;
       if (typeof v.writerCustom === 'string') s.writerCustom = v.writerCustom;
-      if (typeof v.active === 'string' && ROOM_KEYS.indexOf(v.active) >= 0) s.active = v.active;
       if (v.sendMode === 'both' || v.sendMode === 'current') s.sendMode = v.sendMode;
-      if (v.rooms && typeof v.rooms === 'object') {
-        for (var i = 0; i < ROOM_KEYS.length; i++) {
-          var k = ROOM_KEYS[i];
-          if (v.rooms[k]) readRoomInto(s.rooms[k], v.rooms[k]);
-        }
+      if (typeof v.pw === 'string' && v.pw) s.pw = v.pw;
+      for (dk in v.byDate) {
+        if (!Object.prototype.hasOwnProperty.call(v.byDate, dk)) continue;
+        if (!RE_DATE.test(dk) || !v.byDate[dk] || typeof v.byDate[dk] !== 'object') continue;
+        s.byDate[dk] = emptyDayFrom(v.byDate[dk].rooms || {});
       }
+    } else if (v && typeof v === 'object' && v.rooms && typeof v.rooms === 'object') {
+      // 예전(v2): 한 날짜짜리 저장분 → 그 날짜 칸으로 옮긴다
+      var d2 = (RE_DATE.test(text(v.date))) ? v.date : todayISO();
+      s.byDate[d2] = emptyDayFrom(v.rooms);
+      if (RE_DATE.test(text(v.date))) s.date = v.date;
+      if (typeof v.active === 'string' && ROOM_KEYS.indexOf(v.active) >= 0) s.active = v.active;
+      if (typeof v.writer === 'string') s.writer = v.writer;
+      if (typeof v.writerCustom === 'string') s.writerCustom = v.writerCustom;
+      if (v.sendMode === 'both' || v.sendMode === 'current') s.sendMode = v.sendMode;
     } else {
-      // 예전(v1) 저장분: 한 객실짜리 값이므로 그 객실 칸으로 옮긴다.
-      var lraw = readStore(LEGACY_KEY);
-      var lv = null;
-      if (lraw) {
-        try { lv = JSON.parse(lraw); } catch (e2) { lv = null; }
-      }
+      // 더 예전(v1): 한 객실짜리 값 → 그 객실 칸으로
+      var lv = readJSON(LEGACY_KEY);
       if (lv && typeof lv === 'object') {
+        var lday = (RE_DATE.test(text(lv.date))) ? lv.date : todayISO();
         var lkey = (typeof lv.stay === 'string' && ROOM_KEYS.indexOf(lv.stay) >= 0) ? lv.stay : CUSTOM;
-        readRoomInto(s.rooms[lkey], lv);
+        var day1 = emptyDayFrom(null);
+        readRoomInto(day1.rooms[lkey], lv);
         if (lkey === CUSTOM) {
           var nm = (typeof lv.stayCustom === 'string' && trim(lv.stayCustom)) ? lv.stayCustom
             : (typeof lv.stay === 'string' && ROOM_KEYS.indexOf(lv.stay) < 0 ? lv.stay : '');
-          s.rooms[CUSTOM].stayCustom = nm;
+          day1.rooms[CUSTOM].stayCustom = nm;
         }
-        s.rooms[lkey].touched = true;
+        day1.rooms[lkey].touched = true;
+        s.byDate[lday] = day1;
+        s.date = lday;
         s.active = lkey;
-        if (typeof lv.date === 'string') s.date = lv.date;
         if (typeof lv.writer === 'string') s.writer = lv.writer;
         if (typeof lv.writerCustom === 'string') s.writerCustom = lv.writerCustom;
       }
     }
 
-    // 날짜가 지났으면 오늘로 자동 갱신 (객실 값은 그대로 이어서 씀)
-    if (!s.date || s.date !== todayISO()) {
-      if (s.date) dateRolled = true;
-      s.date = todayISO();
+    // 열면 오늘 날짜로 시작한다(지난 날짜 기록은 달력·날짜 칩에서 바로 볼 수 있다)
+    var today = todayISO();
+    if (!RE_DATE.test(text(s.date))) {
+      s.date = today;
+    } else if (s.date < today) {
+      dateRolled = true;
+      s.date = today;
     }
     return s;
   }
 
   var state;
   try { state = load(); } catch (e) { state = baseState(); }
+
+  // 화면이 쓰는 rooms는 그 날짜의 저장 칸을 그대로 가리킨다(고치면 바로 그 날짜에 저장)
+  state.rooms = dayObj(state.date).rooms;
+  // 앱을 새로 열면 항상 직원 모드로 시작(사장님 모드는 비밀번호 필요)
+  state.mode = 'staff';
 
   // 전달받은 공유 링크(#s=…)가 있으면 그 내용으로 채운다(받은 객실만 덮어씀)
   var sharedNames = '';
@@ -1095,6 +1265,9 @@
   function applyShareToken(token) {
     var p = parseShareToken(token);
     if (!p) return '';
+    var date = (p.date && RE_DATE.test(p.date)) ? p.date : state.date;
+    state.date = date;
+    state.rooms = dayObj(date).rooms;
     var names = [];
     var i, k;
     for (i = 0; i < SHORT_KEYS.length; i++) {
@@ -1104,7 +1277,6 @@
       names.push(shortName(SHORT_ROOM[k]));
     }
     if (!names.length) return '';
-    if (p.date) state.date = p.date;
     if (p.writer) state.writer = p.writer;
     if (p.writerCustom) state.writerCustom = p.writerCustom;
     state.sendMode = p.sendMode;
@@ -1129,6 +1301,238 @@
       }
     } catch (e3) {}
     try { if (location.hash) location.hash = ''; } catch (e4) {}
+  }
+
+  // ---------- 직원 / 사장님 모드 ----------
+  function isOwner() { return state.mode === 'owner'; }
+
+  function canEdit(field) {
+    if (isOwner()) return true;
+    return !OWNER_ONLY[field];
+  }
+
+  function tryUnlock(pw) {
+    if (hashPw(pw) !== state.pw) return false;
+    state.mode = 'owner';
+    return true;
+  }
+
+  function changePw(cur, next) {
+    if (!isOwner() || hashPw(cur) !== state.pw || !validPw(next)) return false;
+    state.pw = hashPw(next);
+    return true;
+  }
+
+  function lockMode() {
+    state.mode = 'staff';
+    render(true);
+    saveNow();
+  }
+
+  // ---------- 날짜(달력)별 저장 ----------
+  function parseISO(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text(iso));
+    if (!m) return null;
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isFinite(d.getTime()) ? d : null;
+  }
+
+  // 날짜를 바꾸면 그 날짜에 저장된 헤윰·오롯 값을 그대로 불러온다
+  function switchDate(next) {
+    next = text(next);
+    if (!RE_DATE.test(next) || next === state.date) return false;
+    dayObj(state.date);
+    state.date = next;
+    state.rooms = dayObj(next).rooms;
+    render(true);
+    saveNow();
+    return true;
+  }
+
+  function shiftDate(delta) {
+    var d = parseISO(state.date) || new Date();
+    var t = new Date(d.getFullYear(), d.getMonth(), d.getDate() + delta);
+    switchDate(todayISO(t));
+  }
+
+  function recordedDates() {
+    var out = [];
+    var k;
+    for (k in state.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(state.byDate, k)) continue;
+      if (!RE_DATE.test(k)) continue;
+      if (dayHasContent(k)) out.push(k);
+    }
+    if (out.indexOf(state.date) < 0 && dayHasContent(state.date)) out.push(state.date);
+    out.sort();
+    out.reverse();
+    return out.slice(0, 12);
+  }
+
+  function renderDateChips() {
+    var box = el('dateChips');
+    if (!box) return;
+    box.textContent = '';
+    var list = recordedDates();
+    for (var i = 0; i < list.length; i++) {
+      var d = list[i];
+      var c = document.createElement('button');
+      c.setAttribute('type', 'button');
+      c.setAttribute('data-act', 'gotoDate');
+      c.setAttribute('data-value', d);
+      c.className = 'chip';
+      c.textContent = formatDateKo(d);
+      if (dayHasContent(d)) c.classList.add('has');
+      if (d === state.date) c.classList.add('on');
+      box.appendChild(c);
+    }
+    var tb = el('btnToday');
+    if (tb) {
+      if (state.date === todayISO()) tb.classList.add('on'); else tb.classList.remove('on');
+    }
+  }
+
+  // 직원 모드의 [초기화]는 직원이 적는 칸만 비운다(사장님이 정한 값은 그대로)
+  function resetStaffFields() {
+    var r = cur();
+    r.notes = '';
+    r.supplies = '';
+    r.noteTags = [];
+    r.supplyTags = [];
+    render(true);
+    saveNow();
+    toast('특이사항·비품 요청만 비웠어요. 사장님이 정한 값은 그대로예요.');
+  }
+
+  // ---------- 모드 안내 / 잠금 화면 ----------
+  var modeView = 'unlock';
+
+  function sheetShow(node, on) {
+    if (!node) return;
+    if (on) node.classList.remove('hidden'); else node.classList.add('hidden');
+  }
+
+  function setPwErr(id, msg) {
+    var n = el(id);
+    if (!n) return;
+    if (msg) { n.textContent = msg; n.classList.remove('hidden'); }
+    else { n.textContent = ''; n.classList.add('hidden'); }
+  }
+
+  function renderModeSheet() {
+    var title = el('modeTitle');
+    var note = el('modeNote');
+    if (title) {
+      title.textContent = modeView === 'unlock' ? '사장님 모드'
+        : (modeView === 'change' ? '비밀번호 변경' : '사장님 모드 사용 중');
+    }
+    if (note) {
+      note.textContent = modeView === 'unlock'
+        ? '사장님 비밀번호를 입력해 주세요. 직원은 그냥 닫으시면 돼요.'
+        : (modeView === 'change'
+          ? '지금 쓰는 번호와 새 번호(숫자 4자리)를 입력해 주세요.'
+          : '모든 항목을 고칠 수 있어요. 끝나면 직원 모드로 잠가 주세요.');
+    }
+    sheetShow(el('pwBlock'), modeView === 'unlock');
+    sheetShow(el('pwChangeBlock'), modeView === 'change');
+    sheetShow(el('modeMenuBtns'), modeView === 'menu');
+    var main = el('modeMainBtn');
+    if (main) {
+      sheetShow(main, modeView !== 'menu');
+      main.textContent = modeView === 'change' ? '비밀번호 저장' : '사장님 모드로 열기';
+    }
+    setPwErr('pwErr', '');
+    setPwErr('pwErr2', '');
+  }
+
+  function openModeSheet() {
+    modeView = isOwner() ? 'menu' : 'unlock';
+    var a = el('pwInput');
+    if (a) a.value = '';
+    var b = el('pwCur');
+    if (b) b.value = '';
+    var c = el('pwNew');
+    if (c) c.value = '';
+    renderModeSheet();
+    el('modeSheet').classList.remove('hidden');
+  }
+
+  function closeModeSheet() {
+    el('modeSheet').classList.add('hidden');
+    modeView = isOwner() ? 'menu' : 'unlock';
+  }
+
+  function pwValue(id) {
+    var n = el(id);
+    if (!n) return '';
+    return trim(text(n.value)).replace(/[^0-9]/g, '');
+  }
+
+  function submitMode() {
+    if (modeView === 'unlock') {
+      if (tryUnlock(pwValue('pwInput'))) {
+        closeModeSheet();
+        render(true);
+        saveNow();
+        toast('사장님 모드로 열었어요. 모든 항목을 고칠 수 있어요.');
+      } else {
+        setPwErr('pwErr', '비밀번호가 맞지 않아요. 다시 눌러 주세요.');
+      }
+      return;
+    }
+    if (modeView === 'change') {
+      if (!isOwner()) {
+        setPwErr('pwErr2', '사장님 모드에서만 바꿀 수 있어요.');
+        return;
+      }
+      var next = pwValue('pwNew');
+      if (!validPw(next)) {
+        setPwErr('pwErr2', '새 비밀번호는 숫자 4자리로 정해 주세요.');
+        return;
+      }
+      if (!changePw(pwValue('pwCur'), next)) {
+        setPwErr('pwErr2', '지금 비밀번호가 맞지 않아요.');
+        return;
+      }
+      closeModeSheet();
+      saveNow();
+      toast('비밀번호를 바꿨어요. 다음부터 새 번호로 여세요.');
+    }
+  }
+
+  // 직원 모드에서 고정 항목을 잠그고, 모드 표시줄·잠금 안내를 그린다
+  function lockGroup(sel, locked) {
+    each(sel, function (n) {
+      if (locked) {
+        n.setAttribute('disabled', 'disabled');
+        n.classList.add('locked');
+      } else {
+        n.removeAttribute('disabled');
+        n.classList.remove('locked');
+      }
+    });
+  }
+
+  function applyModeUi() {
+    var owner = isOwner();
+    lockGroup('[data-act="step"]', !owner);
+    lockGroup('[data-act="set"]', !owner);
+    lockGroup('[data-lock="1"]', !owner);
+    each('[data-staffonly="1"]', function (n) {
+      if (owner) n.classList.add('hidden'); else n.classList.remove('hidden');
+    });
+    var ico = el('modeIco');
+    var txt = el('modeTxt');
+    var sub = el('modeSub');
+    var go = el('modeGo');
+    var bar = el('modeBar');
+    if (ico) ico.textContent = owner ? '🔓' : '🔒';
+    if (txt) txt.textContent = owner ? '사장님 모드' : '직원 모드';
+    if (sub) sub.textContent = owner ? '모든 항목을 고칠 수 있어요' : '특이사항·비품 요청만 적을 수 있어요';
+    if (go) go.textContent = owner ? '잠그기' : '사장님 모드로';
+    if (bar) {
+      if (owner) bar.classList.add('owner'); else bar.classList.remove('owner');
+    }
   }
 
   // ---------- 화면 그리기 ----------
@@ -1235,6 +1639,8 @@
     el('sheetRoomBtn').textContent = '현재 객실(' + shortName(state.active) + ')만 비우기';
 
     el('previewText').textContent = buildOutgoing();
+    renderDateChips();
+    applyModeUi();
     save();
   }
 
@@ -1260,7 +1666,7 @@
     if (!box) return;
     var sub = el('shareNoticeSub');
     if (sub) {
-      sub.textContent = (names ? names + ' 내용을 받았어요. ' : '') +
+      sub.textContent = (names ? formatDateKo(state.date) + ' ' + names + ' 내용을 받았어요. ' : '') +
         '고친 뒤 다시 카카오톡으로 보내면 상대 화면에도 이어져요.';
     }
     box.classList.remove('hidden');
@@ -1391,12 +1797,14 @@
   // ---------- 값 바꾸기 ----------
   function step(field, delta) {
     if (!(field in LIMITS)) return;
+    if (!canEdit(field)) return;
     var r = cur();
     r[field] = clamp(field, num(r[field], 0) + delta);
     r.touched = true;
   }
 
   function setField(field, value) {
+    if (!canEdit(field)) return;
     var r = cur();
     if (field in LIMITS) { r[field] = clamp(field, num(value, r[field])); r.touched = true; return; }
     if (field === 'checkin' || field === 'topper' || field === 'blanket' || field === 'kidsRoom') {
@@ -1437,6 +1845,9 @@
   // ---------- 이벤트 ----------
   function onClick(ev) {
     var node = ev.target;
+    var tagName = (node && (node.tagName || node.tag)) ? String(node.tagName || node.tag).toUpperCase() : '';
+    // 입력란을 눌렀을 때는 시트가 닫히지 않게 한다
+    if (tagName === 'INPUT' || tagName === 'TEXTAREA') return;
     var btn = null;
     while (node && node !== document) {
       if (node.getAttribute && node.getAttribute('data-act')) { btn = node; break; }
@@ -1479,8 +1890,31 @@
       doStaffLink();
     } else if (act === 'closeNotice') {
       hideShareNotice();
+    } else if (act === 'modeBadge') {
+      openModeSheet();
+    } else if (act === 'modeSubmit') {
+      submitMode();
+    } else if (act === 'modeChangeOpen') {
+      modeView = 'change';
+      var cc = el('pwCur');
+      if (cc) cc.value = '';
+      var nn = el('pwNew');
+      if (nn) nn.value = '';
+      renderModeSheet();
+    } else if (act === 'modeLock') {
+      closeModeSheet();
+      lockMode();
+      toast('직원 모드로 잠갔어요. 이제 특이사항·비품 요청만 적을 수 있어요.');
+    } else if (act === 'closeModeSheet') {
+      closeModeSheet();
+    } else if (act === 'dateStep') {
+      shiftDate(num(btn.getAttribute('data-value'), 0));
+    } else if (act === 'dateToday') {
+      switchDate(todayISO());
+    } else if (act === 'gotoDate') {
+      switchDate(btn.getAttribute('data-value'));
     } else if (act === 'reset') {
-      openSheet();
+      if (isOwner()) openSheet(); else resetStaffFields();
     } else if (act === 'resetRoom') {
       resetCurrent();
     } else if (act === 'resetAllRooms') {
@@ -1495,8 +1929,7 @@
     var field = node && node.getAttribute ? node.getAttribute('data-input') : null;
     if (!field) return;
     if (field === 'date') {
-      state.date = node.value;
-      render(false);
+      switchDate(node.value);
       return;
     }
     if (field === 'writerCustom') {
@@ -1504,6 +1937,7 @@
       render(false);
       return;
     }
+    if (!canEdit(field)) { render(true); return; }
     var room = cur();
     room[field] = node.value;
     room.touched = true;
@@ -1532,7 +1966,7 @@
       }
       saveNow();
       initialized = true;
-      if (dateRolled) toast('지난 작성 내용을 불러왔어요. 날짜는 오늘로 맞췄습니다.');
+      if (dateRolled) toast('오늘 날짜로 맞췄어요. 지난 기록은 날짜 칩에서 볼 수 있어요.');
     } catch (e) {
       // 화면이 아직 없거나 일시 오류면 잠시 뒤 다시 시도한다(최대 20번)
       if (initTries++ < 20) setTimeout(init, 200);
@@ -1564,7 +1998,7 @@
     setField: function (field, value) { setField(field, value); render(false); },
     toggleTag: function (target, label) { toggleTag(target, label); render(false); },
     setText: function (field, value) {
-      if (field === 'date') { state.date = value; render(false); return; }
+      if (field === 'date') { switchDate(value); return; }
       if (field === 'writerCustom') { state.writerCustom = value; render(false); return; }
       var r = cur();
       r[field] = value;
@@ -1576,6 +2010,25 @@
     buildCurrent: buildCurrent,
     buildBoth: buildBoth,
     buildOutgoing: buildOutgoing,
+    // 모드·날짜·비밀번호(검증용)
+    mode: function () { return state.mode; },
+    isOwner: isOwner,
+    canEdit: canEdit,
+    tryUnlock: function (pw) { var ok = tryUnlock(pw); render(true); return ok; },
+    changePw: changePw,
+    lockMode: lockMode,
+    openModeSheet: openModeSheet,
+    closeModeSheet: closeModeSheet,
+    submitMode: submitMode,
+    modeSheetOpen: function () { return !el('modeSheet').classList.contains('hidden'); },
+    sheetError: function (id) { var n = el(id || 'pwErr'); return n ? text(n.textContent) : ''; },
+    date: function () { return state.date; },
+    switchDate: switchDate,
+    shiftDate: shiftDate,
+    dates: recordedDates,
+    hasDay: function (d) { return !!state.byDate[d]; },
+    dayCount: function () { return recordedDates().length; },
+    resetStaffFields: resetStaffFields,
     buildShareUrl: buildShareUrl,
     buildShareText: buildShareText,
     baseUrl: appBaseUrl,
