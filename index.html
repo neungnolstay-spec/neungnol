@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>능놀스테이 체크리스트</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="description" content="능놀스테이 직원·사장님이 하루 인원과 비품을 손가락으로 눌러 기록하고 카톡으로 바로 전달하는 체크리스트">
+<meta name="theme-color" content="#1d5bd6">
+<meta name="color-scheme" content="light">
+<!-- 홈 화면에 추가(앱처럼 실행) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="능놀스테이">
+<meta name="application-name" content="능놀스테이">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%231d5bd6'/%3E%3Cpath d='M45 92l45-36 45 36v40a6 6 0 0 1-6 6H51a6 6 0 0 1-6-6z' fill='%23fff'/%3E%3Cpath d='M76 104h28v34H76z' fill='%231d5bd6'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#eef1f5; --card:#fff; --ink:#111c27; --muted:#69798c; --line:#dfe6ee;
+    --accent:#1d5bd6; --accent-soft:#e8f0ff; --green:#0c7a56; --green-soft:#e2f6ee;
+    --r:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    background:var(--bg); color:var(--ink); font-size:16px; line-height:1.45;
+    -webkit-text-size-adjust:100%;
+    padding-bottom:calc(118px + env(safe-area-inset-bottom));
+  }
+  main{max-width:600px; margin:0 auto;}
+  button{font-family:inherit; touch-action:manipulation; cursor:pointer;
+    -webkit-appearance:none; appearance:none;
+    -webkit-user-select:none; user-select:none;}
+  /* 상단 */
+  .topbar{
+    position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:10px;
+    padding:calc(8px + env(safe-area-inset-top)) 14px 8px;
+    background:rgba(255,255,255,.94); -webkit-backdrop-filter:saturate(180%) blur(12px);
+    backdrop-filter:saturate(180%) blur(12px); border-bottom:1px solid var(--line);
+  }
+  .brand{flex:1; min-width:0;}
+  .brand b{display:block; font-size:17px; letter-spacing:-.4px;}
+  .brand span{display:block; font-size:11.5px; color:var(--muted); margin-top:1px;}
+  .peek{
+    flex:0 0 auto; text-decoration:none; color:var(--accent); font-size:13.5px; font-weight:700;
+    background:var(--accent-soft); border-radius:999px; padding:9px 13px;
+  }
+  /* 카드 */
+  .card{background:var(--card); border-radius:var(--r); padding:14px 14px 16px; margin:12px 12px 0;
+    box-shadow:0 1px 2px rgba(16,30,50,.05);}
+  .card h2{font-size:15px; margin:0 0 12px; letter-spacing:-.3px; display:flex; align-items:center; gap:7px;}
+  .card h2 .dot{width:6px; height:16px; border-radius:3px; background:var(--accent);}
+  .field{margin:0 0 15px;}
+  .field:last-child{margin-bottom:0;}
+  .label{font-size:12.5px; color:var(--muted); font-weight:700; margin-bottom:7px;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .label .hint{font-weight:600; font-size:11.5px; color:#8b98a8;}
+  /* 세그먼트(원터치) */
+  .seg{display:flex; gap:5px; background:#f1f4f8; padding:4px; border-radius:14px;}
+  .seg button{flex:1; min-height:46px; border:0; background:transparent; border-radius:11px;
+    font-size:14.5px; font-weight:600; color:#43536a; padding:6px 4px; line-height:1.25;
+    transition:background .15s, color .15s, box-shadow .15s;}
+  .seg button.on{background:#fff; color:var(--accent); box-shadow:0 1px 3px rgba(16,30,50,.12);}
+  .seg.grid2{display:grid; grid-template-columns:1fr 1fr; gap:5px;}
+  .seg.grid2 button{min-height:56px; display:flex; flex-direction:column; justify-content:center; gap:1px;}
+  .seg.grid2 button.wide{grid-column:1 / -1; min-height:48px; flex-direction:row; align-items:center; gap:6px;}
+  .seg.grid2 button.wide .sub{margin-top:0;}
+  .seg button .sub{display:block; font-size:11px; font-weight:600; color:#93a2b3; margin-top:1px;}
+  .seg button.on .sub{color:var(--accent);}
+  .seg button.on.yes{color:var(--green); background:var(--green-soft);}
+  .seg button.on.no{color:#41536b; background:#fff;}
+  /* 스테퍼 */
+  .stepper{display:flex; align-items:center; gap:10px; background:#f1f4f8; border-radius:14px; padding:4px;}
+  .stepper button{width:54px; height:48px; border:0; border-radius:11px; background:#fff;
+    font-size:24px; line-height:1; font-weight:700; color:var(--accent);
+    box-shadow:0 1px 2px rgba(16,30,50,.10);}
+  .stepper button:active{background:#e9eef6;}
+  .stepper .num{flex:1; text-align:center; font-size:22px; font-weight:800; font-variant-numeric:tabular-nums;}
+  /* 빠른 선택 */
+  .quick{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;}
+  .quick button{flex:1; min-width:52px; min-height:42px; border:1px solid var(--line); background:#fff;
+    border-radius:11px; font-size:14px; font-weight:700; color:#42536a;}
+  .quick button.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent);}
+  .quick button:active{background:#f3f6fa;}
+  /* 태그 */
+  .tags{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:10px;}
+  .tag{border:1px solid var(--line); background:#fff; border-radius:999px; padding:9px 14px;
+    font-size:13.5px; font-weight:600; color:#42536a; min-height:42px;}
+  .tag.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent);}
+  .tag:active{background:#f3f6fa;}
+  .tag-summary{font-size:13px; font-weight:700; color:var(--accent); background:var(--accent-soft);
+    border-radius:10px; padding:9px 12px; margin:0 0 9px; line-height:1.45;}
+  /* 입력 */
+  input[type="date"], input[type="text"], textarea{
+    width:100%; border:1px solid var(--line); border-radius:12px; padding:11px 12px;
+    font-family:inherit; font-size:16px; line-height:1.5; color:var(--ink); background:#fbfcfe;
+    -webkit-appearance:none; appearance:none;
+  }
+  input[type="date"]{min-height:50px;}
+  textarea{resize:vertical; min-height:64px;}
+  input:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+  .hidden{display:none !important;}
+  /* 총 인원 배지 */
+  .badge{font-size:12px; font-weight:800; color:#fff; background:var(--accent);
+    border-radius:999px; padding:3px 9px; letter-spacing:-.2px;}
+  /* 미리보기 */
+  #preview{scroll-margin-top:62px;}
+  #previewText{margin:0; white-space:pre-wrap; word-break:break-word; font-family:inherit;
+    font-size:13.5px; line-height:1.6; color:#243447; background:#f6f8fb;
+    border:1px dashed #cfd9e6; border-radius:12px; padding:12px 13px;
+    -webkit-user-select:text; user-select:text;}
+  .note{font-size:11.5px; color:#8b98a8; margin:8px 0 0; font-weight:600;}
+  /* 하단 고정 바 */
+  .bar{position:fixed; left:0; right:0; bottom:0; z-index:30;
+    padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.97); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    border-top:1px solid var(--line); box-shadow:0 -6px 20px rgba(16,30,50,.07);}
+  .bar-inner{display:flex; gap:7px; width:100%; max-width:600px; margin:0 auto;}
+  .bar button{border:0; border-radius:14px; font-weight:800; letter-spacing:-.3px; transition:transform .08s;}
+  .bar button:active{transform:scale(.975);}
+  .btn-reset{flex:0 0 72px; min-height:54px; background:#eef1f5; color:#52627a; font-size:13.5px;}
+  .btn-copy{flex:1.55; min-height:54px; background:var(--accent); color:#fff; font-size:15.5px;
+    box-shadow:0 4px 12px rgba(29,91,214,.28);}
+  .btn-share{flex:1.2; min-height:54px; background:var(--green); color:#fff; font-size:15px;
+    box-shadow:0 4px 12px rgba(12,122,86,.24);}
+  /* 토스트 */
+  #toast{position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom)); transform:translate(-50%, 12px);
+    z-index:40; max-width:88vw; text-align:center; background:rgba(20,32,46,.94); color:#fff;
+    font-size:13.5px; font-weight:600; line-height:1.4; padding:11px 16px; border-radius:12px;
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;}
+  #toast.show{opacity:1; transform:translate(-50%, 0);}
+  /* 자바스크립트가 꺼진 화면(아이폰 '미리보기' 등)에서 보이는 안내 */
+  .nomode{margin:12px 12px 0; padding:14px 16px; border-radius:14px;
+    background:#fff4e5; border:2px solid #f0a33c; color:#6b3f05;
+    font-size:14px; font-weight:700; line-height:1.5;}
+  .nomode b{display:block; font-size:15px; margin-bottom:4px;}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="nomode">
+    <b>지금은 버튼이 동작하지 않는 화면이에요</b>
+    아이폰 '파일 미리보기'에서는 스크립트가 꺼져 있어 버튼이 눌리지 않아요.
+    링크(인터넷 주소)로 열면 정상적으로 동작합니다.
+  </div>
+</noscript>
+
+<header class="topbar">
+  <div class="brand">
+    <b>능놀스테이 체크리스트</b>
+    <span>누르기만 하면 카톡 전달까지</span>
+  </div>
+  <a class="peek" href="#preview">문구 보기</a>
+</header>
+
+<main>
+  <!-- 기본 정보 -->
+  <section class="card">
+    <h2><span class="dot"></span>기본 정보</h2>
+
+    <div class="field">
+      <div class="label">날짜</div>
+      <input type="date" id="date" data-input="date">
+    </div>
+
+    <div class="field">
+      <div class="label">숙소 / 객실</div>
+      <div class="seg grid2" id="stayGroup">
+        <button type="button" data-act="stay" data-value="능놀스테이 헤윰(3층)">
+          <span class="sub">능놀스테이</span><span>헤윰 · 3층</span>
+        </button>
+        <button type="button" data-act="stay" data-value="능놀스테이 오롯(6층)">
+          <span class="sub">능놀스테이</span><span>오롯 · 6층</span>
+        </button>
+        <button type="button" class="wide" data-act="stay" data-value="custom">
+          <span class="sub">기타</span><span>직접입력</span>
+        </button>
+      </div>
+      <input type="text" id="stayCustom" class="hidden" data-input="stayCustom"
+             placeholder="숙소·호실 이름 (예: 능놀스테이 온새 5층)" style="margin-top:8px">
+    </div>
+
+    <div class="field">
+      <div class="label">작성자 <span class="hint">한 번 정하면 기억해요</span></div>
+      <div class="seg">
+        <button type="button" data-act="writer" data-value="직원">직원</button>
+        <button type="button" data-act="writer" data-value="사장님">사장님</button>
+        <button type="button" data-act="writer" data-value="custom">직접입력</button>
+      </div>
+      <input type="text" id="writerCustom" class="hidden" data-input="writerCustom"
+             placeholder="이름 (예: 김하늘)" style="margin-top:8px">
+    </div>
+  </section>
+
+  <!-- 인원 · 숙박 -->
+  <section class="card">
+    <h2><span class="dot"></span>인원 · 숙박</h2>
+
+    <div class="field">
+      <div class="label">성인 <span class="hint">명</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="adult" data-delta="-1" aria-label="성인 줄이기">−</button>
+        <span class="num" id="numAdult">2</span>
+        <button type="button" data-act="step" data-field="adult" data-delta="1" aria-label="성인 늘리기">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">유아 <span class="hint">명</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="child" data-delta="-1" aria-label="유아 줄이기">−</button>
+        <span class="num" id="numChild">0</span>
+        <button type="button" data-act="step" data-field="child" data-delta="1" aria-label="유아 늘리기">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">총 인원 <span class="badge" id="totalGuests">총 2명</span></div>
+    </div>
+
+    <div class="field">
+      <div class="label">국적</div>
+      <div class="seg">
+        <button type="button" data-act="set" data-field="nationality" data-value="한국인">한국인</button>
+        <button type="button" data-act="set" data-field="nationality" data-value="외국인">외국인</button>
+        <button type="button" data-act="set" data-field="nationality" data-value="혼합(한국+외국)">혼합 <span class="sub">한국+외국</span></button>
+      </div>
+      <input type="text" id="natMemo" data-input="natMemo" placeholder="인원 메모 (선택) 예: 성인 2 한국 · 1 외국"
+             style="margin-top:8px">
+    </div>
+
+    <div class="field">
+      <div class="label">숙박 일수 <span class="hint">박</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="nights" data-delta="-1" aria-label="숙박 줄이기">−</button>
+        <span class="num" id="numNights">1</span>
+        <button type="button" data-act="step" data-field="nights" data-delta="1" aria-label="숙박 늘리기">+</button>
+      </div>
+      <div class="quick">
+        <button type="button" data-act="set" data-field="nights" data-value="1">1박</button>
+        <button type="button" data-act="set" data-field="nights" data-value="2">2박</button>
+        <button type="button" data-act="set" data-field="nights" data-value="3">3박</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 당일 입실 -->
+  <section class="card">
+    <h2><span class="dot"></span>당일 입실</h2>
+    <div class="seg">
+      <button type="button" class="yes" data-act="set" data-field="checkin" data-value="true">있음 <span class="sub">오늘 입실</span></button>
+      <button type="button" class="no" data-act="set" data-field="checkin" data-value="false">없음 <span class="sub">공실</span></button>
+    </div>
+  </section>
+
+  <!-- 비품 -->
+  <section class="card">
+    <h2><span class="dot"></span>비품 비치</h2>
+
+    <div class="field">
+      <div class="label">작은 수건 <span class="hint">장</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="smallTowel" data-delta="-1" aria-label="작은 수건 줄이기">−</button>
+        <span class="num" id="numSmallTowel">0</span>
+        <button type="button" data-act="step" data-field="smallTowel" data-delta="1" aria-label="작은 수건 늘리기">+</button>
+      </div>
+      <div class="quick">
+        <button type="button" data-act="set" data-field="smallTowel" data-value="8">8</button>
+        <button type="button" data-act="set" data-field="smallTowel" data-value="10">10</button>
+        <button type="button" data-act="set" data-field="smallTowel" data-value="12">12</button>
+        <button type="button" data-act="set" data-field="smallTowel" data-value="16">16</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">큰 수건 <span class="hint">장</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="bigTowel" data-delta="-1" aria-label="큰 수건 줄이기">−</button>
+        <span class="num" id="numBigTowel">0</span>
+        <button type="button" data-act="step" data-field="bigTowel" data-delta="1" aria-label="큰 수건 늘리기">+</button>
+      </div>
+      <div class="quick">
+        <button type="button" data-act="set" data-field="bigTowel" data-value="4">4</button>
+        <button type="button" data-act="set" data-field="bigTowel" data-value="6">6</button>
+        <button type="button" data-act="set" data-field="bigTowel" data-value="8">8</button>
+        <button type="button" data-act="set" data-field="bigTowel" data-value="10">10</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">토퍼 비치</div>
+      <div class="seg">
+        <button type="button" class="yes" data-act="set" data-field="topper" data-value="true">비치함 <span class="sub">O</span></button>
+        <button type="button" class="no" data-act="set" data-field="topper" data-value="false">없음 <span class="sub">X</span></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">추가 이불</div>
+      <div class="seg">
+        <button type="button" class="yes" data-act="set" data-field="blanket" data-value="true">있음 <span class="sub">O</span></button>
+        <button type="button" class="no" data-act="set" data-field="blanket" data-value="false">없음 <span class="sub">X</span></button>
+      </div>
+      <div id="blanketRow" class="hidden" style="margin-top:8px">
+        <div class="label">이불 채수 <span class="hint">채</span></div>
+        <div class="stepper">
+          <button type="button" data-act="step" data-field="blanketCount" data-delta="-1" aria-label="이불 채수 줄이기">−</button>
+          <span class="num" id="numBlanket">1</span>
+          <button type="button" data-act="step" data-field="blanketCount" data-delta="1" aria-label="이불 채수 늘리기">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">키즈룸</div>
+      <div class="seg">
+        <button type="button" class="yes" data-act="set" data-field="kidsRoom" data-value="true">오픈 <span class="sub">O</span></button>
+        <button type="button" class="no" data-act="set" data-field="kidsRoom" data-value="false">닫음 <span class="sub">X</span></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">큰 쓰레기봉투 <span class="hint">장</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="bigBag" data-delta="-1" aria-label="큰 봉투 줄이기">−</button>
+        <span class="num" id="numBigBag">0</span>
+        <button type="button" data-act="step" data-field="bigBag" data-delta="1" aria-label="큰 봉투 늘리기">+</button>
+      </div>
+      <div class="quick">
+        <button type="button" data-act="set" data-field="bigBag" data-value="0">0</button>
+        <button type="button" data-act="set" data-field="bigBag" data-value="1">1</button>
+        <button type="button" data-act="set" data-field="bigBag" data-value="2">2</button>
+        <button type="button" data-act="set" data-field="bigBag" data-value="3">3</button>
+        <button type="button" data-act="set" data-field="bigBag" data-value="5">5</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">작은 쓰레기봉투 <span class="hint">장</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="smallBag" data-delta="-1" aria-label="작은 봉투 줄이기">−</button>
+        <span class="num" id="numSmallBag">0</span>
+        <button type="button" data-act="step" data-field="smallBag" data-delta="1" aria-label="작은 봉투 늘리기">+</button>
+      </div>
+      <div class="quick">
+        <button type="button" data-act="set" data-field="smallBag" data-value="0">0</button>
+        <button type="button" data-act="set" data-field="smallBag" data-value="1">1</button>
+        <button type="button" data-act="set" data-field="smallBag" data-value="2">2</button>
+        <button type="button" data-act="set" data-field="smallBag" data-value="3">3</button>
+        <button type="button" data-act="set" data-field="smallBag" data-value="5">5</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 특이사항 -->
+  <section class="card">
+    <h2><span class="dot"></span>특이사항</h2>
+    <div class="tags" id="noteTags">
+      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="파손 없음">파손 없음</button>
+      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="오염 확인">오염 확인</button>
+      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="분실물 있음">분실물 있음</button>
+      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="주차 안내">주차 안내</button>
+    </div>
+    <div class="tag-summary hidden" id="noteSummary"></div>
+    <textarea id="notes" data-input="notes" rows="3" placeholder="위 버튼을 누르거나 직접 적어 주세요"></textarea>
+  </section>
+
+  <!-- 비품 요청 -->
+  <section class="card">
+    <h2><span class="dot"></span>다 떨어진 비품 요청</h2>
+    <div class="tags" id="supplyTags">
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="작은수건">작은수건</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="큰수건">큰수건</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="큰쓰레기봉투">큰쓰레기봉투</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="작은쓰레기봉투">작은쓰레기봉투</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="휴지">휴지</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="물티슈">물티슈</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="샴푸/바디">샴푸/바디</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="칫솔/치약">칫솔/치약</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="생수">생수</button>
+      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="주방세제">주방세제</button>
+    </div>
+    <div class="tag-summary hidden" id="supplySummary"></div>
+    <textarea id="supplies" data-input="supplies" rows="2" placeholder="필요한 개수 등 덧붙일 내용"></textarea>
+  </section>
+
+  <!-- 미리보기 -->
+  <section class="card" id="preview">
+    <h2><span class="dot"></span>카톡 전송 문구</h2>
+    <pre id="previewText"></pre>
+    <p class="note">이 문구 그대로 카톡에 붙여넣으면 됩니다. 수정은 위 항목을 다시 눌러 주세요.</p>
+  </section>
+</main>
+
+<div class="bar">
+  <div class="bar-inner">
+    <button type="button" class="btn-reset" data-act="reset">초기화</button>
+    <button type="button" class="btn-copy" data-act="copy">카톡 복사하기</button>
+    <button type="button" class="btn-share" data-act="share">바로 공유하기</button>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<noscript><p style="padding:20px">이 화면을 쓰려면 브라우저에서 자바스크립트를 켜 주세요.</p></noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'stay_checklist.v1';
+
+  var LIMITS = {
+    adult: [0, 30], child: [0, 20], nights: [0, 30],
+    smallTowel: [0, 70], bigTowel: [0, 70], blanketCount: [0, 20],
+    bigBag: [0, 40], smallBag: [0, 40]
+  };
+
+  // 숙소는 능놀스테이 헤윰·오롯(필요시 직접입력)만 쓴다. 저장값이 다른 이름이면 기본값으로 되돌린다.
+  var STAY_OPTIONS = ['능놀스테이 헤윰(3층)', '능놀스테이 오롯(6층)', 'custom'];
+
+  var NOTE_LABELS = ['파손 없음', '오염 확인', '분실물 있음', '주차 안내'];
+  var SUPPLY_LABELS = ['작은수건', '큰수건', '큰쓰레기봉투', '작은쓰레기봉투', '휴지',
+    '물티슈', '샴푸/바디', '칫솔/치약', '생수', '주방세제'];
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  function todayISO(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function defaults() {
+    return {
+      date: todayISO(),
+      stay: '능놀스테이 헤윰(3층)',
+      stayCustom: '',
+      writer: '직원',
+      writerCustom: '',
+      adult: 2,
+      child: 0,
+      nationality: '한국인',
+      natMemo: '',
+      nights: 1,
+      checkin: true,
+      smallTowel: 0,
+      bigTowel: 0,
+      topper: false,
+      blanket: false,
+      blanketCount: 1,
+      kidsRoom: false,
+      bigBag: 0,
+      smallBag: 0,
+      notes: '',
+      supplies: '',
+      noteTags: [],
+      supplyTags: []
+    };
+  }
+
+  function el(id) { return document.getElementById(id); }
+
+  function text(v) { return (v === undefined || v === null) ? '' : String(v); }
+
+  function trim(v) { return text(v).replace(/^\s+|\s+$/g, ''); }
+
+  function num(v, fallback) {
+    var n = Number(v);
+    return (isFinite(n) ? n : fallback);
+  }
+
+  function clamp(field, v) {
+    var lim = LIMITS[field] || [0, 99];
+    return Math.min(lim[1], Math.max(lim[0], Math.round(v)));
+  }
+
+  // 저장소: 사생활 보호 모드·file://·쿠키 차단 등에서 접근이 막혀도 앱은 그대로 동작하게 한다.
+  var canStore = false;
+  try {
+    localStorage.setItem('__stay_probe__', '1');
+    localStorage.removeItem('__stay_probe__');
+    canStore = true;
+  } catch (e) { canStore = false; }
+
+  function readStore() {
+    if (!canStore) return null;
+    try { return localStorage.getItem(KEY); } catch (e) { return null; }
+  }
+
+  function writeStore() {
+    if (!canStore) return false;
+    try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; }
+  }
+
+  // 저장된 값 읽기 (형식이 깨져 있어도 안전하게 기본값으로)
+  var dateRolled = false;
+  function load() {
+    var s = defaults();
+    var raw = readStore();
+    if (raw) {
+      var v = null;
+      try { v = JSON.parse(raw); } catch (e2) { v = null; }
+      if (v && typeof v === 'object') {
+        if (typeof v.date === 'string') s.date = v.date;
+        if (typeof v.stay === 'string' && STAY_OPTIONS.indexOf(v.stay) >= 0) s.stay = v.stay;
+        if (typeof v.stayCustom === 'string') s.stayCustom = v.stayCustom;
+        if (typeof v.writer === 'string') s.writer = v.writer;
+        if (typeof v.writerCustom === 'string') s.writerCustom = v.writerCustom;
+        if (typeof v.nationality === 'string') s.nationality = v.nationality;
+        if (typeof v.natMemo === 'string') s.natMemo = v.natMemo;
+        if (typeof v.notes === 'string') s.notes = v.notes;
+        if (typeof v.supplies === 'string') s.supplies = v.supplies;
+        if (Object.prototype.toString.call(v.noteTags) === '[object Array]') s.noteTags = v.noteTags.filter(function (x) { return typeof x === 'string'; });
+        if (Object.prototype.toString.call(v.supplyTags) === '[object Array]') s.supplyTags = v.supplyTags.filter(function (x) { return typeof x === 'string'; });
+        s.adult = clamp('adult', num(v.adult, s.adult));
+        s.child = clamp('child', num(v.child, s.child));
+        s.nights = clamp('nights', num(v.nights, s.nights));
+        s.smallTowel = clamp('smallTowel', num(v.smallTowel, s.smallTowel));
+        s.bigTowel = clamp('bigTowel', num(v.bigTowel, s.bigTowel));
+        s.blanketCount = clamp('blanketCount', num(v.blanketCount, s.blanketCount));
+        s.bigBag = clamp('bigBag', num(v.bigBag, s.bigBag));
+        s.smallBag = clamp('smallBag', num(v.smallBag, s.smallBag));
+        if (v.checkin !== undefined) s.checkin = !!v.checkin;
+        if (v.topper !== undefined) s.topper = !!v.topper;
+        if (v.blanket !== undefined) s.blanket = !!v.blanket;
+        if (v.kidsRoom !== undefined) s.kidsRoom = !!v.kidsRoom;
+      }
+    }
+    // 날짜가 지났으면 오늘로 자동 갱신 (다른 항목은 그대로 이어서 씀)
+    if (!s.date || s.date !== todayISO()) {
+      if (s.date) dateRolled = true;
+      s.date = todayISO();
+    }
+    return s;
+  }
+
+  var state;
+  try { state = load(); } catch (e) { state = defaults(); }
+
+  var saveTimer = null;
+  function save() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      saveTimer = null;
+      writeStore();
+    }, 150);
+  }
+
+  function saveNow() {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    writeStore();
+  }
+
+  // ---------- 문구 만들기 ----------
+  function formatDateKo(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text(iso));
+    if (!m) return text(iso) || '-';
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    var wd = ['일', '월', '화', '수', '목', '금', '토'];
+    return (Number(m[2])) + '/' + (Number(m[3])) + '(' + wd[d.getDay()] + ')';
+  }
+
+  function stayName(s) {
+    if (s.stay === 'custom') return trim(s.stayCustom) || '숙소 미지정';
+    return text(s.stay);
+  }
+
+  function writerName(s) {
+    if (s.writer === 'custom') return trim(s.writerCustom) || '이름 미입력';
+    return text(s.writer);
+  }
+
+  function tagList(labels, pick) {
+    var out = [];
+    for (var i = 0; i < labels.length; i++) {
+      if (pick.indexOf(labels[i]) >= 0) out.push(labels[i]);
+    }
+    // 목록에 없는 값(이전 버전 저장분 등)도 뒤에 붙여 준다
+    for (var j = 0; j < pick.length; j++) {
+      if (labels.indexOf(pick[j]) < 0) out.push(pick[j]);
+    }
+    return out;
+  }
+
+  function joinParts(arr) {
+    var parts = [];
+    for (var i = 0; i < arr.length; i++) {
+      var t = trim(arr[i]);
+      if (t) parts.push(t);
+    }
+    return parts.length ? parts.join(' · ') : '없음';
+  }
+
+  function buildMessage(s) {
+    var L = [];
+    L.push('[' + stayName(s) + '] ' + formatDateKo(s.date) + ' 능놀스테이 체크리스트');
+    L.push('');
+    L.push('· 인원: 성인 ' + s.adult + ' · 유아 ' + s.child + ' · 총 ' + (s.adult + s.child) + '명');
+    L.push('· 국적: ' + text(s.nationality) + (trim(s.natMemo) ? ' (' + trim(s.natMemo) + ')' : ''));
+    L.push('· 숙박: ' + s.nights + '박');
+    L.push('· 당일 입실: ' + (s.checkin ? '있음 (오늘 입실)' : '없음 (공실)'));
+    L.push('');
+    L.push('· 작은 수건 ' + s.smallTowel + '장 / 큰 수건 ' + s.bigTowel + '장');
+    L.push('· 토퍼: ' + (s.topper ? '비치함 O' : '없음 X'));
+    L.push('· 추가 이불: ' + (s.blanket ? ('있음 O · ' + s.blanketCount + '채') : '없음 X'));
+    L.push('· 키즈룸: ' + (s.kidsRoom ? '오픈 O' : '닫음 X'));
+    L.push('· 쓰레기봉투: 큰 ' + s.bigBag + '장 / 작은 ' + s.smallBag + '장');
+    L.push('');
+    L.push('· 특이사항: ' + joinParts(tagList(NOTE_LABELS, s.noteTags).concat([s.notes])));
+    L.push('· 비품 요청: ' + joinParts(tagList(SUPPLY_LABELS, s.supplyTags).concat([s.supplies])));
+    L.push('');
+    L.push('작성: ' + writerName(s));
+    return L.join('\n');
+  }
+
+  // ---------- 화면 그리기 ----------
+  function each(selector, fn) {
+    var nodes = document.querySelectorAll(selector);
+    for (var i = 0; i < nodes.length; i++) fn(nodes[i]);
+  }
+
+  function setOn(btn, on) {
+    if (on) btn.classList.add('on'); else btn.classList.remove('on');
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+
+  function setSummary(id, prefix, labels) {
+    var node = el(id);
+    if (!labels.length) {
+      node.classList.add('hidden');
+      node.textContent = '';
+      return;
+    }
+    node.classList.remove('hidden');
+    node.textContent = prefix + ': ' + labels.join(' · ');
+  }
+
+  function render(syncText) {
+    el('date').value = text(state.date);
+
+    each('[data-act="stay"]', function (b) {
+      setOn(b, b.getAttribute('data-value') === state.stay);
+    });
+    var sc = el('stayCustom');
+    if (state.stay === 'custom') sc.classList.remove('hidden'); else sc.classList.add('hidden');
+    if (syncText) sc.value = text(state.stayCustom);
+
+    each('[data-act="writer"]', function (b) {
+      setOn(b, b.getAttribute('data-value') === state.writer);
+    });
+    var wc = el('writerCustom');
+    if (state.writer === 'custom') wc.classList.remove('hidden'); else wc.classList.add('hidden');
+    if (syncText) wc.value = text(state.writerCustom);
+
+    el('numAdult').textContent = String(state.adult);
+    el('numChild').textContent = String(state.child);
+    el('totalGuests').textContent = '총 ' + (state.adult + state.child) + '명';
+    el('numNights').textContent = String(state.nights);
+    el('numSmallTowel').textContent = String(state.smallTowel);
+    el('numBigTowel').textContent = String(state.bigTowel);
+    el('numBigBag').textContent = String(state.bigBag);
+    el('numSmallBag').textContent = String(state.smallBag);
+    el('numBlanket').textContent = String(state.blanketCount);
+
+    each('[data-act="set"]', function (b) {
+      var f = b.getAttribute('data-field');
+      var v = b.getAttribute('data-value');
+      setOn(b, String(state[f]) === v);
+    });
+
+    var row = el('blanketRow');
+    if (state.blanket) row.classList.remove('hidden'); else row.classList.add('hidden');
+
+    each('[data-act="tag"]', function (b) {
+      var arr = state[b.getAttribute('data-target')] || [];
+      setOn(b, arr.indexOf(b.getAttribute('data-label')) >= 0);
+    });
+
+    setSummary('noteSummary', '선택', tagList(NOTE_LABELS, state.noteTags));
+    setSummary('supplySummary', '요청', tagList(SUPPLY_LABELS, state.supplyTags));
+
+    if (syncText) {
+      el('natMemo').value = text(state.natMemo);
+      el('notes').value = text(state.notes);
+      el('supplies').value = text(state.supplies);
+    }
+
+    el('previewText').textContent = buildMessage(state);
+    save();
+  }
+
+  // ---------- 토스트 ----------
+  var toastTimer = null;
+  function toast(msg) {
+    var t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toastTimer = null;
+      t.classList.remove('show');
+    }, 2400);
+  }
+
+  // ---------- 복사 / 공유 ----------
+  function legacyCopy(str) {
+    var ok = false;
+    var ta = document.createElement('textarea');
+    ta.value = str;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.width = '1px';
+    ta.style.height = '1px';
+    ta.style.fontSize = '16px';
+    ta.style.opacity = '0.01';
+    ta.style.border = '0';
+    ta.style.zIndex = '-1';
+    document.body.appendChild(ta);
+    try {
+      ta.select();
+      if (ta.setSelectionRange) ta.setSelectionRange(0, str.length);
+      ok = document.execCommand('copy');
+    } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function copyText(str, done) {
+    var finished = false;
+    function finish(ok) {
+      if (finished) return;
+      finished = true;
+      done(ok);
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(str).then(function () { finish(true); },
+          function () { finish(legacyCopy(str)); });
+        // 아주 오래된 웹뷰에서 콜백이 안 오는 경우 대비
+        setTimeout(function () { if (!finished) finish(legacyCopy(str)); }, 1200);
+        return;
+      }
+    } catch (e) {}
+    finish(legacyCopy(str));
+  }
+
+  function doCopy() {
+    var msg = buildMessage(state);
+    copyText(msg, function (ok) {
+      if (ok) toast('복사했어요. 카톡 창에 붙여넣기 하세요.');
+      else toast('복사가 안 됐어요. 아래 문구를 길게 눌러 복사해 주세요.');
+    });
+  }
+
+  function doShare() {
+    var msg = buildMessage(state);
+    if (navigator.share) {
+      try {
+        navigator.share({ title: '능놀스테이 체크리스트', text: msg }).then(function () {
+          saveNow();
+        }, function (err) {
+          if (err && err.name === 'AbortError') return;
+          doCopy();
+        });
+        return;
+      } catch (e) {}
+    }
+    copyText(msg, function (ok) {
+      if (ok) toast('이 브라우저는 공유를 지원하지 않아 복사했어요. 카톡에 붙여넣기 하세요.');
+      else toast('공유를 지원하지 않아요. 아래 문구를 길게 눌러 복사해 주세요.');
+    });
+  }
+
+  // ---------- 이벤트 ----------
+  function step(field, delta) {
+    if (!(field in LIMITS)) return;
+    state[field] = clamp(field, num(state[field], 0) + delta);
+  }
+
+  function setField(field, value) {
+    if (field in LIMITS) { state[field] = clamp(field, num(value, state[field])); return; }
+    if (field === 'checkin' || field === 'topper' || field === 'blanket' || field === 'kidsRoom') {
+      state[field] = (value === 'true');
+      return;
+    }
+    state[field] = value;
+  }
+
+  function toggleTag(target, label) {
+    var arr = state[target];
+    if (!arr) { arr = []; state[target] = arr; }
+    var i = arr.indexOf(label);
+    if (i >= 0) arr.splice(i, 1); else arr.push(label);
+  }
+
+  function resetAll() {
+    var keepWriter = state.writer;
+    var keepWriterCustom = state.writerCustom;
+    var fresh = defaults();
+    fresh.writer = keepWriter;
+    fresh.writerCustom = keepWriterCustom;
+    state = fresh;
+    render(true);
+    saveNow();
+    toast('처음 상태로 되돌렸어요.');
+  }
+
+  function onClick(ev) {
+    var node = ev.target;
+    var btn = null;
+    while (node && node !== document) {
+      if (node.getAttribute && node.getAttribute('data-act')) { btn = node; break; }
+      node = node.parentNode;
+    }
+    if (!btn) return;
+    var act = btn.getAttribute('data-act');
+    var field = btn.getAttribute('data-field');
+
+    if (act === 'step') {
+      step(field, num(btn.getAttribute('data-delta'), 0));
+      render(false);
+    } else if (act === 'set') {
+      setField(field, btn.getAttribute('data-value'));
+      render(false);
+    } else if (act === 'stay') {
+      state.stay = btn.getAttribute('data-value');
+      render(false);
+    } else if (act === 'writer') {
+      state.writer = btn.getAttribute('data-value');
+      render(false);
+    } else if (act === 'tag') {
+      toggleTag(btn.getAttribute('data-target'), btn.getAttribute('data-label'));
+      render(false);
+    } else if (act === 'copy') {
+      doCopy();
+    } else if (act === 'share') {
+      doShare();
+    } else if (act === 'reset') {
+      if (window.confirm('작성한 내용을 모두 지우고 처음 상태로 돌아갈까요?')) resetAll();
+    }
+  }
+
+  function onInput(ev) {
+    var node = ev.target;
+    var field = node && node.getAttribute ? node.getAttribute('data-input') : null;
+    if (!field) return;
+    state[field] = node.value;
+    if (field === 'stayCustom' && state.stay !== 'custom') state.stay = 'custom';
+    if (field === 'writerCustom' && state.writer !== 'custom') state.writer = 'custom';
+    render(false);
+  }
+
+  var initialized = false;
+  var initTries = 0;
+
+  function init() {
+    if (initialized) return;
+    try {
+      // 화면을 먼저 그리고, 성공한 뒤에 이벤트를 붙인다(중복 바인딩으로 두 번 증가하는 일 방지)
+      render(true);
+      document.addEventListener('click', onClick, false);
+      document.addEventListener('input', onInput, false);
+      document.addEventListener('change', onInput, false);
+      saveNow();
+      initialized = true;
+      if (dateRolled) toast('지난 작성 내용을 불러왔어요. 날짜는 오늘로 맞췄습니다.');
+    } catch (e) {
+      // 화면이 아직 없거나 일시 오류면 잠시 뒤 다시 시도한다(최대 20번)
+      if (initTries++ < 20) setTimeout(init, 200);
+    }
+  }
+
+  // 스크립트가 </body> 바로 앞에 있으므로 DOMContentLoaded를 기다리지 않고 바로 시작한다.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, false);
+  }
+  init();
+
+  // 검증용(앱 동작에는 영향 없음)
+  window.__stayApp = {
+    getState: function () { return state; },
+    buildMessage: function () { return buildMessage(state); },
+    setState: function (patch) {
+      for (var k in patch) if (Object.prototype.hasOwnProperty.call(patch, k)) state[k] = patch[k];
+      render(true);
+    },
+    render: render,
+    showToast: toast
+  };
+})();
+</script>
+</body>
+</html>
