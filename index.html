@@ -243,6 +243,54 @@
   .btn-save .sv-sub{font-size:10.5px; font-weight:700; background:rgba(255,255,255,.2);
     border-radius:999px; padding:3px 8px; letter-spacing:-.1px;}
   .btn-save:active{background:#0a6a4b;}
+  /* 특이사항 항목(메모+사진) */
+  .hint2{font-size:11px; font-weight:700; color:#93a2b3; margin-left:auto;}
+  .noteitem{border:1px solid var(--line); border-radius:14px; padding:11px 12px 12px;
+    margin:0 0 10px; background:#fbfcfe;}
+  .noteitem:last-child{margin-bottom:0;}
+  .noteitem.has{border-color:#c9d8ef; background:#fff;}
+  .ni-head{display:flex; align-items:center; gap:7px; margin:0 0 8px; flex-wrap:wrap;}
+  .ni-name{font-size:14px; font-weight:800; color:#1d2b3d; letter-spacing:-.3px;}
+  .ni-mark{font-size:11px; font-weight:800; color:#8b98a8; background:#eef1f5;
+    border-radius:999px; padding:2px 8px;}
+  .ni-mark.on{color:var(--green); background:var(--green-soft);}
+  .ni-who{margin-left:auto; font-size:11px; font-weight:700; color:#93a2b3; white-space:nowrap;}
+  .ni-who.set{color:var(--accent);}
+  .noteitem textarea{min-height:50px; font-size:15px; background:#fff;}
+  /* 사진(썸네일·추가·삭제) */
+  .photos{display:flex; flex-wrap:wrap; gap:8px; margin-top:9px;}
+  .photothumb{position:relative; width:78px; height:78px; border-radius:11px; overflow:hidden;
+    background:#e9eef6; border:1px solid var(--line); padding:0;}
+  .photothumb img{width:100%; height:100%; object-fit:cover; display:block; border:0;}
+  .photothumb .ph-x{position:absolute; top:3px; right:3px; width:22px; height:22px; border:0;
+    border-radius:999px; background:rgba(15,25,40,.68); color:#fff; font-size:12px; font-weight:800;
+    line-height:22px; padding:0; text-align:center;}
+  .photoadd{width:78px; height:78px; min-height:0; border:1px dashed #bfcbdb; border-radius:11px;
+    background:#fff; color:var(--accent); font-size:12px; font-weight:800; line-height:1.25; padding:4px;}
+  .photoadd .pa-ico{display:block; font-size:18px; line-height:1.25;}
+  .photoadd:active{background:#f1f5fb;}
+  .ph-sum{font-size:11.5px; font-weight:700; color:#8b98a8; margin:7px 0 0;}
+  /* 월간 계량기 */
+  .meter{border:1px solid var(--line); border-radius:14px; padding:11px 12px 12px;
+    margin:0 0 10px; background:#fbfcfe;}
+  .meter:last-child{margin-bottom:0;}
+  .meter.due{border-color:#f2b01e; background:#fffdf2; box-shadow:0 0 0 3px #fff4d1;}
+  .duechip{font-size:11px; font-weight:800; color:#8a6213; background:#fff3d6;
+    border:1px solid #f0dfae; border-radius:999px; padding:2px 8px;}
+  .meter.due .duechip{color:#fff; background:#e0900a; border-color:#e0900a;}
+  .timerow{display:flex; align-items:center; gap:8px; margin-top:8px;}
+  .timerow input[type="time"]{flex:1; min-height:46px; border:1px solid var(--line); border-radius:12px;
+    padding:8px 10px; font-family:inherit; font-size:16px; background:#fbfcfe; color:var(--ink);
+    -webkit-appearance:none; appearance:none;}
+  .timerow .tilde{font-weight:800; color:#7c8899;}
+  /* 사진 크게 보기 */
+  #photoView{position:fixed; left:0; right:0; top:0; bottom:0; z-index:70; background:rgba(8,14,24,.92);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:20px;}
+  #photoView img{max-width:100%; max-height:66vh; border-radius:12px; background:#fff;}
+  #photoView .pv-bar{display:flex; gap:8px;}
+  #photoView .pv-btn{min-height:46px; border:0; border-radius:12px; padding:0 18px;
+    font-size:14px; font-weight:800; background:rgba(255,255,255,.16); color:#fff;}
+  #photoView .pv-btn.danger{background:#d92d20;}
   /* 자바스크립트가 꺼진 화면(아이폰 '미리보기' 등)에서 보이는 안내 */
   .nomode{margin:12px 12px 0; padding:14px 16px; border-radius:14px;
     background:#fff4e5; border:2px solid #f0a33c; color:#6b3f05;
@@ -290,7 +338,7 @@
 <button type="button" class="modebar" id="modeBar" data-act="modeBadge">
   <span class="m-ico" id="modeIco">🔒</span>
   <span class="m-txt" id="modeTxt">직원 모드</span>
-  <span class="m-sub" id="modeSub">특이사항·비품 요청만 적을 수 있어요</span>
+  <span class="m-sub" id="modeSub">특이사항·객실비품보충요청만 적을 수 있어요</span>
   <span class="m-go" id="modeGo">사장님 모드로</span>
 </button>
 
@@ -483,6 +531,27 @@
     </div>
 
     <div class="field">
+      <div class="label">고객 짐보관 요청 <span class="lockchip" data-staffonly="1">🔒 사장님만</span></div>
+      <div class="seg">
+        <button type="button" class="yes" data-act="set" data-field="luggage" data-value="true">있음 <span class="sub">O</span></button>
+        <button type="button" class="no" data-act="set" data-field="luggage" data-value="false">없음 <span class="sub">X</span></button>
+      </div>
+      <div id="luggageTimeBox" class="hidden" style="margin-top:10px">
+        <div class="label">짐보관 시간대 <span class="hint">시작~끝</span></div>
+        <div class="quick" id="luggageQuick">
+          <button type="button" data-act="luggageTime" data-value="10:00-14:00">10~14시</button>
+          <button type="button" data-act="luggageTime" data-value="11:00-15:00">11~15시</button>
+          <button type="button" data-act="luggageTime" data-value="12:00-16:00">12~16시</button>
+        </div>
+        <div class="timerow">
+          <input type="time" id="luggageFrom" data-input="luggageFrom" data-lock="1" step="600">
+          <span class="tilde">~</span>
+          <input type="time" id="luggageTo" data-input="luggageTo" data-lock="1" step="600">
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
       <div class="label">큰 쓰레기봉투 <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="bigBag" data-delta="-1" aria-label="큰 봉투 줄이기">−</button>
@@ -513,38 +582,116 @@
         <button type="button" data-act="set" data-field="smallBag" data-value="5">5</button>
       </div>
     </div>
+
+    <div class="field">
+      <div class="label">침구세탁 출고수량 <span class="hint">채</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="laundryOut" data-delta="-1" aria-label="침구세탁 출고 줄이기">−</button>
+        <span class="num" id="numLaundryOut">0</span>
+        <button type="button" data-act="step" data-field="laundryOut" data-delta="1" aria-label="침구세탁 출고 늘리기">+</button>
+      </div>
+      <div class="quick">
+        <button type="button" data-act="set" data-field="laundryOut" data-value="0">0</button>
+        <button type="button" data-act="set" data-field="laundryOut" data-value="2">2</button>
+        <button type="button" data-act="set" data-field="laundryOut" data-value="4">4</button>
+        <button type="button" data-act="set" data-field="laundryOut" data-value="6">6</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">침구세탁 입고수량 <span class="hint">채</span></div>
+      <div class="stepper">
+        <button type="button" data-act="step" data-field="laundryIn" data-delta="-1" aria-label="침구세탁 입고 줄이기">−</button>
+        <span class="num" id="numLaundryIn">0</span>
+        <button type="button" data-act="step" data-field="laundryIn" data-delta="1" aria-label="침구세탁 입고 늘리기">+</button>
+      </div>
+      <div class="quick">
+        <button type="button" data-act="set" data-field="laundryIn" data-value="0">0</button>
+        <button type="button" data-act="set" data-field="laundryIn" data-value="2">2</button>
+        <button type="button" data-act="set" data-field="laundryIn" data-value="4">4</button>
+        <button type="button" data-act="set" data-field="laundryIn" data-value="6">6</button>
+      </div>
+    </div>
   </section>
 
-  <!-- 특이사항 -->
-  <section class="card">
-    <h2><span class="dot"></span>특이사항 <span class="whochip none" id="whoNote">작성: 아직 없음</span></h2>
-    <div class="tags" id="noteTags">
-      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="파손 없음">파손 없음</button>
-      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="오염 확인">오염 확인</button>
-      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="분실물 있음">분실물 있음</button>
-      <button type="button" class="tag" data-act="tag" data-target="noteTags" data-label="주차 안내">주차 안내</button>
+  <!-- 특이사항: 항목마다 메모 + 사진 + 작성자 -->
+  <section class="card" id="noteCard">
+    <h2><span class="dot"></span>특이사항 <span class="hint2">항목마다 메모·사진</span></h2>
+
+    <div class="noteitem" id="ni0">
+      <div class="ni-head"><span class="ni-name">파손 있음</span><span class="ni-mark" id="niMark0">없음</span><span class="ni-who" id="niWho0">작성: 아직 없음</span></div>
+      <textarea id="niMemo0" data-input="noteMemo" data-idx="0" rows="2" placeholder="어디가 어떻게 파손됐는지 적어 주세요"></textarea>
+      <div class="photos" id="niPhotos0"></div>
+      <p class="ph-sum hidden" id="niSum0"></p>
     </div>
-    <div class="tag-summary hidden" id="noteSummary"></div>
-    <textarea id="notes" data-input="notes" rows="3" placeholder="위 버튼을 누르거나 직접 적어 주세요"></textarea>
+
+    <div class="noteitem" id="ni1">
+      <div class="ni-head"><span class="ni-name">오염 확인</span><span class="ni-mark" id="niMark1">없음</span><span class="ni-who" id="niWho1">작성: 아직 없음</span></div>
+      <textarea id="niMemo1" data-input="noteMemo" data-idx="1" rows="2" placeholder="오염 부위·상태를 적어 주세요"></textarea>
+      <div class="photos" id="niPhotos1"></div>
+      <p class="ph-sum hidden" id="niSum1"></p>
+    </div>
+
+    <div class="noteitem" id="ni2">
+      <div class="ni-head"><span class="ni-name">분실물 있음</span><span class="ni-mark" id="niMark2">없음</span><span class="ni-who" id="niWho2">작성: 아직 없음</span></div>
+      <textarea id="niMemo2" data-input="noteMemo" data-idx="2" rows="2" placeholder="무엇이 남겨졌는지 적어 주세요"></textarea>
+      <div class="photos" id="niPhotos2"></div>
+      <p class="ph-sum hidden" id="niSum2"></p>
+    </div>
+
+    <div class="noteitem" id="ni3">
+      <div class="ni-head"><span class="ni-name">청소</span><span class="ni-mark" id="niMark3">없음</span><span class="ni-who" id="niWho3">작성: 아직 없음</span></div>
+      <textarea id="niMemo3" data-input="noteMemo" data-idx="3" rows="2" placeholder="청소가 필요한 곳·상태를 적어 주세요"></textarea>
+      <div class="photos" id="niPhotos3"></div>
+      <p class="ph-sum hidden" id="niSum3"></p>
+    </div>
+
+    <div class="noteitem" id="ni4">
+      <div class="ni-head"><span class="ni-name">비품</span><span class="ni-mark" id="niMark4">없음</span><span class="ni-who" id="niWho4">작성: 아직 없음</span></div>
+      <textarea id="niMemo4" data-input="noteMemo" data-idx="4" rows="2" placeholder="객실에 놓인 비품 상태를 적어 주세요"></textarea>
+      <div class="photos" id="niPhotos4"></div>
+      <p class="ph-sum hidden" id="niSum4"></p>
+    </div>
+
+    <div class="noteitem" id="ni5">
+      <div class="ni-head"><span class="ni-name">고객 요청</span><span class="ni-mark" id="niMark5">없음</span><span class="ni-who" id="niWho5">작성: 아직 없음</span></div>
+      <textarea id="niMemo5" data-input="noteMemo" data-idx="5" rows="2" placeholder="고객이 부탁한 내용을 적어 주세요"></textarea>
+      <div class="photos" id="niPhotos5"></div>
+      <p class="ph-sum hidden" id="niSum5"></p>
+    </div>
+
+    <div class="noteitem" id="ni6">
+      <div class="ni-head"><span class="ni-name">기타</span><span class="ni-mark" id="niMark6">없음</span><span class="ni-who" id="niWho6">작성: 아직 없음</span></div>
+      <textarea id="niMemo6" data-input="noteMemo" data-idx="6" rows="2" placeholder="그 밖에 전할 내용을 적어 주세요"></textarea>
+      <div class="photos" id="niPhotos6"></div>
+      <p class="ph-sum hidden" id="niSum6"></p>
+    </div>
   </section>
 
-  <!-- 비품 요청 -->
-  <section class="card">
-    <h2><span class="dot"></span>다 떨어진 비품 요청 <span class="whochip none" id="whoSupply">작성: 아직 없음</span></h2>
-    <div class="tags" id="supplyTags">
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="작은수건">작은수건</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="큰수건">큰수건</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="큰쓰레기봉투">큰쓰레기봉투</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="작은쓰레기봉투">작은쓰레기봉투</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="휴지">휴지</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="물티슈">물티슈</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="샴푸/바디">샴푸/바디</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="칫솔/치약">칫솔/치약</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="생수">생수</button>
-      <button type="button" class="tag" data-act="tag" data-target="supplyTags" data-label="주방세제">주방세제</button>
+  <!-- 객실비품보충요청: 메모 전용 -->
+  <section class="card" id="supplyCard">
+    <h2><span class="dot"></span>객실비품보충요청 <span class="whochip none" id="whoSupply">작성: 아직 없음</span></h2>
+    <textarea id="supplies" data-input="supplies" rows="4" placeholder="필요한 비품과 개수를 적어 주세요 (예: 휴지 2개, 물티슈 1통, 생수 4병)"></textarea>
+    <p class="note">체크 버튼 없이 메모로만 적습니다. 누가 언제 적었는지 위에 함께 남아요.</p>
+  </section>
+
+  <!-- 월간 계량기 사진(수도 7일 · 도시가스 25일) -->
+  <section class="card" id="meterCard">
+    <h2><span class="dot"></span>월간 계량기 사진 <span class="badge" id="meterMonth">2026년 11월</span></h2>
+
+    <div class="meter" id="meterWaterBox">
+      <div class="label">수도계량기 <span class="hint">매달 7일 촬영</span> <span class="duechip" id="waterDue">7일</span></div>
+      <p class="note" id="waterGuide">매달 7일 기준으로 계량기 사진을 남겨 주세요. 다른 날에도 올릴 수 있어요.</p>
+      <div class="photos" id="waterPhotos"></div>
+      <p class="ph-sum hidden" id="waterSum"></p>
     </div>
-    <div class="tag-summary hidden" id="supplySummary"></div>
-    <textarea id="supplies" data-input="supplies" rows="2" placeholder="필요한 개수 등 덧붙일 내용"></textarea>
+
+    <div class="meter" id="meterGasBox">
+      <div class="label">도시가스 <span class="hint">매달 25일 촬영</span> <span class="duechip" id="gasDue">25일</span></div>
+      <p class="note" id="gasGuide">매달 25일 기준으로 계량기 사진을 남겨 주세요. 다른 날에도 올릴 수 있어요.</p>
+      <div class="photos" id="gasPhotos"></div>
+      <p class="ph-sum hidden" id="gasSum"></p>
+    </div>
   </section>
 
   <!-- 미리보기 -->
@@ -629,6 +776,26 @@
   </div>
 </div>
 
+<!-- 사진 크게 보기 -->
+<div id="photoView" class="hidden" data-act="closePhotoView">
+  <img id="photoViewImg" alt="첨부 사진">
+  <div class="pv-bar">
+    <button type="button" class="pv-btn" data-act="closePhotoView">닫기</button>
+    <button type="button" class="pv-btn danger" id="photoViewDel" data-act="delPhotoFromView">삭제</button>
+  </div>
+</div>
+
+<!-- 사진 고르기(숨김 입력) -->
+<input type="file" id="niFile0" class="hidden" accept="image/*" data-photo="note" data-idx="0">
+<input type="file" id="niFile1" class="hidden" accept="image/*" data-photo="note" data-idx="1">
+<input type="file" id="niFile2" class="hidden" accept="image/*" data-photo="note" data-idx="2">
+<input type="file" id="niFile3" class="hidden" accept="image/*" data-photo="note" data-idx="3">
+<input type="file" id="niFile4" class="hidden" accept="image/*" data-photo="note" data-idx="4">
+<input type="file" id="niFile5" class="hidden" accept="image/*" data-photo="note" data-idx="5">
+<input type="file" id="niFile6" class="hidden" accept="image/*" data-photo="note" data-idx="6">
+<input type="file" id="meterFileWater" class="hidden" accept="image/*" data-photo="meter" data-kind="water">
+<input type="file" id="meterFileGas" class="hidden" accept="image/*" data-photo="meter" data-kind="gas">
+
 <noscript><p style="padding:20px">이 화면을 쓰려면 브라우저에서 자바스크립트를 켜 주세요.</p></noscript>
 
 <script>
@@ -651,7 +818,8 @@
   var OWNER_ONLY = {
     adult: 1, child: 1, nights: 1, smallTowel: 1, bigTowel: 1, blanketCount: 1,
     bigBag: 1, smallBag: 1, nationality: 1, natMemo: 1, checkin: 1,
-    topper: 1, blanket: 1, kidsRoom: 1, stayCustom: 1
+    topper: 1, blanket: 1, kidsRoom: 1, stayCustom: 1,
+    luggage: 1, luggageFrom: 1, luggageTo: 1, laundryOut: 1, laundryIn: 1
   };
 
   var HEYUM = '능놀스테이 헤윰(3층)';
@@ -682,12 +850,24 @@
   var LIMITS = {
     adult: [0, 30], child: [0, 20], nights: [0, 30],
     smallTowel: [0, 70], bigTowel: [0, 70], blanketCount: [0, 20],
-    bigBag: [0, 40], smallBag: [0, 40]
+    bigBag: [0, 40], smallBag: [0, 40], laundryOut: [0, 60], laundryIn: [0, 60]
   };
 
-  var NOTE_LABELS = ['파손 없음', '오염 확인', '분실물 있음', '주차 안내'];
-  var SUPPLY_LABELS = ['작은수건', '큰수건', '큰쓰레기봉투', '작은쓰레기봉투', '휴지',
-    '물티슈', '샴푸/바디', '칫솔/치약', '생수', '주방세제'];
+  // 특이사항: 항목마다 따로 메모·사진·작성자를 남긴다(예전 태그 버튼은 없앰)
+  var NOTE_ITEMS = ['파손 있음', '오염 확인', '분실물 있음', '청소', '비품', '고객 요청', '기타'];
+  // 예전 저장본의 체크 태그는 같은 이름의 항목 메모로만 옮긴다
+
+
+  // 월간 계량기: 매달 수도 7일 · 도시가스 25일
+  var METER_KINDS = ['water', 'gas'];
+  var METER_DAY = { water: 7, gas: 25 };
+  var METER_NAME = { water: '수도계량기', gas: '도시가스' };
+  var METER_GUIDE = { water: '매달 7일', gas: '매달 25일' };
+  // 사진은 적정 해상도(최대 800px, JPEG 0.7)로 줄여서 저장한다
+  var PHOTO_MAX_SIDE = 800;
+  var PHOTO_QUALITY = 0.7;
+  var PHOTO_MAX_ITEMS = 6;
+  var IMG_PREFIX = 'stay_checklist.img.';
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
@@ -714,6 +894,15 @@
     return Math.min(lim[1], Math.max(lim[0], Math.round(v)));
   }
 
+  // 특이사항 항목 7개를 빈 값으로
+  function emptyNoteItems() {
+    var out = [];
+    for (var i = 0; i < NOTE_ITEMS.length; i++) {
+      out.push({ label: NOTE_ITEMS[i], memo: '', photos: [], by: '', at: 0, photoNote: '' });
+    }
+    return out;
+  }
+
   // ---------- 객실별 기본값 ----------
   function emptyRoom() {
     return {
@@ -730,16 +919,17 @@
       blanket: false,
       blanketCount: 1,
       kidsRoom: false,
+      luggage: false,
+      luggageFrom: '11:00',
+      luggageTo: '15:00',
       bigBag: 0,
       smallBag: 0,
-      notes: '',
+      laundryOut: 0,
+      laundryIn: 0,
       supplies: '',
-      noteTags: [],
-      supplyTags: [],
-      notesBy: '',
-      notesAt: 0,
       supplyBy: '',
       supplyAt: 0,
+      noteItems: emptyNoteItems(),
       touched: false
     };
   }
@@ -763,6 +953,7 @@
       pw: hashPw(DEFAULT_PW),
       log: [],
       byDate: {},
+      meters: {},
       rooms: {}
     };
     for (var i = 0; i < ROOM_KEYS.length; i++) s.rooms[ROOM_KEYS[i]] = emptyRoom();
@@ -794,6 +985,7 @@
         sendMode: state.sendMode,
         pw: state.pw,
         byDate: state.byDate,
+        meters: state.meters,
         log: state.log
       }));
       return true;
@@ -806,24 +998,26 @@
     if (typeof src.stayCustom === 'string') dst.stayCustom = src.stayCustom;
     if (typeof src.nationality === 'string') dst.nationality = src.nationality;
     if (typeof src.natMemo === 'string') dst.natMemo = src.natMemo;
-    if (typeof src.notes === 'string') dst.notes = src.notes;
     if (typeof src.supplies === 'string') dst.supplies = src.supplies;
-    if (isArray(src.noteTags)) {
-      dst.noteTags = src.noteTags.filter(function (x) { return typeof x === 'string'; });
-    }
-    if (isArray(src.supplyTags)) {
-      dst.supplyTags = src.supplyTags.filter(function (x) { return typeof x === 'string'; });
-    }
-    if (typeof src.notesBy === 'string' && (src.notesBy === OWNER_NAME || isStaffName(src.notesBy))) {
-      dst.notesBy = src.notesBy;
-    }
+    if (typeof src.luggageFrom === 'string') dst.luggageFrom = safeTime(src.luggageFrom, dst.luggageFrom);
+    if (typeof src.luggageTo === 'string') dst.luggageTo = safeTime(src.luggageTo, dst.luggageTo);
     if (typeof src.supplyBy === 'string' && (src.supplyBy === OWNER_NAME || isStaffName(src.supplyBy))) {
       dst.supplyBy = src.supplyBy;
     }
-    dst.notesAt = Math.round(num(src.notesAt, dst.notesAt));
     dst.supplyAt = Math.round(num(src.supplyAt, dst.supplyAt));
-    if (!(dst.notesAt > 0)) dst.notesAt = 0;
     if (!(dst.supplyAt > 0)) dst.supplyAt = 0;
+    // 예전 체크 태그는 사라지지 않게 메모 첫머리로 옮긴다
+    if (isArray(src.supplyTags) && src.supplyTags.length) {
+      var extra = [], si, sx;
+      for (si = 0; si < src.supplyTags.length; si++) {
+        sx = src.supplyTags[si];
+        if (typeof sx === 'string' && trim(sx)) extra.push(trim(sx));
+      }
+      if (extra.length) {
+        var base = trim(dst.supplies);
+        if (base.indexOf(extra[0]) < 0) dst.supplies = base ? (base + ' / ' + extra.join(', ')) : extra.join(', ');
+      }
+    }
     dst.adult = clamp('adult', num(src.adult, dst.adult));
     dst.child = clamp('child', num(src.child, dst.child));
     dst.nights = clamp('nights', num(src.nights, dst.nights));
@@ -832,11 +1026,59 @@
     dst.blanketCount = clamp('blanketCount', num(src.blanketCount, dst.blanketCount));
     dst.bigBag = clamp('bigBag', num(src.bigBag, dst.bigBag));
     dst.smallBag = clamp('smallBag', num(src.smallBag, dst.smallBag));
+    dst.laundryOut = clamp('laundryOut', num(src.laundryOut, dst.laundryOut));
+    dst.laundryIn = clamp('laundryIn', num(src.laundryIn, dst.laundryIn));
     if (src.checkin !== undefined) dst.checkin = !!src.checkin;
     if (src.topper !== undefined) dst.topper = !!src.topper;
     if (src.blanket !== undefined) dst.blanket = !!src.blanket;
     if (src.kidsRoom !== undefined) dst.kidsRoom = !!src.kidsRoom;
+    if (src.luggage !== undefined) dst.luggage = !!src.luggage;
     if (src.touched !== undefined) dst.touched = !!src.touched;
+
+    // 특이사항: 항목별(새 방식)
+    if (isArray(src.noteItems)) {
+      for (var ni = 0; ni < NOTE_ITEMS.length && ni < src.noteItems.length; ni++) {
+        readNoteItem(dst.noteItems[ni], src.noteItems[ni]);
+      }
+    } else if (typeof src.notes === 'string' || isArray(src.noteTags)) {
+      // 예전 방식(태그 + 한 칸 메모)은 같은 이름의 항목·'기타'로 옮긴다(내용을 잃지 않게)
+      var ti;
+      if (isArray(src.noteTags)) {
+        for (ti = 0; ti < src.noteTags.length; ti++) {
+          if (typeof src.noteTags[ti] !== 'string') continue;
+          var mi = NOTE_ITEMS.indexOf(src.noteTags[ti]);
+          if (mi >= 0 && !trim(dst.noteItems[mi].memo)) dst.noteItems[mi].memo = src.noteTags[ti];
+        }
+      }
+      var lastItem = dst.noteItems[NOTE_ITEMS.length - 1];
+      var legacyText = (typeof src.notes === 'string') ? trim(src.notes) : '';
+      if (legacyText && !trim(lastItem.memo)) lastItem.memo = legacyText;
+      if (hasNoteItem(lastItem) && src.notesBy && (src.notesBy === OWNER_NAME || isStaffName(src.notesBy))) {
+        lastItem.by = src.notesBy;
+        lastItem.at = Math.max(0, Math.round(num(src.notesAt, 0)));
+      }
+    }
+    return dst;
+  }
+
+  // 특이사항 항목 하나를 안전하게 읽는다
+  function readNoteItem(dst, src) {
+    if (!dst || !src || typeof src !== 'object') return dst;
+    if (typeof src.memo === 'string') dst.memo = src.memo.slice(0, 800);
+    if (typeof src.by === 'string' && (src.by === OWNER_NAME || isStaffName(src.by))) dst.by = src.by;
+    dst.at = Math.round(num(src.at, dst.at));
+    if (!(dst.at > 0)) dst.at = 0;
+    if (typeof src.photoNote === 'string') dst.photoNote = src.photoNote.slice(0, 80);
+    if (isArray(src.photos)) {
+      dst.photos = [];
+      for (var i = 0; i < src.photos.length && dst.photos.length < PHOTO_MAX_ITEMS; i++) {
+        var p = src.photos[i];
+        if (!p || typeof p !== 'object') continue;
+        if (typeof p.i !== 'string' || !/^[A-Za-z0-9_-]{4,40}$/.test(p.i)) continue;
+        var pb = (typeof p.by === 'string' && (p.by === OWNER_NAME || isStaffName(p.by))) ? p.by : '';
+        dst.photos.push({ i: p.i, by: pb, at: Math.max(0, Math.round(num(p.at, 0))) });
+      }
+    }
     return dst;
   }
 
@@ -871,6 +1113,71 @@
     try { return JSON.parse(raw); } catch (e) { return null; }
   }
 
+  function safeTime(v, fallback) {
+    return /^\d{2}:\d{2}$/.test(text(v)) ? text(v) : fallback;
+  }
+
+  function newPhotoId() {
+    var d = '0123456789abcdefghijklmnopqrstuvwxyz';
+    var s = 'p' + b36(new Date().getTime());
+    for (var i = 0; i < 6; i++) s += d.charAt(Math.floor(Math.random() * 36));
+    return s;
+  }
+
+  // 사진 본문은 상태(JSON)와 따로 저장해 부피를 키우지 않는다
+  function saveImage(id, dataUrl) {
+    if (!canStore) return false;
+    try {
+      localStorage.setItem(IMG_PREFIX + id, String(dataUrl));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function readImage(id) {
+    return readStore(IMG_PREFIX + text(id)) || '';
+  }
+
+  function removeImage(id) {
+    if (!canStore) return;
+    try { localStorage.removeItem(IMG_PREFIX + text(id)); } catch (e) {}
+  }
+
+  // 월간 계량기 저장분(월별·항목별 사진 목록)
+  function cleanMeters(v) {
+    var out = {};
+    if (!v || typeof v !== 'object') return out;
+    for (var mk in v) {
+      if (!Object.prototype.hasOwnProperty.call(v, mk)) continue;
+      if (!/^\d{4}-\d{2}$/.test(mk)) continue;
+      var src = v[mk];
+      if (!src || typeof src !== 'object') continue;
+      var day = {};
+      for (var i = 0; i < METER_KINDS.length; i++) {
+        var k = METER_KINDS[i];
+        if (src[k] && typeof src[k] === 'object') day[k] = readMeterEntry(src[k]);
+      }
+      out[mk] = day;
+    }
+    return out;
+  }
+
+  function readMeterEntry(src) {
+    var e = { photos: [], by: '', at: 0 };
+    if (!src || typeof src !== 'object') return e;
+    if (typeof src.by === 'string' && (src.by === OWNER_NAME || isStaffName(src.by))) e.by = src.by;
+    e.at = Math.max(0, Math.round(num(src.at, 0)));
+    if (isArray(src.photos)) {
+      for (var i = 0; i < src.photos.length && e.photos.length < PHOTO_MAX_ITEMS; i++) {
+        var p = src.photos[i];
+        if (!p || typeof p !== 'object') continue;
+        if (typeof p.i !== 'string' || !/^[A-Za-z0-9_-]{4,40}$/.test(p.i)) continue;
+        var pb = (typeof p.by === 'string' && (p.by === OWNER_NAME || isStaffName(p.by))) ? p.by : '';
+        e.photos.push({ i: p.i, by: pb, at: Math.max(0, Math.round(num(p.at, 0))) });
+      }
+    }
+    return e;
+  }
+
   function emptyDayFrom(srcRooms) {
     var day = { rooms: {} };
     for (var i = 0; i < ROOM_KEYS.length; i++) {
@@ -896,6 +1203,7 @@
       if (v.sendMode === 'both' || v.sendMode === 'current') s.sendMode = v.sendMode;
       if (typeof v.pw === 'string' && v.pw) s.pw = v.pw;
       if (isArray(v.log)) s.log = cleanLog(v.log);
+      s.meters = cleanMeters(v.meters);
       for (dk in v.byDate) {
         if (!Object.prototype.hasOwnProperty.call(v.byDate, dk)) continue;
         if (!RE_DATE.test(dk) || !v.byDate[dk] || typeof v.byDate[dk] !== 'object') continue;
@@ -1017,20 +1325,34 @@
     renderFix();
   }
 
-  // 특이사항 / 비품 요청을 지금 작성자·시각으로 남긴다
+  // 비품 보충요청 메모를 지금 작성자·시각으로 남긴다
   function stampField(kind) {
     var r = cur();
     var now = new Date().getTime();
-    if (kind === 'notes') { r.notesBy = writerName(); r.notesAt = now; }
-    else if (kind === 'supply') { r.supplyBy = writerName(); r.supplyAt = now; }
+    if (kind === 'supply') { r.supplyBy = writerName(); r.supplyAt = now; }
+  }
+
+  // 특이사항은 항목마다 따로 작성자·시각을 남긴다
+  function stampNoteItem(it) {
+    if (!it) return;
+    it.by = writerName();
+    it.at = new Date().getTime();
+  }
+
+  function hasNoteItem(it) {
+    return !!it && (trim(it.memo) !== '' || (isArray(it.photos) && it.photos.length > 0));
   }
 
   function hasNotes(r) {
-    return trim(r.notes) !== '' || (isArray(r.noteTags) && r.noteTags.length > 0);
+    if (!r || !isArray(r.noteItems)) return false;
+    for (var i = 0; i < r.noteItems.length; i++) {
+      if (hasNoteItem(r.noteItems[i])) return true;
+    }
+    return false;
   }
 
   function hasSupplies(r) {
-    return trim(r.supplies) !== '' || (isArray(r.supplyTags) && r.supplyTags.length > 0);
+    return !!r && trim(r.supplies) !== '';
   }
 
   // [저장]은 지금 화면을 확정한다. 이미 다른 사람이 적은 칸의 이름은 그대로 둔다.
@@ -1038,7 +1360,6 @@
     var r = cur();
     var w = writerName();
     var now = new Date().getTime();
-    if (hasNotes(r) && (!r.notesBy || r.notesBy === w)) { r.notesBy = w; r.notesAt = now; }
     if (hasSupplies(r) && (!r.supplyBy || r.supplyBy === w)) { r.supplyBy = w; r.supplyAt = now; }
   }
 
@@ -1092,15 +1413,15 @@
     return shortName(CUSTOM);
   }
 
-  var FIELD_LABEL = { n: '특이사항', s: '비품 요청', a: '' };
+  var FIELD_LABEL = { n: '특이사항', s: '객실비품보충요청', m: '계량기 사진', a: '' };
 
-  // 특이사항·비품 요청 칸 위의 '작성: 이름 (HH:MM)' 배지
+  // 객실비품보충요청 칸 위의 '작성: 이름 (HH:MM)' 배지
   function renderWhoChip(id, kind) {
     var node = el(id);
     if (!node) return;
     var r = cur();
-    var by = (kind === 'notes') ? r.notesBy : r.supplyBy;
-    var at = (kind === 'notes') ? r.notesAt : r.supplyAt;
+    var by = r.supplyBy;
+    var at = r.supplyAt;
     if (!by) {
       node.textContent = '작성: 아직 없음';
       node.classList.add('none');
@@ -1108,6 +1429,345 @@
     }
     node.textContent = '작성: ' + by + (at > 0 ? (' · ' + hhmm(at)) : '');
     node.classList.remove('none');
+  }
+
+  // 특이사항 항목별 작성자·사진 수 표시
+  function renderNoteItemUi(idx) {
+    var r = cur();
+    var it = (r.noteItems && r.noteItems[idx]) ? r.noteItems[idx] : null;
+    var box = el('ni' + idx);
+    var mark = el('niMark' + idx);
+    var who = el('niWho' + idx);
+    var sum = el('niSum' + idx);
+    if (!it) return;
+    var has = hasNoteItem(it);
+    if (box) {
+      if (has) box.classList.add('has'); else box.classList.remove('has');
+    }
+    if (mark) {
+      mark.textContent = has ? '기록됨' : '없음';
+      if (has) mark.classList.add('on'); else mark.classList.remove('on');
+    }
+    if (who) {
+      if (it.by) {
+        who.textContent = '작성: ' + it.by + (it.at > 0 ? (' · ' + hhmm(it.at)) : '');
+        who.classList.add('set');
+      } else {
+        who.textContent = '작성: 아직 없음';
+        who.classList.remove('set');
+      }
+    }
+    var n = (isArray(it.photos) ? it.photos.length : 0);
+    if (sum) {
+      if (it.photoNote && !n) {
+        sum.textContent = it.photoNote;
+        sum.classList.remove('hidden');
+      } else if (n > 0) {
+        sum.textContent = '사진 ' + n + '장 · 열어서 크게 볼 수 있어요';
+        sum.classList.remove('hidden');
+      } else {
+        sum.textContent = '';
+        sum.classList.add('hidden');
+      }
+    }
+    renderPhotos('niPhotos' + idx, 'note', idx);
+  }
+
+  // ---------- 사진(특이사항 항목 · 계량기) ----------
+  // 사진 본문은 localStorage의 별도 키에 두고, 상태에는 목록(아이디·올린 사람·시각)만 둔다.
+  var viewWhere = '', viewId = '';
+
+  function monthKey() { return text(state.date).slice(0, 7); }
+
+  function meterEntry(kind, create) {
+    if (METER_KINDS.indexOf(kind) < 0) return null;
+    var mk = monthKey();
+    if (!RE_DATE.test(text(mk + '-01'))) return null;
+    if (!state.meters || typeof state.meters !== 'object') {
+      if (!create) return null;
+      state.meters = {};
+    }
+    if (!state.meters[mk] || typeof state.meters[mk] !== 'object') {
+      if (!create) return null;
+      state.meters[mk] = {};
+    }
+    var day = state.meters[mk];
+    if (!day[kind] || typeof day[kind] !== 'object') {
+      if (!create) return null;
+      day[kind] = { photos: [], by: '', at: 0 };
+    }
+    if (!isArray(day[kind].photos)) day[kind].photos = [];
+    return day[kind];
+  }
+
+  // 'note:0' / 'meter:water' → 사진 목록(없으면 null)
+  function photoWhereList(where) {
+    var parts = text(where).split(':');
+    if (parts[0] === 'note') {
+      var idx = Math.round(num(parts[1], -1));
+      var r = cur();
+      if (!r || !isArray(r.noteItems) || !r.noteItems[idx]) return null;
+      if (!isArray(r.noteItems[idx].photos)) r.noteItems[idx].photos = [];
+      return r.noteItems[idx].photos;
+    }
+    if (parts[0] === 'meter') {
+      var e = meterEntry(parts[1], false);
+      return e ? e.photos : null;
+    }
+    return null;
+  }
+
+  function noteItemAt(idx) {
+    var r = cur();
+    if (!r || !isArray(r.noteItems)) return null;
+    return r.noteItems[idx] || null;
+  }
+
+  // 사진 목록 + '사진 추가' 버튼을 그린다
+  function renderPhotos(boxId, kind, key) {
+    var box = el(boxId);
+    if (!box) return;
+    var where = kind === 'note' ? ('note:' + key) : ('meter:' + key);
+    var list;
+    if (kind === 'note') {
+      var it = noteItemAt(key);
+      list = it ? (isArray(it.photos) ? it.photos : []) : [];
+    } else {
+      var e = meterEntry(key, false);
+      list = e ? e.photos : [];
+    }
+    // 목록이 그대로면 다시 그리지 않는다(메모를 칠 때마다 사진을 새로 읽지 않게)
+    var sig = '';
+    for (var si = 0; si < list.length; si++) sig += list[si].i + ',';
+    if (box.__phSig === sig) return;
+    box.__phSig = sig;
+    while (box.children && box.children.length) box.removeChild(box.children[0]);
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      var src = readImage(p.i);
+      if (!src) continue;
+      var wrap = document.createElement('div');
+      wrap.className = 'photothumb';
+      var img = document.createElement('img');
+      img.setAttribute('src', src);
+      img.setAttribute('alt', '첨부 사진');
+      img.setAttribute('title', '눌러서 크게 보기');
+      img.setAttribute('data-act', 'viewPhoto');
+      img.setAttribute('data-where', where);
+      img.setAttribute('data-id', p.i);
+      wrap.appendChild(img);
+      var del = document.createElement('button');
+      del.setAttribute('type', 'button');
+      del.className = 'ph-x';
+      del.setAttribute('data-act', 'delPhoto');
+      del.setAttribute('data-where', where);
+      del.setAttribute('data-id', p.i);
+      del.setAttribute('aria-label', '사진 삭제');
+      del.textContent = '✕';
+      wrap.appendChild(del);
+      box.appendChild(wrap);
+    }
+    if (list.length < PHOTO_MAX_ITEMS) {
+      var add = document.createElement('button');
+      add.setAttribute('type', 'button');
+      add.className = 'photoadd';
+      add.setAttribute('data-act', 'pickPhoto');
+      add.setAttribute('data-where', where);
+      var ico = document.createElement('span');
+      ico.className = 'pa-ico';
+      ico.textContent = '📷';
+      add.appendChild(ico);
+      var tx = document.createElement('span');
+      tx.textContent = '사진 추가';
+      add.appendChild(tx);
+      box.appendChild(add);
+    }
+  }
+
+  // 휴대폰 사진을 적정 해상도·용량으로 줄인다(최대 800px, JPEG 0.7)
+  function compressImage(file, done) {
+    var reader = null;
+    try { reader = new FileReader(); } catch (e) { done(''); return; }
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var data = '';
+        try {
+          var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+          if (!w || !h) { done(''); return; }
+          var scale = Math.min(1, PHOTO_MAX_SIDE / Math.max(w, h));
+          var cw = Math.max(1, Math.round(w * scale));
+          var ch = Math.max(1, Math.round(h * scale));
+          var cv = document.createElement('canvas');
+          cv.width = cw;
+          cv.height = ch;
+          var ctx = cv.getContext('2d');
+          ctx.drawImage(img, 0, 0, cw, ch);
+          data = cv.toDataURL('image/jpeg', PHOTO_QUALITY);
+        } catch (e2) { data = ''; }
+        done(data ? String(data) : '');
+      };
+      img.onerror = function () { done(''); };
+      img.src = String(reader.result || '');
+    };
+    reader.onerror = function () { done(''); };
+    try { reader.readAsDataURL(file); } catch (e3) { done(''); }
+  }
+
+  function pickPhoto(where) {
+    var parts = text(where).split(':');
+    var input = null;
+    if (parts[0] === 'note') input = el('niFile' + Math.round(num(parts[1], -1)));
+    else if (parts[0] === 'meter') input = el(parts[1] === 'gas' ? 'meterFileGas' : 'meterFileWater');
+    if (input && input.click) { try { input.click(); return true; } catch (e) {} }
+    return false;
+  }
+
+  // 사진 한 장을 해당 칸에 붙인다(용량 초과 등은 토스트로 안내)
+  function addPhoto(where, dataUrl) {
+    var parts = text(where).split(':');
+    var list;
+    if (parts[0] === 'meter') {
+      var me = meterEntry(parts[1], true);
+      list = me ? me.photos : null;
+    } else {
+      list = photoWhereList(where);
+    }
+    if (!list) return false;
+    if (!dataUrl) { toast('사진을 읽지 못했어요. 다른 사진으로 다시 시도해 주세요.'); return false; }
+    if (list.length >= PHOTO_MAX_ITEMS) {
+      toast('사진은 한 항목에 ' + PHOTO_MAX_ITEMS + '장까지 올릴 수 있어요.');
+      return false;
+    }
+    var id = newPhotoId();
+    if (!saveImage(id, dataUrl)) {
+      toast('폰 저장 공간이 부족해 사진을 담지 못했어요. 지난 사진을 지우고 다시 올려 주세요.');
+      return false;
+    }
+    var now = new Date().getTime();
+    list.push({ i: id, by: writerName(), at: now });
+    var r = cur();
+    if (parts[0] === 'note') {
+      var it = noteItemAt(Math.round(num(parts[1], -1)));
+      if (it) { it.photoNote = ''; stampNoteItem(it); }
+      r.touched = true;
+      recordEdit(false, 'n');
+    } else {
+      var e = meterEntry(parts[1], true);
+      if (e) { e.by = writerName(); e.at = now; }
+      r.touched = true;
+      recordEdit(false, 'm');
+    }
+    render(false);
+    saveNow();
+    toast('사진을 올렸어요.');
+    return true;
+  }
+
+  function delPhoto(where, id) {
+    var list = photoWhereList(where);
+    if (!list) return false;
+    var idx = -1;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].i === id) { idx = i; break; }
+    }
+    if (idx < 0) return false;
+    list.splice(idx, 1);
+    removeImage(id);
+    recordEdit(false, text(where).indexOf('meter:') === 0 ? 'm' : 'n');
+    render(false);
+    saveNow();
+    toast('사진을 지웠어요.');
+    return true;
+  }
+
+  function openPhoto(where, id) {
+    var src = readImage(id);
+    if (!src) { toast('사진을 찾지 못했어요.'); return false; }
+    viewWhere = where;
+    viewId = id;
+    var img = el('photoViewImg');
+    if (img) img.setAttribute('src', src);
+    var box = el('photoView');
+    if (box) box.classList.remove('hidden');
+    return true;
+  }
+
+  function closePhoto() {
+    viewWhere = '';
+    viewId = '';
+    var box = el('photoView');
+    if (box) box.classList.add('hidden');
+  }
+
+  function delPhotoFromView() {
+    if (viewWhere && viewId) delPhoto(viewWhere, viewId);
+    closePhoto();
+  }
+
+  function handlePhotoFile(node) {
+    if (!node || !node.files || !node.files.length) return false;
+    if (node.__busy) return false;
+    node.__busy = true;
+    var file = node.files[0];
+    var where = (node.getAttribute('data-photo') === 'meter')
+      ? ('meter:' + text(node.getAttribute('data-kind')))
+      : ('note:' + Math.round(num(node.getAttribute('data-idx'), -1)));
+    compressImage(file, function (dataUrl) {
+      node.__busy = false;
+      addPhoto(where, dataUrl);
+      try { node.value = ''; } catch (e) {}
+    });
+    return true;
+  }
+
+  // 월간 계량기 두 칸(수도 7일 · 도시가스 25일)을 그린다
+  function renderMeters() {
+    var m = parseISO(state.date);
+    var mt = el('meterMonth');
+    if (mt) mt.textContent = m ? ((m.getFullYear()) + '년 ' + (m.getMonth() + 1) + '월') : monthKey();
+    var day = m ? m.getDate() : 0;
+    for (var i = 0; i < METER_KINDS.length; i++) {
+      var k = METER_KINDS[i];
+      var box = el(k === 'water' ? 'meterWaterBox' : 'meterGasBox');
+      var due = (day === METER_DAY[k]);
+      if (box) {
+        if (due) box.classList.add('due'); else box.classList.remove('due');
+      }
+      var chip = el(k === 'water' ? 'waterDue' : 'gasDue');
+      if (chip) chip.textContent = due ? ('오늘 ' + METER_DAY[k] + '일 · 촬영') : ('매달 ' + METER_DAY[k] + '일');
+      var guide = el(k === 'water' ? 'waterGuide' : 'gasGuide');
+      if (guide) {
+        guide.textContent = due
+          ? ('오늘이 ' + METER_DAY[k] + '일이에요. 지금 계량기 사진을 남겨 주세요.')
+          : ('매달 ' + METER_DAY[k] + ' 기준으로 계량기 사진을 남겨 주세요. 다른 날에도 올릴 수 있어요.');
+      }
+      var e = meterEntry(k, false);
+      var n = e ? e.photos.length : 0;
+      var sum = el(k === 'water' ? 'waterSum' : 'gasSum');
+      if (sum) {
+        sum.textContent = n
+          ? ((e.by ? ('올린 사람: ' + e.by + ' · ') : '') + '사진 ' + n + '장')
+          : '아직 사진이 없어요.';
+        sum.classList.remove('hidden');
+      }
+      renderPhotos(k === 'water' ? 'waterPhotos' : 'gasPhotos', 'meter', k);
+    }
+  }
+
+  // 카톡 문구에 넣을 이번 달 계량기 요약(사진 본문은 넣지 않는다)
+  function meterLine() {
+    var mk = monthKey();
+    var day = (state.meters && state.meters[mk]) ? state.meters[mk] : {};
+    var parts = [];
+    for (var i = 0; i < METER_KINDS.length; i++) {
+      var k = METER_KINDS[i];
+      var e = day[k];
+      var n = (e && isArray(e.photos)) ? e.photos.length : 0;
+      var at = (e && n && e.photos[0] && e.photos[0].at) ? e.photos[0].at : (e ? e.at : 0);
+      parts.push(METER_NAME[k] + (n ? (' 사진 ' + n + '장' + (at > 0 ? ('(' + formatStamp(at) + ')') : '')) : ' 없음'));
+    }
+    return parts.join(' · ');
   }
 
   function setFixLine(id, key) {
@@ -1160,8 +1820,8 @@
     if (more) more.textContent = fixOpen ? '접기' : '이력 보기';
     var toggle = el('fixToggle');
     if (toggle) toggle.setAttribute('aria-expanded', fixOpen ? 'true' : 'false');
-    renderWhoChip('whoNote', 'notes');
     renderWhoChip('whoSupply', 'supply');
+    for (var ni = 0; ni < NOTE_ITEMS.length; ni++) renderNoteItemUi(ni);
     if (fixOpen) renderFixLog();
   }
 
@@ -1370,6 +2030,28 @@
     return parts.length ? parts.join(' · ') : '없음';
   }
 
+  function luggageRange(r) {
+    var a = safeTime(r.luggageFrom, ''), b = safeTime(r.luggageTo, '');
+    if (!a || !b) return '시간 미정';
+    return a + '~' + b;
+  }
+
+  // 특이사항 항목 중 내용이 있는 것만 "   - 파손 있음(이세경): 소파 얼룩 (사진 1장)"으로
+  function noteItemLines(r) {
+    var out = [];
+    if (!r || !isArray(r.noteItems)) return out;
+    for (var i = 0; i < r.noteItems.length; i++) {
+      var it = r.noteItems[i];
+      if (!hasNoteItem(it)) continue;
+      var n = isArray(it.photos) ? it.photos.length : 0;
+      var body = trim(it.memo) || '사진';
+      if (n) body += ' (사진 ' + n + '장)';
+      else if (it.photoNote) body += ' (' + it.photoNote + ')';
+      out.push('   - ' + it.label + (it.by ? ('(' + it.by + ')') : '') + ': ' + body);
+    }
+    return out;
+  }
+
   function roomMessage(key, r) {
     r = r || state.rooms[key];
     var L = [];
@@ -1384,12 +2066,20 @@
     L.push('· 토퍼: ' + (r.topper ? '비치함 O' : '없음 X'));
     L.push('· 추가 이불: ' + (r.blanket ? ('있음 O · ' + r.blanketCount + '채') : '없음 X'));
     L.push('· 키즈룸: ' + (r.kidsRoom ? '오픈 O' : '닫음 X'));
+    L.push('· 고객 짐보관 요청: ' + (r.luggage ? ('있음 O · ' + luggageRange(r)) : '없음 X'));
     L.push('· 쓰레기봉투: 큰 ' + r.bigBag + '장 / 작은 ' + r.smallBag + '장');
+    L.push('· 침구세탁: 출고 ' + r.laundryOut + '채 / 입고 ' + r.laundryIn + '채');
     L.push('');
-    L.push('· 특이사항' + (r.notesBy ? ('(' + r.notesBy + ')') : '') + ': ' +
-      joinParts(tagList(NOTE_LABELS, r.noteTags).concat([r.notes])));
-    L.push('· 비품 요청' + (r.supplyBy ? ('(' + r.supplyBy + ')') : '') + ': ' +
-      joinParts(tagList(SUPPLY_LABELS, r.supplyTags).concat([r.supplies])));
+    var nl = noteItemLines(r);
+    if (nl.length) {
+      L.push('· 특이사항');
+      for (var i = 0; i < nl.length; i++) L.push(nl[i]);
+    } else {
+      L.push('· 특이사항: 없음');
+    }
+    L.push('· 객실비품보충요청' + (r.supplyBy ? ('(' + r.supplyBy + ')') : '') + ': ' +
+      (trim(r.supplies) || '없음'));
+    if (key === state.active) L.push('· 계량기: ' + meterLine());
     L.push('');
     L.push('작성: ' + writerName());
     return L.join('\n');
@@ -1443,6 +2133,7 @@
   function packRoom(r) {
     if (!r || !r.touched) return null;
     var o = { t: 1 };
+    var i, it, pc, one;
     if (trim(r.stayCustom)) o.sc = text(r.stayCustom);
     if (num(r.adult, 2) !== 2) o.ad = clamp('adult', num(r.adult, 2));
     if (num(r.child, 0) !== 0) o.ch = clamp('child', num(r.child, 0));
@@ -1456,16 +2147,32 @@
     if (r.blanket) o.bl = 1;
     if (num(r.blanketCount, 1) !== 1) o.bc = clamp('blanketCount', num(r.blanketCount, 1));
     if (r.kidsRoom) o.kr = 1;
+    if (r.luggage) {
+      o.lg = 1;
+      o.lf = safeTime(r.luggageFrom, '11:00');
+      o.lt = safeTime(r.luggageTo, '15:00');
+    }
     if (num(r.bigBag, 0) !== 0) o.bb = clamp('bigBag', num(r.bigBag, 0));
     if (num(r.smallBag, 0) !== 0) o.sb = clamp('smallBag', num(r.smallBag, 0));
-    if (trim(r.notes)) o.nt = text(r.notes);
-    if (trim(r.supplies)) o.sp = text(r.supplies);
-    if (isArray(r.noteTags) && r.noteTags.length) o.ntg = r.noteTags.slice(0, 20);
-    if (isArray(r.supplyTags) && r.supplyTags.length) o.stg = r.supplyTags.slice(0, 20);
-    if (r.notesBy) o.nby = text(r.notesBy);
-    if (r.notesAt > 0) o.nat = b36(Math.floor(r.notesAt / 60000));
+    if (num(r.laundryOut, 0) !== 0) o.lo = clamp('laundryOut', num(r.laundryOut, 0));
+    if (num(r.laundryIn, 0) !== 0) o.li = clamp('laundryIn', num(r.laundryIn, 0));
+    if (trim(r.supplies)) o.sp = safeStr(text(r.supplies), 400);
     if (r.supplyBy) o.sby = text(r.supplyBy);
     if (r.supplyAt > 0) o.sat = b36(Math.floor(r.supplyAt / 60000));
+    // 특이사항 항목별: 글·작성자·사진 장수만 보낸다(사진 본문은 주소에 담지 않는다)
+    var nx = [];
+    for (i = 0; i < (r.noteItems || []).length; i++) {
+      it = r.noteItems[i];
+      if (!hasNoteItem(it)) continue;
+      pc = isArray(it.photos) ? it.photos.length : 0;
+      one = { i: i, m: safeStr(text(it.memo), 160) };
+      if (it.by === OWNER_NAME || isStaffName(it.by)) one.w = it.by;
+      if (it.at > 0) one.t = b36(Math.floor(it.at / 60000));
+      if (pc) one.c = pc;
+      if (trim(it.photoNote)) one.pn = safeStr(text(it.photoNote), 40);
+      nx.push(one);
+    }
+    if (nx.length) o.nx = nx;
     return o;
   }
 
@@ -1490,10 +2197,27 @@
     return o;
   }
 
-  // 짧은 키를 다시 앱이 쓰는 형태로 곻고, 값은 모두 범위 안으로 다듬는다(깨진 값은 기본값)
+  // 짧은 키를 다시 앱이 쓰는 형태로 골라, 값은 모두 범위 안으로 다듬는다(깨진 값은 기본값)
   function unpackRoom(o) {
     var dst = emptyRoom();
     if (!o || typeof o !== 'object') return dst;
+    var noteItems = emptyNoteItems();
+    if (isArray(o.nx)) {
+      for (var k = 0; k < o.nx.length; k++) {
+        var one = o.nx[k];
+        if (!one || typeof one !== 'object') continue;
+        var idx = Math.round(num(one.i, -1));
+        if (!(idx >= 0 && idx < NOTE_ITEMS.length)) continue;
+        var it = noteItems[idx];
+        it.memo = safeStr(one.m, 400);
+        if (one.w === OWNER_NAME || isStaffName(one.w)) it.by = one.w;
+        it.at = minuteToMs(one.t);
+        if (num(one.c, 0) > 0) {
+          it.photoNote = '사진 ' + Math.min(PHOTO_MAX_ITEMS, Math.round(num(one.c, 0))) + '장 (보낸 폰에 있음)';
+        }
+        if (typeof one.pn === 'string' && trim(one.pn)) it.photoNote = safeStr(one.pn, 40);
+      }
+    }
     var src = {
       stayCustom: safeStr(o.sc, 40),
       adult: o.ad,
@@ -1508,16 +2232,17 @@
       blanket: !!o.bl,
       blanketCount: o.bc,
       kidsRoom: !!o.kr,
+      luggage: !!o.lg,
+      luggageFrom: safeTime(o.lf, '11:00'),
+      luggageTo: safeTime(o.lt, '15:00'),
       bigBag: o.bb,
       smallBag: o.sb,
-      notes: safeStr(o.nt, 1000),
+      laundryOut: o.lo,
+      laundryIn: o.li,
       supplies: safeStr(o.sp, 600),
-      noteTags: safeTags(o.ntg),
-      supplyTags: safeTags(o.stg),
-      notesBy: (o.nby === OWNER_NAME || isStaffName(o.nby)) ? o.nby : '',
-      notesAt: minuteToMs(o.nat),
       supplyBy: (o.sby === OWNER_NAME || isStaffName(o.sby)) ? o.sby : '',
-      supplyAt: minuteToMs(o.sat)
+      supplyAt: minuteToMs(o.sat),
+      noteItems: noteItems
     };
     readRoomInto(dst, src);
     dst.touched = true;
@@ -1847,21 +2572,36 @@
     }
   }
 
-  // 직원 모드의 [초기화]는 직원이 적는 칸만 비운다(사장님이 정한 값은 그대로)
+  // 사진 본문까지 지우고 새 객실 값으로
+  function purgeNotePhotos(r) {
+    if (!r || !isArray(r.noteItems)) return;
+    for (var i = 0; i < r.noteItems.length; i++) {
+      var it = r.noteItems[i];
+      if (!it || !isArray(it.photos)) continue;
+      for (var j = 0; j < it.photos.length; j++) removeImage(it.photos[j].i);
+      it.photos = [];
+    }
+  }
+
   function resetStaffFields() {
     var r = cur();
-    r.notes = '';
+    var now = new Date().getTime();
     r.supplies = '';
-    r.noteTags = [];
-    r.supplyTags = [];
-    r.notesBy = writerName();
-    r.notesAt = new Date().getTime();
     r.supplyBy = writerName();
-    r.supplyAt = new Date().getTime();
+    r.supplyAt = now;
+    purgeNotePhotos(r);
+    for (var i = 0; i < r.noteItems.length; i++) {
+      var it = r.noteItems[i];
+      it.memo = '';
+      it.photoNote = '';
+      it.by = '';
+      it.at = 0;
+    }
+    r.touched = true;
     recordEdit(false);
     render(true);
     saveNow();
-    toast('특이사항·비품 요청만 비웠어요. 사장님이 정한 값은 그대로예요.');
+    toast('특이사항·객실비품보충요청만 비웠어요. 사장님이 정한 값은 그대로예요.');
   }
 
   // ---------- 모드 안내 / 잠금 화면 ----------
@@ -1986,20 +2726,9 @@
     var sub = el('modeSub');
     var go = el('modeGo');
     var bar = el('modeBar');
-    var wn = writerName();
-    var n1 = el('whoNote');
-    var n2 = el('whoSupply');
-    if (n1) {
-      n1.textContent = wn;
-      if (owner) n1.classList.add('own'); else n1.classList.remove('own');
-    }
-    if (n2) {
-      n2.textContent = wn;
-      if (owner) n2.classList.add('own'); else n2.classList.remove('own');
-    }
     if (ico) ico.textContent = owner ? '🔓' : '🔒';
-    if (txt) txt.textContent = owner ? '사장님 모드' : wn + ' · 직원 모드';
-    if (sub) sub.textContent = owner ? '모든 항목을 고칠 수 있어요' : '특이사항·비품 요청만 적을 수 있어요';
+    if (txt) txt.textContent = owner ? '사장님 모드' : writerName() + ' · 직원 모드';
+    if (sub) sub.textContent = owner ? '모든 항목을 고칠 수 있어요' : '특이사항·객실비품보충요청만 적을 수 있어요';
     if (go) go.textContent = owner ? '잠그기' : '사장님 모드로';
     if (bar) {
       if (owner) bar.classList.add('owner'); else bar.classList.remove('owner');
@@ -2070,6 +2799,8 @@
     el('numBigTowel').textContent = String(room.bigTowel);
     el('numBigBag').textContent = String(room.bigBag);
     el('numSmallBag').textContent = String(room.smallBag);
+    el('numLaundryOut').textContent = String(room.laundryOut);
+    el('numLaundryIn').textContent = String(room.laundryIn);
     el('numBlanket').textContent = String(room.blanketCount);
 
     each('[data-act="set"]', function (b) {
@@ -2081,18 +2812,27 @@
     var row = el('blanketRow');
     if (room.blanket) row.classList.remove('hidden'); else row.classList.add('hidden');
 
-    each('[data-act="tag"]', function (b) {
-      var arr = room[b.getAttribute('data-target')] || [];
-      setOn(b, arr.indexOf(b.getAttribute('data-label')) >= 0);
+    var lbox = el('luggageTimeBox');
+    if (lbox) {
+      if (room.luggage) lbox.classList.remove('hidden'); else lbox.classList.add('hidden');
+    }
+    each('[data-act="luggageTime"]', function (b) {
+      var pair = String(b.getAttribute('data-value') || '').split('-');
+      setOn(b, !!room.luggage && pair[0] === room.luggageFrom && pair[1] === room.luggageTo);
     });
 
-    setSummary('noteSummary', '선택', tagList(NOTE_LABELS, room.noteTags));
-    setSummary('supplySummary', '요청', tagList(SUPPLY_LABELS, room.supplyTags));
+    for (var nidx = 0; nidx < NOTE_ITEMS.length; nidx++) {
+      if (syncText) {
+        var nbox = el('niMemo' + nidx);
+        if (nbox) nbox.value = text(room.noteItems[nidx] ? room.noteItems[nidx].memo : '');
+      }
+    }
 
     if (syncText) {
       el('natMemo').value = text(room.natMemo);
-      el('notes').value = text(room.notes);
       el('supplies').value = text(room.supplies);
+      el('luggageFrom').value = safeTime(room.luggageFrom, '11:00');
+      el('luggageTo').value = safeTime(room.luggageTo, '15:00');
     }
 
     each('[data-act="sendMode"]', function (b) {
@@ -2108,6 +2848,7 @@
 
     el('previewText').textContent = buildOutgoing();
     renderDateChips();
+    renderMeters();
     applyModeUi();
     renderFix();
     updateSaveSub();
@@ -2281,31 +3022,25 @@
     var r = cur();
     if (field in LIMITS) {
       r[field] = clamp(field, num(value, r[field]));
-    } else if (field === 'checkin' || field === 'topper' || field === 'blanket' || field === 'kidsRoom') {
+    } else if (field === 'checkin' || field === 'topper' || field === 'blanket' ||
+               field === 'kidsRoom' || field === 'luggage') {
       r[field] = (value === 'true');
     } else {
       r[field] = value;
     }
     r.touched = true;
-    if (field === 'notes') { stampField('notes'); recordEdit(false, 'n'); }
-    else if (field === 'supplies') { stampField('supply'); recordEdit(false, 's'); }
+    if (field === 'supplies') { stampField('supply'); recordEdit(false, 's'); }
     else recordEdit(false);
   }
 
   function toggleTag(target, label) {
-    var r = cur();
-    var arr = r[target];
-    if (!arr) { arr = []; r[target] = arr; }
-    var i = arr.indexOf(label);
-    if (i >= 0) arr.splice(i, 1); else arr.push(label);
-    r.touched = true;
-    if (target === 'noteTags') { stampField('notes'); recordEdit(false, 'n'); }
-    else if (target === 'supplyTags') { stampField('supply'); recordEdit(false, 's'); }
-    else recordEdit(false);
+    // 예전 태그 버튼은 없앴다. 남아 있는 호출은 무시한다.
+    return false;
   }
 
   function resetCurrent() {
     var name = shortName(state.active);
+    purgeNotePhotos(state.rooms[state.active]);
     state.rooms[state.active] = emptyRoom();
     recordEdit(false);
     closeSheet();
@@ -2315,7 +3050,10 @@
   }
 
   function resetAll() {
-    for (var i = 0; i < ROOM_KEYS.length; i++) state.rooms[ROOM_KEYS[i]] = emptyRoom();
+    for (var i = 0; i < ROOM_KEYS.length; i++) {
+      purgeNotePhotos(state.rooms[ROOM_KEYS[i]]);
+      state.rooms[ROOM_KEYS[i]] = emptyRoom();
+    }
     recordEdit(false);
     closeSheet();
     render(true);
@@ -2357,9 +3095,28 @@
       saveNow();
     } else if (act === 'writer') {
       selectWriter(btn.getAttribute('data-value'));
-    } else if (act === 'tag') {
-      toggleTag(btn.getAttribute('data-target'), btn.getAttribute('data-label'));
+    } else if (act === 'luggageTime') {
+      if (!canEdit('luggageFrom')) return;
+      var pair = String(btn.getAttribute('data-value') || '').split('-');
+      var lr = cur();
+      lr.luggageFrom = safeTime(pair[0], lr.luggageFrom);
+      lr.luggageTo = safeTime(pair[1], lr.luggageTo);
+      lr.luggage = true;
+      lr.touched = true;
+      recordEdit(false);
       render(false);
+      saveNow();
+    } else if (act === 'pickPhoto') {
+      pickPhoto(btn.getAttribute('data-where'));
+    } else if (act === 'viewPhoto') {
+      openPhoto(btn.getAttribute('data-where'), btn.getAttribute('data-id'));
+    } else if (act === 'delPhoto') {
+      delPhoto(btn.getAttribute('data-where'), btn.getAttribute('data-id'));
+    } else if (act === 'delPhotoFromView') {
+      delPhotoFromView();
+    } else if (act === 'closePhotoView') {
+      // 사진·버튼을 눌렀을 때는 닫지 않고, 바탕이나 닫기 버튼을 눌렀을 때만 닫는다
+      if (ev.target === btn) closePhoto();
     } else if (act === 'save') {
       doSave();
     } else if (act === 'toggleFixLog') {
@@ -2410,18 +3167,38 @@
 
   function onInput(ev) {
     var node = ev.target;
-    var field = node && node.getAttribute ? node.getAttribute('data-input') : null;
+    if (!node || !node.getAttribute) return;
+    if (String(node.type || '').toLowerCase() === 'file' && node.getAttribute('data-photo')) {
+      handlePhotoFile(node);
+      return;
+    }
+    var field = node.getAttribute('data-input');
     if (!field) return;
     if (field === 'date') {
       switchDate(node.value);
       return;
     }
+    if (field === 'noteMemo') {
+      var idx = Math.round(num(node.getAttribute('data-idx'), -1));
+      var it = noteItemAt(idx);
+      if (!it) return;
+      it.memo = node.value;
+      cur().touched = true;
+      stampNoteItem(it);
+      recordEdit(false, 'n');
+      render(false);
+      save();
+      return;
+    }
     if (!canEdit(field)) { render(true); return; }
     var room = cur();
-    room[field] = node.value;
+    if (field === 'luggageFrom' || field === 'luggageTo') {
+      room[field] = safeTime(node.value, room[field]);
+    } else {
+      room[field] = node.value;
+    }
     room.touched = true;
-    if (field === 'notes') { stampField('notes'); recordEdit(false, 'n'); }
-    else if (field === 'supplies') { stampField('supply'); recordEdit(false, 's'); }
+    if (field === 'supplies') { stampField('supply'); recordEdit(false, 's'); }
     else recordEdit(false);
     render(false);
   }
@@ -2478,17 +3255,73 @@
     },
     step: function (field, delta) { step(field, delta); render(false); },
     setField: function (field, value) { setField(field, value); render(false); },
-    toggleTag: function (target, label) { toggleTag(target, label); render(false); },
+    toggleTag: function (target, label) { return toggleTag(target, label); },
     setText: function (field, value) {
       if (field === 'date') { switchDate(value); return; }
+      if (field === 'noteMemo') { return false; }
       var r = cur();
       r[field] = value;
       r.touched = true;
-      if (field === 'notes') { stampField('notes'); recordEdit(false, 'n'); }
-      else if (field === 'supplies') { stampField('supply'); recordEdit(false, 's'); }
+      if (field === 'supplies') { stampField('supply'); recordEdit(false, 's'); }
       else recordEdit(false);
       render(false);
+      return true;
     },
+    // 특이사항 항목별(검증용)
+    noteLabels: function () { return NOTE_ITEMS.slice(0); },
+    noteItems: function () { return (cur().noteItems || []).slice(0); },
+    setNoteMemo: function (idx, value) {
+      var it = noteItemAt(Math.round(num(idx, -1)));
+      if (!it) return false;
+      it.memo = text(value);
+      cur().touched = true;
+      stampNoteItem(it);
+      recordEdit(false, 'n');
+      render(true);
+      saveNow();
+      return true;
+    },
+    addNotePhoto: function (idx, dataUrl) { return addPhoto('note:' + Math.round(num(idx, -1)), dataUrl); },
+    delNotePhoto: function (idx, id) { return delPhoto('note:' + Math.round(num(idx, -1)), id); },
+    notePhotoCount: function (idx) {
+      var it = noteItemAt(Math.round(num(idx, -1)));
+      return (it && isArray(it.photos)) ? it.photos.length : 0;
+    },
+    // 월간 계량기(검증용)
+    meterMonth: monthKey,
+    meterDue: function (kind) {
+      var m = parseISO(state.date);
+      return !!m && m.getDate() === METER_DAY[kind];
+    },
+    addMeterPhoto: function (kind, dataUrl) { return addPhoto('meter:' + text(kind), dataUrl); },
+    delMeterPhoto: function (kind, id) { return delPhoto('meter:' + text(kind), id); },
+    meterPhotos: function (kind) {
+      var e = meterEntry(text(kind), false);
+      return e ? e.photos.slice(0) : [];
+    },
+    meterSummary: meterLine,
+    photoConfig: function () {
+      return { maxSide: PHOTO_MAX_SIDE, quality: PHOTO_QUALITY, max: PHOTO_MAX_ITEMS, prefix: IMG_PREFIX };
+    },
+    photoCount: function () {
+      var n = 0, r = cur(), i, e, k;
+      for (i = 0; i < r.noteItems.length; i++) {
+        if (isArray(r.noteItems[i].photos)) n += r.noteItems[i].photos.length;
+      }
+      for (i = 0; i < METER_KINDS.length; i++) {
+        k = METER_KINDS[i];
+        e = meterEntry(k, false);
+        if (e) n += e.photos.length;
+      }
+      return n;
+    },
+    openPhoto: openPhoto,
+    closePhoto: closePhoto,
+    photoViewOpen: function () {
+      var n = el('photoView');
+      return n ? !n.classList.contains('hidden') : false;
+    },
+    luggageRange: function () { return luggageRange(cur()); },
     badge: badge,
     shortName: shortName,
     buildCurrent: buildCurrent,
