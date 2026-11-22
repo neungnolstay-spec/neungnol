@@ -89,6 +89,15 @@
     box-shadow:0 1px 2px rgba(16,30,50,.10);}
   .stepper button:active{background:#e9eef6;}
   .stepper .num{flex:1; text-align:center; font-size:22px; font-weight:800; font-variant-numeric:tabular-nums;}
+  /* 가운데 숫자를 눌러 직접 입력 */
+  .stepper input.num{width:100%; min-width:0; min-height:44px; border:0; border-radius:11px;
+    background:transparent; color:var(--ink); font-family:inherit; text-align:center;
+    font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; padding:0;
+    -webkit-appearance:none; appearance:none;}
+  .stepper input.num:focus{outline:none; background:#fff; box-shadow:inset 0 0 0 2px var(--accent);}
+  .stepper input.num::-webkit-outer-spin-button,
+  .stepper input.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  .stepper input.num[disabled]{color:#7c8899; -webkit-text-fill-color:#7c8899;}
   /* 빠른 선택 */
   .quick{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;}
   .quick button{flex:1; min-width:52px; min-height:42px; border:1px solid var(--line); background:#fff;
@@ -411,7 +420,7 @@
       <div class="label">성인 <span class="hint">명</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="adult" data-delta="-1" aria-label="성인 줄이기">−</button>
-        <span class="num" id="numAdult">2</span>
+        <input type="number" class="num" id="numAdult" data-input="num" data-field="adult" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="30" step="1" value="2" aria-label="성인 수">
         <button type="button" data-act="step" data-field="adult" data-delta="1" aria-label="성인 늘리기">+</button>
       </div>
     </div>
@@ -420,7 +429,7 @@
       <div class="label">유아 <span class="hint">명</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="child" data-delta="-1" aria-label="유아 줄이기">−</button>
-        <span class="num" id="numChild">0</span>
+        <input type="number" class="num" id="numChild" data-input="num" data-field="child" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="20" step="1" value="0" aria-label="유아 수">
         <button type="button" data-act="step" data-field="child" data-delta="1" aria-label="유아 늘리기">+</button>
       </div>
     </div>
@@ -444,7 +453,7 @@
       <div class="label">숙박 일수 <span class="hint">박</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="nights" data-delta="-1" aria-label="숙박 줄이기">−</button>
-        <span class="num" id="numNights">1</span>
+        <input type="number" class="num" id="numNights" data-input="num" data-field="nights" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="30" step="1" value="1" aria-label="숙박 일수">
         <button type="button" data-act="step" data-field="nights" data-delta="1" aria-label="숙박 늘리기">+</button>
       </div>
       <div class="quick">
@@ -472,7 +481,7 @@
       <div class="label">작은 수건 <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="smallTowel" data-delta="-1" aria-label="작은 수건 줄이기">−</button>
-        <span class="num" id="numSmallTowel">0</span>
+        <input type="number" class="num" id="numSmallTowel" data-input="num" data-field="smallTowel" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="70" step="1" value="0" aria-label="작은 수건 장수">
         <button type="button" data-act="step" data-field="smallTowel" data-delta="1" aria-label="작은 수건 늘리기">+</button>
       </div>
       <div class="quick">
@@ -487,7 +496,7 @@
       <div class="label">큰 수건 <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="bigTowel" data-delta="-1" aria-label="큰 수건 줄이기">−</button>
-        <span class="num" id="numBigTowel">0</span>
+        <input type="number" class="num" id="numBigTowel" data-input="num" data-field="bigTowel" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="70" step="1" value="0" aria-label="큰 수건 장수">
         <button type="button" data-act="step" data-field="bigTowel" data-delta="1" aria-label="큰 수건 늘리기">+</button>
       </div>
       <div class="quick">
@@ -516,7 +525,7 @@
         <div class="label">이불 채수 <span class="hint">채</span></div>
         <div class="stepper">
           <button type="button" data-act="step" data-field="blanketCount" data-delta="-1" aria-label="이불 채수 줄이기">−</button>
-          <span class="num" id="numBlanket">1</span>
+        <input type="number" class="num" id="numBlanket" data-input="num" data-field="blanketCount" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="20" step="1" value="1" aria-label="이불 채수">
           <button type="button" data-act="step" data-field="blanketCount" data-delta="1" aria-label="이불 채수 늘리기">+</button>
         </div>
       </div>
@@ -555,7 +564,7 @@
       <div class="label">큰 쓰레기봉투 <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="bigBag" data-delta="-1" aria-label="큰 봉투 줄이기">−</button>
-        <span class="num" id="numBigBag">0</span>
+        <input type="number" class="num" id="numBigBag" data-input="num" data-field="bigBag" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="40" step="1" value="0" aria-label="큰 쓰레기봉투 장수">
         <button type="button" data-act="step" data-field="bigBag" data-delta="1" aria-label="큰 봉투 늘리기">+</button>
       </div>
       <div class="quick">
@@ -571,7 +580,7 @@
       <div class="label">작은 쓰레기봉투 <span class="hint">장</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="smallBag" data-delta="-1" aria-label="작은 봉투 줄이기">−</button>
-        <span class="num" id="numSmallBag">0</span>
+        <input type="number" class="num" id="numSmallBag" data-input="num" data-field="smallBag" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="40" step="1" value="0" aria-label="작은 쓰레기봉투 장수">
         <button type="button" data-act="step" data-field="smallBag" data-delta="1" aria-label="작은 봉투 늘리기">+</button>
       </div>
       <div class="quick">
@@ -587,7 +596,7 @@
       <div class="label">침구세탁 출고수량 <span class="hint">채</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryOut" data-delta="-1" aria-label="침구세탁 출고 줄이기">−</button>
-        <span class="num" id="numLaundryOut">0</span>
+        <input type="number" class="num" id="numLaundryOut" data-input="num" data-field="laundryOut" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 출고수량">
         <button type="button" data-act="step" data-field="laundryOut" data-delta="1" aria-label="침구세탁 출고 늘리기">+</button>
       </div>
       <div class="quick">
@@ -602,7 +611,7 @@
       <div class="label">침구세탁 입고수량 <span class="hint">채</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryIn" data-delta="-1" aria-label="침구세탁 입고 줄이기">−</button>
-        <span class="num" id="numLaundryIn">0</span>
+        <input type="number" class="num" id="numLaundryIn" data-input="num" data-field="laundryIn" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 입고수량">
         <button type="button" data-act="step" data-field="laundryIn" data-delta="1" aria-label="침구세탁 입고 늘리기">+</button>
       </div>
       <div class="quick">
@@ -2767,6 +2776,47 @@
     else node.classList.add('filled');
   }
 
+  // 스테퍼 가운데 숫자 칸(직접 입력)
+  var NUM_IDS = {
+    adult: 'numAdult', child: 'numChild', nights: 'numNights',
+    smallTowel: 'numSmallTowel', bigTowel: 'numBigTowel', blanketCount: 'numBlanket',
+    bigBag: 'numBigBag', smallBag: 'numSmallBag',
+    laundryOut: 'numLaundryOut', laundryIn: 'numLaundryIn'
+  };
+
+  function setNumValue(field, v) {
+    var node = el(NUM_IDS[field]);
+    if (!node) return;
+    try { if (document.activeElement === node) return; } catch (e) {}
+    if (text(node.value) !== String(v)) node.value = String(v);
+  }
+
+  // 숫자 칸에 친 값을 바로 상태에 반영한다(빈 칸은 그대로 두고, 범위 밖은 다듬는다)
+  function applyNumInput(field, raw, isChange) {
+    if (!NUM_IDS[field]) return false;
+    var node = el(NUM_IDS[field]);
+    var digits = text(raw).replace(/[^0-9]/g, '');
+    if (digits === '') {
+      if (isChange && node) node.value = String(cur()[field]);
+      return false;
+    }
+    if (!canEdit(field)) {
+      if (node) node.value = String(cur()[field]);
+      return false;
+    }
+    var r = cur();
+    var v = clamp(field, Number(digits));
+    if (r[field] !== v) {
+      r[field] = v;
+      r.touched = true;
+      recordEdit(false);
+      render(false);
+      save();
+    }
+    if (node && text(node.value) !== String(v)) node.value = String(v);
+    return true;
+  }
+
   function render(syncText) {
     var room = cur();
 
@@ -2791,17 +2841,17 @@
       setOn(b, b.getAttribute('data-value') === writerName());
     });
 
-    el('numAdult').textContent = String(room.adult);
-    el('numChild').textContent = String(room.child);
+    setNumValue('adult', room.adult);
+    setNumValue('child', room.child);
     el('totalGuests').textContent = '총 ' + (room.adult + room.child) + '명';
-    el('numNights').textContent = String(room.nights);
-    el('numSmallTowel').textContent = String(room.smallTowel);
-    el('numBigTowel').textContent = String(room.bigTowel);
-    el('numBigBag').textContent = String(room.bigBag);
-    el('numSmallBag').textContent = String(room.smallBag);
-    el('numLaundryOut').textContent = String(room.laundryOut);
-    el('numLaundryIn').textContent = String(room.laundryIn);
-    el('numBlanket').textContent = String(room.blanketCount);
+    setNumValue('nights', room.nights);
+    setNumValue('smallTowel', room.smallTowel);
+    setNumValue('bigTowel', room.bigTowel);
+    setNumValue('bigBag', room.bigBag);
+    setNumValue('smallBag', room.smallBag);
+    setNumValue('laundryOut', room.laundryOut);
+    setNumValue('laundryIn', room.laundryIn);
+    setNumValue('blanketCount', room.blanketCount);
 
     each('[data-act="set"]', function (b) {
       var f = b.getAttribute('data-field');
@@ -3178,6 +3228,10 @@
       switchDate(node.value);
       return;
     }
+    if (field === 'num') {
+      applyNumInput(node.getAttribute('data-field'), node.value, !!(ev && ev.type === 'change'));
+      return;
+    }
     if (field === 'noteMemo') {
       var idx = Math.round(num(node.getAttribute('data-idx'), -1));
       var it = noteItemAt(idx);
@@ -3254,6 +3308,20 @@
       return state.sendMode;
     },
     step: function (field, delta) { step(field, delta); render(false); },
+    num: function (field) {
+      var n = el(NUM_IDS[field]);
+      return n ? text(n.value) : '';
+    },
+    typeNum: function (field, raw) {
+      applyNumInput(field, raw, false);
+      return cur()[field];
+    },
+    blurNum: function (field) {
+      var n = el(NUM_IDS[field]);
+      applyNumInput(field, n ? text(n.value) : '', true);
+      return cur()[field];
+    },
+    addPhoto: addPhoto,
     setField: function (field, value) { setField(field, value); render(false); },
     toggleTag: function (target, label) { return toggleTag(target, label); },
     setText: function (field, value) {
