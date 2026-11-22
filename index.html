@@ -505,7 +505,7 @@
 
   <!-- 비품 -->
   <section class="card">
-    <h2><span class="dot"></span>비품 비치 <span class="lockchip" data-staffonly="1">🔒 사장님만</span></h2>
+    <h2><span class="dot"></span>비품 비치 <span class="lockchip" data-staffonly="1">🔒 사장님만 · 침구세탁은 직원도</span></h2>
 
     <div class="field">
       <div class="label">작은 수건 <span class="hint">장</span></div>
@@ -623,10 +623,10 @@
     </div>
 
     <div class="field">
-      <div class="label">침구세탁 출고수량 <span class="hint">채</span></div>
+      <div class="label">침구세탁 출고수량 <span class="hint">채 · 직원도 입력</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryOut" data-delta="-1" aria-label="침구세탁 출고 줄이기">−</button>
-        <input type="number" class="num" id="numLaundryOut" data-input="num" data-field="laundryOut" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 출고수량">
+        <input type="number" class="num" id="numLaundryOut" data-input="num" data-field="laundryOut" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 출고수량">
         <button type="button" data-act="step" data-field="laundryOut" data-delta="1" aria-label="침구세탁 출고 늘리기">+</button>
       </div>
       <div class="quick">
@@ -638,10 +638,10 @@
     </div>
 
     <div class="field">
-      <div class="label">침구세탁 입고수량 <span class="hint">채</span></div>
+      <div class="label">침구세탁 입고수량 <span class="hint">채 · 직원도 입력</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryIn" data-delta="-1" aria-label="침구세탁 입고 줄이기">−</button>
-        <input type="number" class="num" id="numLaundryIn" data-input="num" data-field="laundryIn" data-lock="1" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 입고수량">
+        <input type="number" class="num" id="numLaundryIn" data-input="num" data-field="laundryIn" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 입고수량">
         <button type="button" data-act="step" data-field="laundryIn" data-delta="1" aria-label="침구세탁 입고 늘리기">+</button>
       </div>
       <div class="quick">
@@ -885,7 +885,7 @@
     bigBag: 1, smallBag: 1, nationality: 1, natMemo: 1, checkin: 1,
     topper: 1, blanket: 1, kidsRoom: 1, stayCustom: 1,
     eventSetup: 1, eventStyle: 1, eventMemo: 1,
-    luggage: 1, luggageFrom: 1, luggageTo: 1, laundryOut: 1, laundryIn: 1,
+    luggage: 1, luggageFrom: 1, luggageTo: 1,
     reqMemo: 1
   };
 
@@ -3342,10 +3342,27 @@
     });
   }
 
+  // 직원 모드에서도 직원이 직접 적는 항목(침구세탁 출고·입고)
+  var STAFF_EDITABLE = { laundryOut: 1, laundryIn: 1 };
+
+  // 단계·빠른 선택 버튼은 항목별로 잠근다(침구세탁은 직원도 누를 수 있다)
+  function lockFields(sel, locked) {
+    each(sel, function (n) {
+      var f = (n.getAttribute ? text(n.getAttribute('data-field')) : '');
+      if (locked && !STAFF_EDITABLE[f]) {
+        n.setAttribute('disabled', 'disabled');
+        n.classList.add('locked');
+      } else {
+        n.removeAttribute('disabled');
+        n.classList.remove('locked');
+      }
+    });
+  }
+
   function applyModeUi() {
     var owner = isOwner();
-    lockGroup('[data-act="step"]', !owner);
-    lockGroup('[data-act="set"]', !owner);
+    lockFields('[data-act="step"]', !owner);
+    lockFields('[data-act="set"]', !owner);
     lockGroup('[data-lock="1"]', !owner);
     // 상 종류는 상차림이 '있음'일 때만 고를 수 있다(사장님 모드에서만)
     var styleOn = owner && !!cur().eventSetup;
