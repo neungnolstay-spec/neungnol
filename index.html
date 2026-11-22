@@ -1818,10 +1818,10 @@
     var copied = silentCopy(msg);
     if (navigator.share) {
       try {
-        navigator.share({ title: '능놀스테이 체크리스트 앱', text: msg }).then(function () {}, function (err) {
-          if (!err || err.name !== 'AbortError') {
-            if (copied) toast('앱 주소를 복사해 두었어요.');
-          }
+        navigator.share({ title: '능놀스테이 체크리스트 앱', text: msg }).then(function () {
+          if (copied) toast('앱 주소를 복사해 두었어요. 카톡에 붙여넣어도 됩니다.');
+        }, function () {
+          if (copied) toast('앱 주소를 복사해 두었어요. 카톡에 붙여넣어 보내세요.');
         });
         return;
       } catch (e) {}
