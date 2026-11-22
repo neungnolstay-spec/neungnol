@@ -3331,8 +3331,17 @@
     }
   }
 
-  function onInput(ev) {
-    var node = ev.target;
+  // 날짜 칸: 유효하지 않은 값은 무시하고, 칸을 벗어날 때는 원래 날짜로 되돌린다
+  function applyDateInput(value, isChange) {
+    var ok = switchDate(text(value));
+    if (!ok && isChange) {
+      var node = el('date');
+      if (node) node.value = state.date;
+    }
+    return ok;
+  }
+
+  function onInput(ev) {    var node = ev.target;
     if (!node || !node.getAttribute) return;
     if (String(node.type || '').toLowerCase() === 'file' && node.getAttribute('data-photo')) {
       handlePhotoFile(node);
@@ -3341,7 +3350,7 @@
     var field = node.getAttribute('data-input');
     if (!field) return;
     if (field === 'date') {
-      switchDate(node.value);
+      applyDateInput(node.value, !!(ev && ev.type === 'change'));
       return;
     }
     if (field === 'num') {
@@ -3557,6 +3566,12 @@
     modeSheetOpen: function () { return !el('modeSheet').classList.contains('hidden'); },
     sheetError: function (id) { var n = el(id || 'pwErr'); return n ? text(n.textContent) : ''; },
     date: function () { return state.date; },
+    typeDate: function (value, isChange) {
+      var node = el('date');
+      if (node) node.value = text(value);
+      return applyDateInput(value, !!isChange);
+    },
+    dateField: function () { var n = el('date'); return n ? text(n.value) : ''; },
     switchDate: switchDate,
     shiftDate: shiftDate,
     dates: recordedDates,
