@@ -256,8 +256,12 @@
   .fix-log{border-top:1px solid var(--line); background:#f8fafd; padding:9px 12px 10px;
     max-height:210px; overflow-y:auto; -webkit-overflow-scrolling:touch;}
   .fix-log-t{font-size:11px; font-weight:800; color:var(--muted); margin:0 0 5px;}
-  .fix-item{font-size:12px; color:#3b4c63; padding:4px 0; border-bottom:1px dashed #e3e9f1;}
+  .fix-item{display:flex; align-items:center; gap:8px; font-size:12px; color:#3b4c63; padding:4px 0; border-bottom:1px dashed #e3e9f1;}
   .fix-item:last-child{border-bottom:0;}
+  .fix-item .fx-txt{flex:1; min-width:0;}
+  .fix-item .fx-del{flex:0 0 auto; width:26px; height:26px; border:1px solid #f0c9c4; border-radius:999px;
+    background:#fff; color:#d92d20; font-size:15px; line-height:1; font-weight:800; padding:0;}
+  .fix-item .fx-del:active{background:#fdecea;}
   .fix-empty{font-size:12px; color:#93a2b3; font-weight:600; margin:2px 0 0; line-height:1.5;}
   /* 저장 버튼 */
   .btn-save{flex:1; display:flex; align-items:center; justify-content:center; gap:7px;
@@ -1444,6 +1448,8 @@
   // ---------- 최종 수정 기록(누가 · 언제 · 어느 객실) ----------
   // 입력할 때마다 자동으로 남기되, 같은 사람이 같은 객실을 연달아 고치면 최근 1건만 갱신한다.
   var fixOpen = false;
+  // 지금 이력 목록에 달린 삭제 버튼 수(사장님 모드에서만 1 이상)
+  var fixDelRows = 0;
 
   function logKey(e) { return e.w + '|' + e.r + '|' + e.d + '|' + e.t; }
 
@@ -2318,6 +2324,7 @@
     var empty = el('fixEmpty');
     if (!box) return;
     box.textContent = '';
+    fixDelRows = 0;
     if (!state.log.length) {
       if (empty) empty.classList.remove('hidden');
       return;
@@ -2329,8 +2336,33 @@
       row.className = 'fix-item';
       row.textContent = e.w + ' · ' + formatStamp(e.t) + ' · ' + fixRoomName(e.r) +
         (FIELD_LABEL[e.f] ? (' ' + FIELD_LABEL[e.f]) : '') + stampNote(e);
+      // 사장님 모드에서만 이 기록 하나를 지울 수 있다(직원 모드에서는 버튼을 아예 안 단다)
+      if (isOwner()) {
+        var del = document.createElement('button');
+        del.setAttribute('type', 'button');
+        del.setAttribute('data-act', 'delFix');
+        del.setAttribute('data-idx', String(i));
+        del.setAttribute('aria-label', '이 기록 지우기');
+        del.className = 'fx-del';
+        del.textContent = '✕';
+        row.appendChild(del);
+        fixDelRows++;
+      }
       box.appendChild(row);
     }
+  }
+
+  // 사장님만: 최근 수정 기록 한 건을 지운다(지운 뒤 요약·이력·저장 상태를 바로 다시 그린다)
+  function delFixEntry(idx) {
+    if (!isOwner()) { toast('사장님만 수정 기록을 지울 수 있어요.'); return false; }
+    var i = Math.round(num(idx, -1));
+    if (!(i >= 0) || i >= state.log.length) return false;
+    state.log.splice(i, 1);
+    renderFix();
+    updateSaveSub();
+    saveNow();
+    toast('수정 기록 1건을 지웠어요. [💾 저장]을 누르면 다른 폰에도 반영돼요.');
+    return true;
   }
 
   function renderFix() {
@@ -3739,6 +3771,8 @@
       doSave();
     } else if (act === 'toggleFixLog') {
       toggleFixLog();
+    } else if (act === 'delFix') {
+      delFixEntry(btn.getAttribute('data-idx'));
     } else if (act === 'kakao') {
       doKakao();
     } else if (act === 'closeNotice') {
@@ -4588,6 +4622,12 @@
       return out;
     },
     toggleFixLog: toggleFixLog,
+    delFix: function (idx) { return delFixEntry(idx); },
+    fixDelCount: function () { return fixDelRows; },
+    fixEmptyShown: function () {
+      var n = el('fixEmpty');
+      return !!n && !n.classList.contains('hidden');
+    },
     fixOpen: function () { var n = el('fixLog'); return n ? !n.classList.contains('hidden') : false; },
     saveLabel: function () { var n = el('saveSub'); return n ? text(n.textContent) : ''; },
     toastText: function () { var n = el('toast'); return n ? text(n.textContent) : ''; },
