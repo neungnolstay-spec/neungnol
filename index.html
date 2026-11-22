@@ -3609,6 +3609,7 @@
   var syncedAt = 0;
   var pendingRemote = null;
   var lastPushResult = ''; // '' 진행 중 · 'ok' 올림 · 'fail' 못 올림
+  var dbEmptySeen = false;  // DB가 비어 있는 것을 봤다 → 다음 저장 때 사진을 다시 올린다
   var typingAt = 0;
   var remoteTimer = null;
   var baselineTried = false;
@@ -3647,6 +3648,11 @@
     var m = syncedImageIds();
     m[text(id)] = 1;
     try { localStorage.setItem(SYNC_IMG_KEY, JSON.stringify(m)); } catch (e) {}
+  }
+
+  // DB가 통째로 비워진 경우: 올린 표시를 지워 사진을 다시 올린다
+  function clearImageMarks() {
+    try { localStorage.removeItem(SYNC_IMG_KEY); } catch (e) {}
   }
 
   // 이 기기에 있는 내용이 있는지(빈 기기가 빈 내용을 올려 덮어쓰지 않게)
@@ -3793,6 +3799,7 @@
     try { data = (snap && snap.val) ? snap.val() : null; } catch (e) { data = null; }
     if (!data || typeof data !== 'object' || !data.byDate) {
       // 아직 DB가 비어 있다: 이 기기에 내용이 있으면 이 내용을 기준으로 올린다
+      dbEmptySeen = true;
       if (!baselineTried && !lastPushedAt && localHasContent()) {
         baselineTried = true;
         syncPush({ quiet: true });
@@ -3803,6 +3810,7 @@
     }
     var at = Math.round(num(data.updatedAt, 0));
     if (!(at > 0)) return;
+    dbEmptySeen = false;
     if (at === lastPushedAt) {
       if (syncMode !== 'saving') setSyncMode('online');
       return;
@@ -3932,7 +3940,19 @@
           fbImgRoot.child(id).once('value', function (snap) {
             var v = null;
             try { v = (snap && snap.val) ? snap.val() : null; } catch (e) { v = null; }
-            if (typeof v === 'string' && v) saveImage(id, v);
+            if (typeof v === 'string' && v) {
+              saveImage(id, v);
+            } else {
+              // DB에 사진이 빠져 있는데 이 기기에 있으면 다시 올려 맞춘다
+              var have = readImage(id);
+              if (have) {
+                try {
+                  fbImgRoot.child(id).set(have, function (err) {
+                    if (!err) markImageSynced(id);
+                  });
+                } catch (e) {}
+              }
+            }
             tick();
           }, tick);
         } catch (e) { tick(); }
@@ -3985,6 +4005,7 @@
     lastPushedAt = at;
     pendingRemote = null;
     lastPushResult = '';
+    if (dbEmptySeen) { clearImageMarks(); dbEmptySeen = false; }
     setSyncMode('saving');
     var settled = false;
     var timer = setTimeout(function () {
