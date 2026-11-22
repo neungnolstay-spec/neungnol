@@ -412,6 +412,14 @@
     </div>
   </section>
 
+  <!-- 사장님 요청 메모: 사장님만 적고, 직원은 읽기만 -->
+  <section class="card" id="ownerReqCard">
+    <h2><span class="dot"></span>사장님 요청 메모 <span class="lockchip" data-staffonly="1">🔒 사장님만</span> <span class="whochip none" id="whoReq">작성: 아직 없음</span></h2>
+    <textarea id="reqMemo" data-input="reqMemo" data-lock="1" rows="3" placeholder="직원에게 전달할 요청사항을 적어 주세요 (예: 오늘 3층 침구 전부 교체)"></textarea>
+    <div class="photos" id="reqPhotos"></div>
+    <p class="ph-sum hidden" id="reqSum"></p>
+  </section>
+
   <!-- 인원 · 숙박 -->
   <section class="card">
     <h2><span class="dot"></span>인원 · 숙박 <span class="lockchip" data-staffonly="1">🔒 사장님만</span> <span class="badge" id="roomTag">헤윰 · 3층</span></h2>
@@ -804,6 +812,7 @@
 <input type="file" id="niFile6" class="hidden" accept="image/*" data-photo="note" data-idx="6">
 <input type="file" id="meterFileWater" class="hidden" accept="image/*" data-photo="meter" data-kind="water">
 <input type="file" id="meterFileGas" class="hidden" accept="image/*" data-photo="meter" data-kind="gas">
+<input type="file" id="reqFile" class="hidden" accept="image/*" data-photo="req">
 
 <noscript><p style="padding:20px">이 화면을 쓰려면 브라우저에서 자바스크립트를 켜 주세요.</p></noscript>
 
@@ -828,7 +837,8 @@
     adult: 1, child: 1, nights: 1, smallTowel: 1, bigTowel: 1, blanketCount: 1,
     bigBag: 1, smallBag: 1, nationality: 1, natMemo: 1, checkin: 1,
     topper: 1, blanket: 1, kidsRoom: 1, stayCustom: 1,
-    luggage: 1, luggageFrom: 1, luggageTo: 1, laundryOut: 1, laundryIn: 1
+    luggage: 1, luggageFrom: 1, luggageTo: 1, laundryOut: 1, laundryIn: 1,
+    reqMemo: 1
   };
 
   var HEYUM = '능놀스테이 헤윰(3층)';
@@ -938,6 +948,11 @@
       supplies: '',
       supplyBy: '',
       supplyAt: 0,
+      reqMemo: '',
+      reqBy: '',
+      reqAt: 0,
+      reqPhotos: [],
+      reqPhotoNote: '',
       noteItems: emptyNoteItems(),
       touched: false
     };
@@ -1015,6 +1030,12 @@
     }
     dst.supplyAt = Math.round(num(src.supplyAt, dst.supplyAt));
     if (!(dst.supplyAt > 0)) dst.supplyAt = 0;
+    // 사장님 요청 메모(사장님만 적는다)
+    if (typeof src.reqMemo === 'string') dst.reqMemo = src.reqMemo.slice(0, 600);
+    if (src.reqBy === OWNER_NAME) dst.reqBy = OWNER_NAME;
+    dst.reqAt = Math.max(0, Math.round(num(src.reqAt, dst.reqAt)));
+    if (isArray(src.reqPhotos)) dst.reqPhotos = readPhotos(src.reqPhotos);
+    if (typeof src.reqPhotoNote === 'string') dst.reqPhotoNote = src.reqPhotoNote.slice(0, 60);
     // 예전 체크 태그는 사라지지 않게 메모 첫머리로 옮긴다
     if (isArray(src.supplyTags) && src.supplyTags.length) {
       var extra = [], si, sx;
@@ -1078,17 +1099,22 @@
     dst.at = Math.round(num(src.at, dst.at));
     if (!(dst.at > 0)) dst.at = 0;
     if (typeof src.photoNote === 'string') dst.photoNote = src.photoNote.slice(0, 80);
-    if (isArray(src.photos)) {
-      dst.photos = [];
-      for (var i = 0; i < src.photos.length && dst.photos.length < PHOTO_MAX_ITEMS; i++) {
-        var p = src.photos[i];
-        if (!p || typeof p !== 'object') continue;
-        if (typeof p.i !== 'string' || !/^[A-Za-z0-9_-]{4,40}$/.test(p.i)) continue;
-        var pb = (typeof p.by === 'string' && (p.by === OWNER_NAME || isStaffName(p.by))) ? p.by : '';
-        dst.photos.push({ i: p.i, by: pb, at: Math.max(0, Math.round(num(p.at, 0))) });
-      }
-    }
+    if (isArray(src.photos)) dst.photos = readPhotos(src.photos);
     return dst;
+  }
+
+  // 사진 목록(아이디·올린 사람·시각)을 안전하게 읽는다
+  function readPhotos(arr) {
+    var out = [];
+    if (!isArray(arr)) return out;
+    for (var i = 0; i < arr.length && out.length < PHOTO_MAX_ITEMS; i++) {
+      var p = arr[i];
+      if (!p || typeof p !== 'object') continue;
+      if (typeof p.i !== 'string' || !/^[A-Za-z0-9_-]{4,40}$/.test(p.i)) continue;
+      var pb = (typeof p.by === 'string' && (p.by === OWNER_NAME || isStaffName(p.by))) ? p.by : '';
+      out.push({ i: p.i, by: pb, at: Math.max(0, Math.round(num(p.at, 0))) });
+    }
+    return out;
   }
 
   var dateRolled = false;
@@ -1422,7 +1448,7 @@
     return shortName(CUSTOM);
   }
 
-  var FIELD_LABEL = { n: '특이사항', s: '객실비품보충요청', m: '계량기 사진', a: '' };
+  var FIELD_LABEL = { n: '특이사항', s: '객실비품보충요청', m: '계량기 사진', r: '사장님 요청', a: '' };
 
   // 객실비품보충요청 칸 위의 '작성: 이름 (HH:MM)' 배지
   function renderWhoChip(id, kind) {
@@ -1482,6 +1508,37 @@
     renderPhotos('niPhotos' + idx, 'note', idx);
   }
 
+  // 사장님 요청 메모 칸(작성자·사진)을 그린다
+  function renderReq() {
+    var r = cur();
+    var who = el('whoReq');
+    var sum = el('reqSum');
+    var n = isArray(r.reqPhotos) ? r.reqPhotos.length : 0;
+    var has = trim(r.reqMemo) !== '' || n > 0 || !!r.reqPhotoNote;
+    if (who) {
+      if (has && r.reqBy) {
+        who.textContent = '작성: ' + r.reqBy + (r.reqAt > 0 ? (' · ' + hhmm(r.reqAt)) : '');
+        who.classList.remove('none');
+      } else {
+        who.textContent = '작성: 아직 없음';
+        who.classList.add('none');
+      }
+    }
+    if (sum) {
+      if (r.reqPhotoNote && !n) {
+        sum.textContent = r.reqPhotoNote;
+        sum.classList.remove('hidden');
+      } else if (n > 0) {
+        sum.textContent = '사진 ' + n + '장 · 눌러서 크게 볼 수 있어요';
+        sum.classList.remove('hidden');
+      } else {
+        sum.textContent = '';
+        sum.classList.add('hidden');
+      }
+    }
+    renderPhotos('reqPhotos', 'req', '');
+  }
+
   // ---------- 사진(특이사항 항목 · 계량기) ----------
   // 사진 본문은 localStorage의 별도 키에 두고, 상태에는 목록(아이디·올린 사람·시각)만 둔다.
   var viewWhere = '', viewId = '';
@@ -1519,6 +1576,12 @@
       if (!isArray(r.noteItems[idx].photos)) r.noteItems[idx].photos = [];
       return r.noteItems[idx].photos;
     }
+    if (parts[0] === 'req') {
+      var rr = cur();
+      if (!rr) return null;
+      if (!isArray(rr.reqPhotos)) rr.reqPhotos = [];
+      return rr.reqPhotos;
+    }
     if (parts[0] === 'meter') {
       var e = meterEntry(parts[1], false);
       return e ? e.photos : null;
@@ -1536,15 +1599,18 @@
   function renderPhotos(boxId, kind, key) {
     var box = el(boxId);
     if (!box) return;
-    var where = kind === 'note' ? ('note:' + key) : ('meter:' + key);
+    var where = kind === 'note' ? ('note:' + key) : (kind === 'req' ? 'req:' : ('meter:' + key));
     var list;
     if (kind === 'note') {
       var it = noteItemAt(key);
       list = it ? (isArray(it.photos) ? it.photos : []) : [];
+    } else if (kind === 'req') {
+      list = isArray(cur().reqPhotos) ? cur().reqPhotos : [];
     } else {
       var e = meterEntry(key, false);
       list = e ? e.photos : [];
     }
+    var canChange = (kind === 'req') ? isOwner() : true;
     // 목록이 그대로면 다시 그리지 않는다(메모를 칠 때마다 사진을 새로 읽지 않게)
     var sig = '';
     for (var si = 0; si < list.length; si++) sig += list[si].i + ',';
@@ -1565,18 +1631,20 @@
       img.setAttribute('data-where', where);
       img.setAttribute('data-id', p.i);
       wrap.appendChild(img);
-      var del = document.createElement('button');
-      del.setAttribute('type', 'button');
-      del.className = 'ph-x';
-      del.setAttribute('data-act', 'delPhoto');
-      del.setAttribute('data-where', where);
-      del.setAttribute('data-id', p.i);
-      del.setAttribute('aria-label', '사진 삭제');
-      del.textContent = '✕';
-      wrap.appendChild(del);
+      if (canChange) {
+        var del = document.createElement('button');
+        del.setAttribute('type', 'button');
+        del.className = 'ph-x';
+        del.setAttribute('data-act', 'delPhoto');
+        del.setAttribute('data-where', where);
+        del.setAttribute('data-id', p.i);
+        del.setAttribute('aria-label', '사진 삭제');
+        del.textContent = '✕';
+        wrap.appendChild(del);
+      }
       box.appendChild(wrap);
     }
-    if (list.length < PHOTO_MAX_ITEMS) {
+    if (canChange && list.length < PHOTO_MAX_ITEMS) {
       var add = document.createElement('button');
       add.setAttribute('type', 'button');
       add.className = 'photoadd';
@@ -1627,6 +1695,7 @@
     var parts = text(where).split(':');
     var input = null;
     if (parts[0] === 'note') input = el('niFile' + Math.round(num(parts[1], -1)));
+    else if (parts[0] === 'req') input = el('reqFile');
     else if (parts[0] === 'meter') input = el(parts[1] === 'gas' ? 'meterFileGas' : 'meterFileWater');
     if (input && input.click) { try { input.click(); return true; } catch (e) {} }
     return false;
@@ -1639,6 +1708,9 @@
     if (parts[0] === 'meter') {
       var me = meterEntry(parts[1], true);
       list = me ? me.photos : null;
+    } else if (parts[0] === 'req') {
+      if (!isOwner()) { toast('사장님만 사진을 올릴 수 있어요.'); return false; }
+      list = photoWhereList(where);
     } else {
       list = photoWhereList(where);
     }
@@ -1661,6 +1733,12 @@
       if (it) { it.photoNote = ''; stampNoteItem(it); }
       r.touched = true;
       recordEdit(false, 'n');
+    } else if (parts[0] === 'req') {
+      r.reqPhotoNote = '';
+      r.reqBy = OWNER_NAME;
+      r.reqAt = now;
+      r.touched = true;
+      recordEdit(false, 'r');
     } else {
       var e = meterEntry(parts[1], true);
       if (e) { e.by = writerName(); e.at = now; }
@@ -1674,6 +1752,10 @@
   }
 
   function delPhoto(where, id) {
+    if (text(where).indexOf('req:') === 0 && !isOwner()) {
+      toast('사장님만 사진을 지울 수 있어요.');
+      return false;
+    }
     var list = photoWhereList(where);
     if (!list) return false;
     var idx = -1;
@@ -1721,7 +1803,9 @@
     var file = node.files[0];
     var where = (node.getAttribute('data-photo') === 'meter')
       ? ('meter:' + text(node.getAttribute('data-kind')))
-      : ('note:' + Math.round(num(node.getAttribute('data-idx'), -1)));
+      : (node.getAttribute('data-photo') === 'req'
+        ? 'req:'
+        : ('note:' + Math.round(num(node.getAttribute('data-idx'), -1))));
     compressImage(file, function (dataUrl) {
       node.__busy = false;
       addPhoto(where, dataUrl);
@@ -1749,7 +1833,7 @@
       if (guide) {
         guide.textContent = due
           ? ('오늘이 ' + METER_DAY[k] + '일이에요. 지금 계량기 사진을 남겨 주세요.')
-          : ('매달 ' + METER_DAY[k] + ' 기준으로 계량기 사진을 남겨 주세요. 다른 날에도 올릴 수 있어요.');
+          : ('매달 ' + METER_DAY[k] + '일 기준으로 계량기 사진을 남겨 주세요. 다른 날에도 올릴 수 있어요.');
       }
       var e = meterEntry(k, false);
       var n = e ? e.photos.length : 0;
@@ -1830,6 +1914,7 @@
     var toggle = el('fixToggle');
     if (toggle) toggle.setAttribute('aria-expanded', fixOpen ? 'true' : 'false');
     renderWhoChip('whoSupply', 'supply');
+    renderReq();
     for (var ni = 0; ni < NOTE_ITEMS.length; ni++) renderNoteItemUi(ni);
     if (fixOpen) renderFixLog();
   }
@@ -2070,6 +2155,11 @@
     L.push('· 국적: ' + text(r.nationality) + (trim(r.natMemo) ? ' (' + trim(r.natMemo) + ')' : ''));
     L.push('· 숙박: ' + r.nights + '박');
     L.push('· 당일 입실: ' + (r.checkin ? '있음 (오늘 입실)' : '없음 (공실)'));
+    var rn = isArray(r.reqPhotos) ? r.reqPhotos.length : 0;
+    var reqWho = r.reqBy ? ('(' + r.reqBy + (r.reqAt > 0 ? (' ' + hhmm(r.reqAt)) : '') + ')') : '';
+    L.push('· 사장님 요청' + reqWho + ': ' +
+      (trim(r.reqMemo) || (rn > 0 || r.reqPhotoNote ? '사진' : '없음')) +
+      (rn > 0 ? (' (사진 ' + rn + '장)') : (r.reqPhotoNote ? (' (' + r.reqPhotoNote + ')') : '')));
     L.push('');
     L.push('· 작은 수건 ' + r.smallTowel + '장 / 큰 수건 ' + r.bigTowel + '장');
     L.push('· 토퍼: ' + (r.topper ? '비치함 O' : '없음 X'));
@@ -2168,6 +2258,13 @@
     if (trim(r.supplies)) o.sp = safeStr(text(r.supplies), 400);
     if (r.supplyBy) o.sby = text(r.supplyBy);
     if (r.supplyAt > 0) o.sat = b36(Math.floor(r.supplyAt / 60000));
+    // 사장님 요청 메모(사진 본문은 보내지 않고 장수만)
+    if (trim(r.reqMemo)) o.rm = safeStr(text(r.reqMemo), 300);
+    if (r.reqBy) o.rby = text(r.reqBy);
+    if (r.reqAt > 0) o.rat = b36(Math.floor(r.reqAt / 60000));
+    var rpc = isArray(r.reqPhotos) ? r.reqPhotos.length : 0;
+    if (rpc) o.rpc = rpc;
+    if (trim(r.reqPhotoNote)) o.rpn = safeStr(text(r.reqPhotoNote), 40);
     // 특이사항 항목별: 글·작성자·사진 장수만 보낸다(사진 본문은 주소에 담지 않는다)
     var nx = [];
     for (i = 0; i < (r.noteItems || []).length; i++) {
@@ -2251,6 +2348,13 @@
       supplies: safeStr(o.sp, 600),
       supplyBy: (o.sby === OWNER_NAME || isStaffName(o.sby)) ? o.sby : '',
       supplyAt: minuteToMs(o.sat),
+      reqMemo: safeStr(o.rm, 300),
+      reqBy: (o.rby === OWNER_NAME) ? OWNER_NAME : '',
+      reqAt: minuteToMs(o.rat),
+      reqPhotos: [],
+      reqPhotoNote: (num(o.rpc, 0) > 0
+        ? ('사진 ' + Math.min(PHOTO_MAX_ITEMS, Math.round(num(o.rpc, 0))) + '장 (보낸 폰에 있음)')
+        : safeStr(o.rpn, 40)),
       noteItems: noteItems
     };
     readRoomInto(dst, src);
@@ -2583,7 +2687,12 @@
 
   // 사진 본문까지 지우고 새 객실 값으로
   function purgeNotePhotos(r) {
-    if (!r || !isArray(r.noteItems)) return;
+    if (!r) return;
+    if (isArray(r.reqPhotos)) {
+      for (var k = 0; k < r.reqPhotos.length; k++) removeImage(r.reqPhotos[k].i);
+      r.reqPhotos = [];
+    }
+    if (!isArray(r.noteItems)) return;
     for (var i = 0; i < r.noteItems.length; i++) {
       var it = r.noteItems[i];
       if (!it || !isArray(it.photos)) continue;
@@ -2785,10 +2894,15 @@
   };
 
   function setNumValue(field, v) {
-    var node = el(NUM_IDS[field]);
+    setInputValue(NUM_IDS[field], v);
+  }
+
+  // 입력칸 값을 바꿔 넣는다(그 칸에 커서가 있을 때는 건드리지 않는다)
+  function setInputValue(id, q) {
+    var node = el(id);
     if (!node) return;
     try { if (document.activeElement === node) return; } catch (e) {}
-    if (text(node.value) !== String(v)) node.value = String(v);
+    if (text(node.value) !== String(q)) node.value = String(q);
   }
 
   // 숫자 칸에 친 값을 바로 상태에 반영한다(빈 칸은 그대로 두고, 범위 밖은 다듬는다)
@@ -2881,9 +2995,11 @@
     if (syncText) {
       el('natMemo').value = text(room.natMemo);
       el('supplies').value = text(room.supplies);
-      el('luggageFrom').value = safeTime(room.luggageFrom, '11:00');
-      el('luggageTo').value = safeTime(room.luggageTo, '15:00');
+      el('reqMemo').value = text(room.reqMemo);
     }
+    // 짐보관 시간대는 빠른 선택을 눌러도 칸에 바로 보이게 한다
+    setInputValue('luggageFrom', safeTime(room.luggageFrom, '11:00'));
+    setInputValue('luggageTo', safeTime(room.luggageTo, '15:00'));
 
     each('[data-act="sendMode"]', function (b) {
       setOn(b, b.getAttribute('data-value') === state.sendMode);
@@ -3244,6 +3360,18 @@
       save();
       return;
     }
+    if (field === 'reqMemo') {
+      if (!canEdit('reqMemo')) { render(true); return; }
+      var rq = cur();
+      rq.reqMemo = node.value;
+      rq.reqBy = OWNER_NAME;
+      rq.reqAt = new Date().getTime();
+      rq.touched = true;
+      recordEdit(false, 'r');
+      render(false);
+      save();
+      return;
+    }
     if (!canEdit(field)) { render(true); return; }
     var room = cur();
     if (field === 'luggageFrom' || field === 'luggageTo') {
@@ -3327,6 +3455,7 @@
     setText: function (field, value) {
       if (field === 'date') { switchDate(value); return; }
       if (field === 'noteMemo') { return false; }
+      if (field === 'reqMemo') { return false; }
       var r = cur();
       r[field] = value;
       r.touched = true;
@@ -3350,6 +3479,23 @@
       return true;
     },
     addNotePhoto: function (idx, dataUrl) { return addPhoto('note:' + Math.round(num(idx, -1)), dataUrl); },
+    // 사장님 요청 메모(사장님만)
+    setReqMemo: function (value) {
+      var r = cur();
+      if (!isOwner()) return false;
+      r.reqMemo = text(value);
+      r.reqBy = OWNER_NAME;
+      r.reqAt = new Date().getTime();
+      r.touched = true;
+      recordEdit(false, 'r');
+      render(true);
+      saveNow();
+      return true;
+    },
+    addReqPhoto: function (dataUrl) { return addPhoto('req:', dataUrl); },
+    delReqPhoto: function (id) { return delPhoto('req:', id); },
+    reqPhotos: function () { return (cur().reqPhotos || []).slice(0); },
+    reqCount: function () { return (cur().reqPhotos || []).length; },
     delNotePhoto: function (idx, id) { return delPhoto('note:' + Math.round(num(idx, -1)), id); },
     notePhotoCount: function (idx) {
       var it = noteItemAt(Math.round(num(idx, -1)));
