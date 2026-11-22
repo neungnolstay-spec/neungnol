@@ -216,12 +216,21 @@
   .att-row .att-name{flex:0 0 72px; font-size:13.5px; font-weight:800;}
   .att-row .seg{flex:1; padding:3px; gap:4px;}
   .att-row .seg button{min-height:40px; font-size:13.5px;}
+  .att-row .seg .att-btn{font-size:13px; padding:5px 2px;}
+  .att-row .seg .att-btn .sub{display:block; font-size:9.5px; font-weight:700; color:#93a2b3;}
+  .att-row .seg .att-btn.on .sub{color:var(--accent);}
+  .att-row .seg .att-none{flex:0 0 62px; font-size:12px; color:#7c8899;}
+  .att-guide{font-size:11.5px; font-weight:600; color:#8a6213; margin:0 0 10px; line-height:1.55;}
+  .att-rooms{font-size:11px; font-weight:800; color:#8a6213; margin:0 0 4px;}
+  .att-rooms.off{display:none;}
   .att-sum{margin-top:10px; padding:10px 12px; border-radius:12px; background:#f4f7fb;}
   .att-sum .att-line{display:flex; justify-content:space-between; align-items:center; gap:8px;
-    font-size:13px; font-weight:700; margin:4px 0;}
-  .att-sum .att-line b{font-variant-numeric:tabular-nums; color:var(--accent);}
+    font-size:13px; font-weight:700; margin:4px 0; flex-wrap:wrap;}
+  .att-sum .att-line b{font-variant-numeric:tabular-nums; color:var(--accent); word-break:keep-all;}
   .att-sum .att-line .badge{margin-left:6px;}
-  .att-days{font-size:11.5px; color:#8b98a8; font-weight:600; margin:0 0 6px;}
+  /* 일한 날짜 목록: 줄바꿈해서 끝까지 다 보이게(잘리지 않게) */
+  .att-days{display:block; font-size:11.5px; font-weight:700; color:#54657a; margin:0 0 8px;
+    line-height:1.7; white-space:normal; word-break:keep-all; overflow-wrap:anywhere;}
   .att-days.off{display:none;}
   /* 비밀번호 시트 */
   .pw-label{font-size:12px; font-weight:700; color:var(--muted); margin:10px 0 5px;}
@@ -342,6 +351,41 @@
   #photoView .pv-btn.save{background:#1d5bd6;}
   #photoView .pv-hint{max-width:330px; margin:0; font-size:12px; line-height:1.5;
     color:rgba(255,255,255,.72); text-align:center;}
+  /* 지난 날짜 잠금 안내 */
+  .pastlock{background:#fff7e8; border:1px solid #f4d9a4;}
+  .pastlock b{color:#8a5a08;}
+  .pastlock .n-body span{color:#8a6213;}
+  /* 승인 대기 표시(직원에게는 배지, 사장님에게는 변경 전·후 미리보기) */
+  .pendtag{display:inline-block; margin-left:4px; padding:1px 7px; border-radius:999px;
+    font-size:10.5px; font-weight:800; color:#8a5a08; background:#fff3d6;
+    border:1px solid #f0dfae; white-space:nowrap;}
+  .card h2 .pendtag{margin-left:4px;}
+  .pendbox{margin:9px 0 0; padding:10px 11px; border:1px solid #f0dfae; border-radius:12px;
+    background:#fffdf5;}
+  .pend-head{font-size:12px; font-weight:800; color:#8a5a08; margin:0 0 2px; line-height:1.4;}
+  .pend-meta{font-size:10.5px; font-weight:700; color:#93a2b3; margin:0 0 8px;}
+  .pend-grid{display:flex; gap:8px; align-items:stretch;}
+  .pend-side{flex:1 1 0; min-width:0; border-radius:10px; padding:8px 9px;
+    background:#fff; border:1px solid var(--line);}
+  .pend-side.after{border-color:#bfe6d0; background:#f6fdf9;}
+  .pend-cap{font-size:10.5px; font-weight:800; color:#8b98a8; margin:0 0 4px;}
+  .pend-txt{font-size:13px; font-weight:700; color:var(--ink); line-height:1.45;
+    white-space:pre-wrap; word-break:break-word;}
+  .pend-photos{display:flex; flex-wrap:wrap; gap:4px; margin-top:5px;}
+  .pend-thumb{position:relative; width:52px; height:52px; border-radius:8px; overflow:hidden;
+    background:#e9eef6; border:1px solid var(--line);}
+  .pend-thumb img{width:100%; height:100%; object-fit:cover; display:block; border:0;}
+  .pend-mark{position:absolute; left:0; right:0; bottom:0; font-size:9px; font-weight:800;
+    color:#fff; background:rgba(15,25,40,.62); text-align:center; line-height:1.5;}
+  .pend-none{font-size:10.5px; font-weight:700; color:#93a2b3;}
+  .pend-miss{font-size:10px; font-weight:700; color:#b1481c; background:#fff1e8;
+    border-radius:6px; padding:3px 5px;}
+  .pend-acts{display:flex; gap:7px; margin-top:9px;}
+  .pend-btn{flex:1; min-height:40px; border:0; border-radius:10px;
+    font-size:13.5px; font-weight:800;}
+  .pend-btn.ok{background:var(--green); color:#fff;}
+  .pend-btn.no{background:#fdeceb; color:#b42318; border:1px solid #f7c9c4;}
+  .pend-btn:active{opacity:.85;}
   /* 자바스크립트가 꺼진 화면(아이폰 '미리보기' 등)에서 보이는 안내 */
   .nomode{margin:12px 12px 0; padding:14px 16px; border-radius:14px;
     background:#fff4e5; border:2px solid #f0a33c; color:#6b3f05;
@@ -403,6 +447,22 @@
     </div>
     <button type="button" class="n-x" data-act="closeNotice" aria-label="안내 닫기">✕</button>
   </div>
+
+  <!-- 지난 날짜: 직원은 고칠 수 없음(사장님은 그대로 고칠 수 있다) -->
+  <div class="notice pastlock hidden" id="pastLockNotice">
+    <span class="n-ico">🔒</span>
+    <div class="n-body">
+      <b id="pastLockTitle">지난 날짜는 직원이 수정할 수 없어요</b>
+      <span id="pastLockSub">오늘 날짜를 고르면 다시 적을 수 있어요. 지난 기록은 사장님 모드에서 고칠 수 있어요.</span>
+    </div>
+  </div>
+
+  <!-- 사장님 전용: 승인 대기 요약(변경 전/후 확인 · 항목별 승인/반려) -->
+  <section class="card hidden" id="approveCard" data-owneronly="1">
+    <h2><span class="dot"></span>🔔 승인 대기 <span class="badge" id="approveCount">0건</span> <span class="lockchip">🔒 사장님만</span></h2>
+    <div id="approveList"></div>
+    <p class="note" id="approveEmpty">지금은 승인 대기 중인 수정 요청이 없어요. 직원이 이미 저장된 내용을 다시 고치면 여기로 올라옵니다.</p>
+  </section>
 
   <!-- 기본 정보 -->
   <section class="card">
@@ -632,7 +692,7 @@
     </div>
 
     <div class="field">
-      <div class="label"><span class="lbl-main">침구세탁 출고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></span></div>
+      <div class="label"><span class="lbl-main">침구세탁 출고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></span><span class="pendtag hidden" id="pendTag-laundryOut">⏳ 사장님 승인 대기 중</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryOut" data-delta="-1" aria-label="침구세탁 출고 줄이기">−</button>
         <input type="number" class="num" id="numLaundryOut" data-input="num" data-field="laundryOut" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 출고수량">
@@ -644,10 +704,11 @@
         <button type="button" data-act="set" data-field="laundryOut" data-value="4">4</button>
         <button type="button" data-act="set" data-field="laundryOut" data-value="6">6</button>
       </div>
+      <div class="pendbox hidden" id="pendBox-laundryOut"></div>
     </div>
 
     <div class="field">
-      <div class="label"><span class="lbl-main">침구세탁 입고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></span></div>
+      <div class="label"><span class="lbl-main">침구세탁 입고수량 <span class="hint">채</span> <span class="freechip">직원도 입력</span></span><span class="pendtag hidden" id="pendTag-laundryIn">⏳ 사장님 승인 대기 중</span></div>
       <div class="stepper">
         <button type="button" data-act="step" data-field="laundryIn" data-delta="-1" aria-label="침구세탁 입고 줄이기">−</button>
         <input type="number" class="num" id="numLaundryIn" data-input="num" data-field="laundryIn" inputmode="numeric" pattern="[0-9]*" min="0" max="60" step="1" value="0" aria-label="침구세탁 입고수량">
@@ -659,6 +720,7 @@
         <button type="button" data-act="set" data-field="laundryIn" data-value="4">4</button>
         <button type="button" data-act="set" data-field="laundryIn" data-value="6">6</button>
       </div>
+      <div class="pendbox hidden" id="pendBox-laundryIn"></div>
     </div>
   </section>
 
@@ -693,40 +755,45 @@
     <h2><span class="dot"></span>특이사항 <span class="hint2">항목마다 메모·사진</span></h2>
 
     <div class="noteitem" id="ni0">
-      <div class="ni-head"><span class="ni-name">파손 있음</span><span class="ni-mark" id="niMark0">없음</span><span class="ni-who" id="niWho0">작성: 아직 없음</span></div>
+      <div class="ni-head"><span class="ni-name">파손 있음</span><span class="ni-mark" id="niMark0">없음</span><span class="ni-who" id="niWho0">작성: 아직 없음</span><span class="pendtag hidden" id="pendTag-note0">⏳ 사장님 승인 대기 중</span></div>
       <textarea id="niMemo0" data-input="noteMemo" data-idx="0" rows="2" placeholder="어디가 어떻게 파손됐는지 적어 주세요"></textarea>
       <div class="photos" id="niPhotos0"></div>
       <p class="ph-sum hidden" id="niSum0"></p>
+      <div class="pendbox hidden" id="pendBox-note0"></div>
     </div>
 
     <div class="noteitem" id="ni1">
-      <div class="ni-head"><span class="ni-name">오염 확인</span><span class="ni-mark" id="niMark1">없음</span><span class="ni-who" id="niWho1">작성: 아직 없음</span></div>
+      <div class="ni-head"><span class="ni-name">오염 확인</span><span class="ni-mark" id="niMark1">없음</span><span class="ni-who" id="niWho1">작성: 아직 없음</span><span class="pendtag hidden" id="pendTag-note1">⏳ 사장님 승인 대기 중</span></div>
       <textarea id="niMemo1" data-input="noteMemo" data-idx="1" rows="2" placeholder="오염 부위·상태를 적어 주세요"></textarea>
       <div class="photos" id="niPhotos1"></div>
       <p class="ph-sum hidden" id="niSum1"></p>
+      <div class="pendbox hidden" id="pendBox-note1"></div>
     </div>
 
     <div class="noteitem" id="ni2">
-      <div class="ni-head"><span class="ni-name">분실물 있음</span><span class="ni-mark" id="niMark2">없음</span><span class="ni-who" id="niWho2">작성: 아직 없음</span></div>
+      <div class="ni-head"><span class="ni-name">분실물 있음</span><span class="ni-mark" id="niMark2">없음</span><span class="ni-who" id="niWho2">작성: 아직 없음</span><span class="pendtag hidden" id="pendTag-note2">⏳ 사장님 승인 대기 중</span></div>
       <textarea id="niMemo2" data-input="noteMemo" data-idx="2" rows="2" placeholder="무엇이 남겨졌는지 적어 주세요"></textarea>
       <div class="photos" id="niPhotos2"></div>
       <p class="ph-sum hidden" id="niSum2"></p>
+      <div class="pendbox hidden" id="pendBox-note2"></div>
     </div>
 
     <div class="noteitem" id="ni3">
-      <div class="ni-head"><span class="ni-name">기타</span><span class="ni-mark" id="niMark3">없음</span><span class="ni-who" id="niWho3">작성: 아직 없음</span></div>
+      <div class="ni-head"><span class="ni-name">기타</span><span class="ni-mark" id="niMark3">없음</span><span class="ni-who" id="niWho3">작성: 아직 없음</span><span class="pendtag hidden" id="pendTag-note3">⏳ 사장님 승인 대기 중</span></div>
       <textarea id="niMemo3" data-input="noteMemo" data-idx="3" rows="2" placeholder="그 밖에 전할 내용을 적어 주세요"></textarea>
       <div class="photos" id="niPhotos3"></div>
       <p class="ph-sum hidden" id="niSum3"></p>
+      <div class="pendbox hidden" id="pendBox-note3"></div>
     </div>
   </section>
 
   <!-- 객실비품보충요청: 메모 + 사진(누구나) -->
   <section class="card" id="supplyCard">
-    <h2><span class="dot"></span>객실비품보충요청 <span class="whochip none" id="whoSupply">작성: 아직 없음</span></h2>
+    <h2><span class="dot"></span>객실비품보충요청 <span class="whochip none" id="whoSupply">작성: 아직 없음</span><span class="pendtag hidden" id="pendTag-supplies">⏳ 사장님 승인 대기 중</span></h2>
     <textarea id="supplies" data-input="supplies" rows="4" placeholder="필요한 비품과 개수를 적어 주세요 (예: 휴지 2개, 물티슈 1통, 생수 4병)"></textarea>
     <div class="photos" id="supPhotos"></div>
     <p class="ph-sum hidden" id="supSum"></p>
+    <div class="pendbox hidden" id="pendBox-supplies"></div>
     <p class="note">체크 버튼 없이 메모와 사진으로 적습니다. 누가 언제 적었는지 위에 함께 남아요.</p>
   </section>
 
@@ -735,17 +802,19 @@
     <h2><span class="dot"></span>월간 계량기 사진 <span class="badge" id="meterMonth">2026년 11월</span></h2>
 
     <div class="meter" id="meterWaterBox">
-      <div class="label">수도계량기 <span class="hint">매달 7일 촬영</span> <span class="duechip" id="waterDue">7일</span></div>
+      <div class="label">수도계량기 <span class="hint">매달 7일 촬영</span> <span class="duechip" id="waterDue">7일</span> <span class="pendtag hidden" id="pendTag-water">⏳ 사장님 승인 대기 중</span></div>
       <p class="note" id="waterGuide">매달 7일 기준으로 계량기 사진을 남겨 주세요. 다른 날에도 올릴 수 있어요.</p>
       <div class="photos" id="waterPhotos"></div>
       <p class="ph-sum hidden" id="waterSum"></p>
+      <div class="pendbox hidden" id="pendBox-water"></div>
     </div>
 
     <div class="meter" id="meterGasBox">
-      <div class="label">도시가스 <span class="hint">매달 25일 촬영</span> <span class="duechip" id="gasDue">25일</span></div>
+      <div class="label">도시가스 <span class="hint">매달 25일 촬영</span> <span class="duechip" id="gasDue">25일</span> <span class="pendtag hidden" id="pendTag-gas">⏳ 사장님 승인 대기 중</span></div>
       <p class="note" id="gasGuide">매달 25일 기준으로 계량기 사진을 남겨 주세요. 다른 날에도 올릴 수 있어요.</p>
       <div class="photos" id="gasPhotos"></div>
       <p class="ph-sum hidden" id="gasSum"></p>
+      <div class="pendbox hidden" id="pendBox-gas"></div>
     </div>
   </section>
 
@@ -753,30 +822,36 @@
   <section class="card hidden" id="attendanceCard" data-owneronly="1" style="display:none">
     <h2><span class="dot"></span>직원 출근 체크 <span class="lockchip">🔒 사장님만</span> <span class="badge" id="attDate">오늘</span></h2>
 
+    <p class="att-guide">그날 청소한 객실을 직원마다 눌러 주세요. 헤윰만 하면 1일, 오롯만 하면 1일, 둘 다 하면 2일로 합산돼요. 어느 객실 탭에서 눌러도 같은 날짜 기록으로 저장됩니다.</p>
+
     <div class="att-row">
       <span class="att-name">이세경</span>
-      <div class="seg">
-        <button type="button" data-act="att" data-who="이세경" data-value="1">출근</button>
-        <button type="button" data-act="att" data-who="이세경" data-value="0">미출근</button>
+      <div class="seg attseg">
+        <button type="button" class="att-btn" data-act="attRoom" data-who="이세경" data-room="h">헤윰 <span class="sub">3층</span></button>
+        <button type="button" class="att-btn" data-act="attRoom" data-who="이세경" data-room="o">오롯 <span class="sub">6층</span></button>
+        <button type="button" class="att-btn att-none" data-act="attRoom" data-who="이세경" data-room="none">미출근</button>
       </div>
     </div>
     <div class="att-row">
       <span class="att-name">박은주</span>
-      <div class="seg">
-        <button type="button" data-act="att" data-who="박은주" data-value="1">출근</button>
-        <button type="button" data-act="att" data-who="박은주" data-value="0">미출근</button>
+      <div class="seg attseg">
+        <button type="button" class="att-btn" data-act="attRoom" data-who="박은주" data-room="h">헤윰 <span class="sub">3층</span></button>
+        <button type="button" class="att-btn" data-act="attRoom" data-who="박은주" data-room="o">오롯 <span class="sub">6층</span></button>
+        <button type="button" class="att-btn att-none" data-act="attRoom" data-who="박은주" data-room="none">미출근</button>
       </div>
     </div>
 
     <div class="att-sum">
       <div class="att-line"><span>이세경</span><b id="attSumSe">총 0일 출근</b></div>
+      <p class="att-rooms off" id="attRoomsSe">헤윰만 0일</p>
       <p class="att-days off" id="attDaysSe"></p>
       <div class="att-line"><span>박은주</span><b id="attSumPark">총 0일 출근</b></div>
+      <p class="att-rooms off" id="attRoomsPark">헤윰만 0일</p>
       <p class="att-days off" id="attDaysPark"></p>
       <div class="att-line"><span>이번 달 합계 <span class="badge" id="attMonth">-</span></span><b id="attSumTotal">총 0일</b></div>
     </div>
 
-    <p class="note">날짜를 바꾸면 그날 출근 기록이 보이고, 위 합계는 그 달 출근 일수입니다. 한 번 더 누르면 기록이 지워지고, [💾 저장]을 누르면 다른 폰에도 함께 저장돼요. 카톡 문구·공유 링크에는 들어가지 않습니다.</p>
+    <p class="note">날짜를 바꾸면 그날 출근 기록이 보이고, 위 합계는 그 달(1일~말일) 일한 일수입니다. 헤윰·오롯을 각각 눌러 청소한 객실을 남기고, 둘 다 청소한 날은 2일로 셉니다. 미출근을 한 번 더 누르면 기록이 지워지고, [💾 저장]을 누르면 다른 폰에도 함께 저장돼요. 카톡 문구·공유 링크에는 들어가지 않습니다.</p>
   </section>
 
   <!-- 미리보기 -->
@@ -939,6 +1014,7 @@
 
   // 월간 계량기: 매달 수도 7일 · 도시가스 25일
   var METER_KINDS = ['water', 'gas'];
+  var WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
   var METER_DAY = { water: 7, gas: 25 };
   var METER_NAME = { water: '수도계량기', gas: '도시가스' };
   var METER_GUIDE = { water: '매달 7일', gas: '매달 25일' };
@@ -1024,6 +1100,9 @@
       reqPhotos: [],
       reqPhotoNote: '',
       noteItems: emptyNoteItems(),
+      // 직원 항목의 확정본(마지막으로 확정 저장된 값) · 승인 대기 요청(항목별)
+      committed: {},
+      pendingEdits: {},
       touched: false
     };
   }
@@ -1110,6 +1189,9 @@
     dst.reqAt = Math.max(0, Math.round(num(src.reqAt, dst.reqAt)));
     if (isArray(src.reqPhotos)) dst.reqPhotos = readPhotos(src.reqPhotos);
     if (typeof src.reqPhotoNote === 'string') dst.reqPhotoNote = src.reqPhotoNote.slice(0, 60);
+    // 직원 항목 확정본·승인 대기(직원이 이미 저장된 내용을 다시 고칠 때)
+    dst.committed = cleanCommitted(src.committed, STAFF_ITEMS);
+    dst.pendingEdits = cleanPending(src.pendingEdits, STAFF_ITEMS);
     // 예전 체크 태그는 사라지지 않게 메모 첫머리로 옮긴다
     if (isArray(src.supplyTags) && src.supplyTags.length) {
       var extra = [], si, sx;
@@ -1265,7 +1347,7 @@
     if (!d || !d.rooms) return false;
     for (var i = 0; i < ROOM_KEYS.length; i++) {
       var r = d.rooms[ROOM_KEYS[i]];
-      if (r && r.touched) return true;
+      if (r && (r.touched || hasKeys(r.pendingEdits))) return true;
     }
     return false;
   }
@@ -1319,6 +1401,9 @@
         var k = METER_KINDS[i];
         if (src[k] && typeof src[k] === 'object') day[k] = readMeterEntry(src[k]);
       }
+      // 확정본·승인 대기 요청도 함께 읽는다
+      day.committed = cleanCommitted(src.committed, METER_KINDS);
+      day.pendingEdits = cleanPending(src.pendingEdits, METER_KINDS);
       out[mk] = day;
     }
     return out;
@@ -1357,6 +1442,11 @@
         var who = STAFF_NAMES[i];
         var val = src[who];
         if (val === true || val === false) { day[who] = val; any = true; }
+        else if (val && typeof val === 'object') {
+          // 객실별 기록(헤윰 h · 오롯 o)
+          day[who] = { h: val.h === true, o: val.o === true };
+          any = true;
+        }
       }
       if (any) out[dk] = day;
     }
@@ -1440,11 +1530,746 @@
     return s;
   }
 
+  // ---------- 지난 날짜 잠금 · 당일 재수정 사장님 승인제 ----------
+  // 직원이 기록하는 항목(한 객실 기준). 계량기는 달 단위라 meters[월]에서 따로 다룬다.
+  var STAFF_ITEMS = ['laundryOut', 'laundryIn', 'note0', 'note1', 'note2', 'note3', 'supplies'];
+
+  function itemKind(key) {
+    var k = text(key);
+    if (k === 'laundryOut' || k === 'laundryIn') return 'laundry';
+    if (k === 'supplies') return 'supply';
+    if (k.indexOf('note') === 0) return 'note';
+    return 'meter';
+  }
+
+  function itemRecordKind(key) {
+    var k = itemKind(key);
+    if (k === 'note') return 'n';
+    if (k === 'supply') return 's';
+    if (k === 'meter') return 'm';
+    return '';
+  }
+
+  function itemLabel(key) {
+    var k = text(key);
+    if (k === 'laundryOut') return '침구세탁 출고수량';
+    if (k === 'laundryIn') return '침구세탁 입고수량';
+    if (k === 'supplies') return '객실비품보충요청';
+    if (k === 'water') return '수도계량기 사진';
+    if (k === 'gas') return '도시가스 사진';
+    if (k.indexOf('note') === 0) {
+      var i = Math.round(num(k.slice(4), -1));
+      return '특이사항 · ' + (NOTE_ITEMS[i] || '기타');
+    }
+    return k;
+  }
+
+  function noteIdxOf(key) {
+    var k = text(key);
+    if (k.indexOf('note') !== 0) return -1;
+    return Math.round(num(k.slice(4), -1));
+  }
+
+  function copyPhotos(arr) {
+    var out = [];
+    if (!isArray(arr)) return out;
+    for (var i = 0; i < arr.length; i++) {
+      var p = arr[i];
+      if (!p || typeof p !== 'object') continue;
+      out.push({ i: text(p.i), by: text(p.by), at: Math.max(0, Math.round(num(p.at, 0))) });
+    }
+    return out;
+  }
+
+  // 지금 화면 값(확정본 또는 고치는 중인 값)을 승인 요청에 담을 모양으로 뜬다
+  function liveSnap(r, key) {
+    key = text(key);
+    var kind = itemKind(key);
+    if (kind === 'laundry') return { v: clamp(key, num(r[key], 0)) };
+    if (kind === 'note') {
+      var idx = noteIdxOf(key);
+      var it = (r.noteItems && r.noteItems[idx]) ? r.noteItems[idx] : null;
+      return {
+        memo: it ? text(it.memo) : '',
+        photos: it ? copyPhotos(it.photos) : [],
+        by: it ? text(it.by) : '',
+        at: it ? Math.max(0, Math.round(num(it.at, 0))) : 0,
+        note: it ? text(it.photoNote) : ''
+      };
+    }
+    if (kind === 'supply') {
+      return {
+        memo: text(r.supplies),
+        photos: copyPhotos(r.supPhotos),
+        by: text(r.supplyBy),
+        at: Math.max(0, Math.round(num(r.supplyAt, 0))),
+        note: text(r.supPhotoNote)
+      };
+    }
+    return { memo: '', photos: [], by: '', at: 0, note: '' };
+  }
+
+  function meterSnap(e) {
+    return {
+      memo: '', photos: e ? copyPhotos(e.photos) : [],
+      by: e ? text(e.by) : '', at: e ? Math.max(0, Math.round(num(e.at, 0))) : 0, note: ''
+    };
+  }
+
+  function snapHasContent(key, snap) {
+    if (!snap) return false;
+    if (itemKind(key) === 'laundry') return num(snap.v, 0) > 0;
+    return trim(snap.memo) !== '' || trim(snap.note) !== '' ||
+      (isArray(snap.photos) && snap.photos.length > 0);
+  }
+
+  function photoIds(arr) {
+    var out = [];
+    if (!isArray(arr)) return out;
+    for (var i = 0; i < arr.length; i++) if (arr[i] && arr[i].i) out.push(text(arr[i].i));
+    return out;
+  }
+
+  // 내용이 같은지(수량·메모·사진). 누가·언제는 빼고 비교한다.
+  function sameSnap(key, a, b) {
+    if (!a || !b) return false;
+    if (itemKind(key) === 'laundry') return num(a.v, 0) === num(b.v, 0);
+    if (text(a.memo) !== text(b.memo)) return false;
+    if (text(a.note) !== text(b.note)) return false;
+    var x = photoIds(a.photos), y = photoIds(b.photos);
+    if (x.length !== y.length) return false;
+    for (var i = 0; i < x.length; i++) if (x[i] !== y[i]) return false;
+    return true;
+  }
+
+  function applySnap(r, key, snap) {
+    if (!r || !snap) return false;
+    var kind = itemKind(key);
+    if (kind === 'laundry') { r[key] = clamp(key, num(snap.v, 0)); return true; }
+    if (kind === 'note') {
+      var idx = noteIdxOf(key);
+      if (!isArray(r.noteItems) || !r.noteItems[idx]) return false;
+      var it = r.noteItems[idx];
+      it.memo = text(snap.memo);
+      it.photos = copyPhotos(snap.photos);
+      it.by = text(snap.by);
+      it.at = Math.max(0, Math.round(num(snap.at, 0)));
+      it.photoNote = text(snap.note);
+      return true;
+    }
+    r.supplies = text(snap.memo);
+    r.supPhotos = copyPhotos(snap.photos);
+    r.supplyBy = text(snap.by);
+    r.supplyAt = Math.max(0, Math.round(num(snap.at, 0)));
+    r.supPhotoNote = text(snap.note);
+    return true;
+  }
+
+  function cleanSnap(src, key) {
+    if (itemKind(key) === 'laundry') return { v: clamp(key, num(src && src.v, 0)) };
+    var out = { memo: '', photos: [], by: '', at: 0, note: '' };
+    if (!src || typeof src !== 'object') return out;
+    if (typeof src.memo === 'string') out.memo = src.memo.slice(0, 800);
+    if (typeof src.note === 'string') out.note = src.note.slice(0, 80);
+    if (src.by === OWNER_NAME || isStaffName(src.by)) out.by = src.by;
+    out.at = Math.max(0, Math.round(num(src.at, 0)));
+    out.photos = readPhotos(src.photos);
+    return out;
+  }
+
+  function cleanCommitted(src, allowed) {
+    var out = {}, k;
+    if (!src || typeof src !== 'object') return out;
+    for (k in src) {
+      if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
+      if (allowed.indexOf(k) < 0) continue;
+      out[k] = cleanSnap(src[k], k);
+    }
+    return out;
+  }
+
+  // 승인 대기 요청(항목별): before(지금 확정본) / after(직원이 올린 수정본)
+  function cleanPending(src, allowed) {
+    var out = {}, k;
+    if (!src || typeof src !== 'object') return out;
+    for (k in src) {
+      if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
+      if (allowed.indexOf(k) < 0) continue;
+      var e = src[k];
+      if (!e || typeof e !== 'object') continue;
+      var by = (e.by === OWNER_NAME || isStaffName(e.by)) ? e.by : '';
+      if (!by) continue;
+      out[k] = {
+        k: k, kind: itemKind(k),
+        before: cleanSnap(e.before, k), after: cleanSnap(e.after, k),
+        by: by, at: Math.max(0, Math.round(num(e.at, 0)))
+      };
+    }
+    return out;
+  }
+
+  function hasKeys(v) {
+    if (!v || typeof v !== 'object') return false;
+    for (var k in v) if (Object.prototype.hasOwnProperty.call(v, k)) return true;
+    return false;
+  }
+
+  function pendingIn(r, key) {
+    if (!r || !r.pendingEdits || typeof r.pendingEdits !== 'object') return null;
+    return r.pendingEdits[text(key)] || null;
+  }
+
+  function pendingFor(key) { return pendingIn(cur(), key); }
+
+  function meterDay(month, create) {
+    var mk = text(month);
+    if (!/^\d{4}-\d{2}$/.test(mk)) return null;
+    if (!state.meters || typeof state.meters !== 'object') {
+      if (!create) return null;
+      state.meters = {};
+    }
+    if (!state.meters[mk] || typeof state.meters[mk] !== 'object') {
+      if (!create) return null;
+      state.meters[mk] = {};
+    }
+    return state.meters[mk];
+  }
+
+  function meterPending(kind) {
+    var day = meterDay(monthKey(), false);
+    if (!day || !day.pendingEdits || typeof day.pendingEdits !== 'object') return null;
+    return day.pendingEdits[text(kind)] || null;
+  }
+
+  function meterCommittedMap(month, create) {
+    var day = meterDay(month || monthKey(), false);
+    if (!day) {
+      if (!create) return null;
+      day = meterDay(month || monthKey(), true);
+    }
+    if (!day.committed || typeof day.committed !== 'object') {
+      if (!create) return null;
+      day.committed = {};
+    }
+    return day.committed;
+  }
+
+  // 고른 날짜가 오늘보다 앞서는지(직원은 지난 날짜를 고칠 수 없다)
+  function isPastDate(d) {
+    var day = RE_DATE.test(text(d)) ? text(d) : text(state.date);
+    return day < todayISO();
+  }
+
+  // 이미 확정 저장된 내용을 다시 고칠 때는 승인 대기로 넘긴다
+  function applyCommitRules() {
+    var made = 0, i, k;
+    var now = new Date().getTime();
+    if (isOwner()) {
+      // 사장님이 저장하면 그 내용이 곧 확정본이 된다(승인 대기 중 항목은 사장님이 직접 고친 경우에만 정리)
+      for (var ri = 0; ri < BOTH_KEYS.length; ri++) {
+        var room = state.rooms[BOTH_KEYS[ri]];
+        if (!room) continue;
+        if (!room.committed || typeof room.committed !== 'object') room.committed = {};
+        if (!room.pendingEdits || typeof room.pendingEdits !== 'object') room.pendingEdits = {};
+        for (i = 0; i < STAFF_ITEMS.length; i++) {
+          k = STAFF_ITEMS[i];
+          var live = liveSnap(room, k);
+          var pe = room.pendingEdits[k];
+          if (pe) {
+            if (!sameSnap(k, live, pe.before)) { delete room.pendingEdits[k]; room.committed[k] = live; }
+            continue;
+          }
+          if (snapHasContent(k, live)) room.committed[k] = live;
+          else delete room.committed[k];
+        }
+      }
+      var mday = meterDay(monthKey(), false);
+      if (mday) {
+        var mc = meterCommittedMap(monthKey(), true) || {};
+        if (!mday.pendingEdits || typeof mday.pendingEdits !== 'object') mday.pendingEdits = {};
+        for (i = 0; i < METER_KINDS.length; i++) {
+          k = METER_KINDS[i];
+          var mp = mday.pendingEdits[k];
+          var e = mday[k];
+          var s = meterSnap(e);
+          if (mp) {
+            if (!sameSnap(k, s, mp.before)) { delete mday.pendingEdits[k]; mc[k] = s; }
+            continue;
+          }
+          if (snapHasContent(k, s)) mc[k] = s;
+          else delete mc[k];
+        }
+      }
+      return 0;
+    }
+
+    // 직원: 오늘 날짜에서만. 확정된 항목을 다시 고치면 승인 요청으로 넘긴다.
+    if (isPastDate()) return 0;
+    var r = cur();
+    if (!r.committed || typeof r.committed !== 'object') r.committed = {};
+    if (!r.pendingEdits || typeof r.pendingEdits !== 'object') r.pendingEdits = {};
+    for (i = 0; i < STAFF_ITEMS.length; i++) {
+      k = STAFF_ITEMS[i];
+      if (r.pendingEdits[k]) continue;
+      var liveS = liveSnap(r, k);
+      var base = r.committed[k];
+      if (!base) {
+        if (snapHasContent(k, liveS)) r.committed[k] = liveS;
+        continue;
+      }
+      if (sameSnap(k, base, liveS)) continue;
+      r.pendingEdits[k] = {
+        k: k, kind: itemKind(k), before: cleanSnap(base, k), after: liveS,
+        by: writerName(), at: now
+      };
+      applySnap(r, k, base);
+      made++;
+    }
+    var md = meterDay(monthKey(), false);
+    if (md) {
+      if (!md.pendingEdits || typeof md.pendingEdits !== 'object') md.pendingEdits = {};
+      var cm = meterCommittedMap(monthKey(), true) || {};
+      for (i = 0; i < METER_KINDS.length; i++) {
+        k = METER_KINDS[i];
+        if (md.pendingEdits[k]) continue;
+        var ms = meterSnap(md[k]);
+        var mb = cm[k];
+        if (!mb) { if (snapHasContent(k, ms)) cm[k] = ms; continue; }
+        if (sameSnap(k, mb, ms)) continue;
+        md.pendingEdits[k] = {
+          k: k, kind: 'meter', before: cleanSnap(mb, k), after: ms,
+          by: writerName(), at: now
+        };
+        if (md[k]) {
+          md[k].photos = copyPhotos(mb.photos);
+          md[k].by = text(mb.by);
+          md[k].at = Math.max(0, Math.round(num(mb.at, 0)));
+        }
+        made++;
+      }
+    }
+    return made;
+  }
+
+  // 이미 저장돼 있던 내용은 확정본으로 한 번 맞춰 둔다(예전 저장분도 다시 고치면 승인 대상이 되게)
+  function ensureBaselines() {
+    var dk, i, k;
+    for (dk in state.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(state.byDate, dk)) continue;
+      if (!RE_DATE.test(dk)) continue;
+      var day = state.byDate[dk];
+      if (!day || !day.rooms) continue;
+      for (i = 0; i < ROOM_KEYS.length; i++) {
+        var r = day.rooms[ROOM_KEYS[i]];
+        if (!r) continue;
+        if (!r.committed || typeof r.committed !== 'object') r.committed = {};
+        if (!r.pendingEdits || typeof r.pendingEdits !== 'object') r.pendingEdits = {};
+        for (var j = 0; j < STAFF_ITEMS.length; j++) {
+          k = STAFF_ITEMS[j];
+          if (r.committed[k] || r.pendingEdits[k]) continue;
+          var live = liveSnap(r, k);
+          if (snapHasContent(k, live)) r.committed[k] = live;
+        }
+      }
+    }
+    for (var mk in state.meters) {
+      if (!Object.prototype.hasOwnProperty.call(state.meters, mk)) continue;
+      if (!/^\d{4}-\d{2}$/.test(mk)) continue;
+      var mday = state.meters[mk];
+      if (!mday || typeof mday !== 'object') continue;
+      if (!mday.committed || typeof mday.committed !== 'object') mday.committed = {};
+      if (!mday.pendingEdits || typeof mday.pendingEdits !== 'object') mday.pendingEdits = {};
+      for (i = 0; i < METER_KINDS.length; i++) {
+        k = METER_KINDS[i];
+        if (mday.committed[k] || mday.pendingEdits[k]) continue;
+        if (!mday[k]) continue;
+        var ms = meterSnap(mday[k]);
+        if (snapHasContent(k, ms)) mday.committed[k] = ms;
+      }
+    }
+  }
+
+  // 승인 대기 요청을 찾는다(객실 항목 · 계량기 항목)
+  function pendingTarget(date, roomKey, key) {
+    var d = RE_DATE.test(text(date)) ? text(date) : text(state.date);
+    var rk = text(roomKey);
+    if (rk === 'meter') {
+      var mk = d.slice(0, 7);
+      var md = meterDay(mk, false);
+      if (!md || !md.pendingEdits || typeof md.pendingEdits !== 'object') return null;
+      return { kind: 'meter', date: d, month: mk, map: md.pendingEdits, day: md };
+    }
+    var day = state.byDate[d];
+    if (!day || !day.rooms) return null;
+    var r = day.rooms[rk];
+    if (!r || !r.pendingEdits || typeof r.pendingEdits !== 'object') return null;
+    return { kind: 'room', date: d, room: r, map: r.pendingEdits };
+  }
+
+  // 화면·모든 날짜의 승인 대기 요청 목록(최근 요청이 위로)
+  function pendingList() {
+    var out = [], dk, i, k;
+    for (dk in state.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(state.byDate, dk)) continue;
+      if (!RE_DATE.test(dk)) continue;
+      var day = state.byDate[dk];
+      if (!day || !day.rooms) continue;
+      for (i = 0; i < ROOM_KEYS.length; i++) {
+        var rk = ROOM_KEYS[i];
+        var r = day.rooms[rk];
+        if (!r || !r.pendingEdits || typeof r.pendingEdits !== 'object') continue;
+        for (k in r.pendingEdits) {
+          if (!Object.prototype.hasOwnProperty.call(r.pendingEdits, k)) continue;
+          out.push({ date: dk, room: rk, key: k, pe: r.pendingEdits[k] });
+        }
+      }
+    }
+    for (var mk in state.meters) {
+      if (!Object.prototype.hasOwnProperty.call(state.meters, mk)) continue;
+      if (!/^\d{4}-\d{2}$/.test(mk)) continue;
+      var md = state.meters[mk];
+      if (!md || !md.pendingEdits || typeof md.pendingEdits !== 'object') continue;
+      for (k in md.pendingEdits) {
+        if (!Object.prototype.hasOwnProperty.call(md.pendingEdits, k)) continue;
+        out.push({ date: mk + '-01', month: mk, room: 'meter', key: k, pe: md.pendingEdits[k] });
+      }
+    }
+    out.sort(function (a, b) { return num(b.pe.at, 0) - num(a.pe.at, 0); });
+    return out;
+  }
+
+  // 사장님 승인: 변경 후를 확정본으로 반영하고 승인 대기에서 지운다
+  function approveEdit(date, roomKey, key) {
+    if (!isOwner()) { toast('사장님만 승인할 수 있어요.'); return false; }
+    key = text(key);
+    var t = pendingTarget(date, roomKey, key);
+    if (!t || !t.map[key]) return false;
+    var pe = t.map[key];
+    if (t.kind === 'room') {
+      applySnap(t.room, key, pe.after);
+      if (!t.room.committed || typeof t.room.committed !== 'object') t.room.committed = {};
+      t.room.committed[key] = cleanSnap(pe.after, key);
+      t.room.touched = true;
+    } else {
+      if (!t.day[key] || typeof t.day[key] !== 'object') t.day[key] = { photos: [], by: '', at: 0 };
+      var e = t.day[key];
+      e.photos = copyPhotos(pe.after.photos);
+      e.by = text(pe.after.by);
+      e.at = Math.max(0, Math.round(num(pe.after.at, 0)));
+      if (!t.day.committed || typeof t.day.committed !== 'object') t.day.committed = {};
+      t.day.committed[key] = cleanSnap(pe.after, key);
+    }
+    delete t.map[key];
+    recordEdit(false, itemRecordKind(key));
+    render(true);
+    saveNow();
+    try { syncPush(); } catch (e2) {}
+    toast('승인했어요. 바뀐 내용으로 저장·동기화됐어요.');
+    return true;
+  }
+
+  // 사장님 반려: 승인 대기를 지우고 기존 확정 내용을 그대로 둔다
+  function rejectEdit(date, roomKey, key) {
+    if (!isOwner()) { toast('사장님만 반려할 수 있어요.'); return false; }
+    key = text(key);
+    var t = pendingTarget(date, roomKey, key);
+    if (!t || !t.map[key]) return false;
+    delete t.map[key];
+    if (t.kind === 'room' && t.room.committed && t.room.committed[key]) {
+      applySnap(t.room, key, t.room.committed[key]);
+    }
+    recordEdit(false, itemRecordKind(key));
+    render(true);
+    saveNow();
+    try { syncPush(); } catch (e2) {}
+    toast('반려했어요. 기존 내용 그대로 두었어요. 직원이 다시 요청할 수 있어요.');
+    return true;
+  }
+
+  // 사진 본문이 다른 확정본·승인 대기 요청에서 쓰이고 있으면 지우지 않는다
+  function imageProtected(id) {
+    id = text(id);
+    if (!id) return false;
+    function inList(arr) {
+      if (!isArray(arr)) return false;
+      for (var i = 0; i < arr.length; i++) if (arr[i] && text(arr[i].i) === id) return true;
+      return false;
+    }
+    function inSnaps(map) {
+      if (!map || typeof map !== 'object') return false;
+      for (var k in map) {
+        if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+        var e = map[k];
+        if (!e || typeof e !== 'object') continue;
+        if (e.before && inList(e.before.photos)) return true;
+        if (e.after && inList(e.after.photos)) return true;
+      }
+      return false;
+    }
+    function inCommitted(map) {
+      if (!map || typeof map !== 'object') return false;
+      for (var k2 in map) {
+        if (!Object.prototype.hasOwnProperty.call(map, k2)) continue;
+        var s = map[k2];
+        if (s && inList(s.photos)) return true;
+      }
+      return false;
+    }
+    for (var dk in state.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(state.byDate, dk)) continue;
+      var day = state.byDate[dk];
+      if (!day || !day.rooms) continue;
+      for (var i = 0; i < ROOM_KEYS.length; i++) {
+        var r = day.rooms[ROOM_KEYS[i]];
+        if (!r) continue;
+        if (inSnaps(r.pendingEdits) || inCommitted(r.committed)) return true;
+      }
+    }
+    for (var mk in state.meters) {
+      if (!Object.prototype.hasOwnProperty.call(state.meters, mk)) continue;
+      var md = state.meters[mk];
+      if (!md || typeof md !== 'object') continue;
+      if (inSnaps(md.pendingEdits) || inCommitted(md.committed)) return true;
+    }
+    return false;
+  }
+
+  // 이 칸의 사진을 지금 바꿀 수 있는지(지난 날짜 · 승인 대기 · 사장님 전용 칸)
+  function canPhotoChange(where) {
+    var w = text(where);
+    if (w.indexOf('req:') === 0) return isOwner();
+    if (isOwner()) return true;
+    if (isPastDate()) return false;
+    if (w.indexOf('meter:') === 0) return !meterPending(w.slice(6));
+    if (w === 'sup:') return !pendingFor('supplies');
+    if (w.indexOf('note:') === 0) return !pendingFor('note' + Math.round(num(w.slice(5), -1)));
+    return true;
+  }
+
+  function clearNode(n) {
+    if (!n) return;
+    while (n.children && n.children.length) n.removeChild(n.children[0]);
+  }
+
+  function mkEl(tag, cls, txt) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (txt !== undefined && txt !== null) n.textContent = text(txt);
+    return n;
+  }
+
+  // 엘리먼트 안의 글자 모두 모으기(검증용)
+  function nodeText(n) {
+    if (!n) return '';
+    if (typeof n.innerText === 'string' && n.innerText) return n.innerText;
+    var out = text(n.textContent), i;
+    if (n.children && n.children.length) {
+      var inner = '';
+      for (i = 0; i < n.children.length; i++) inner += ' ' + nodeText(n.children[i]);
+      out = out ? (out + inner) : inner;
+    }
+    return out;
+  }
+
+  function snapValueText(key, snap) {
+    if (!snap) return '';
+    if (itemKind(key) === 'laundry') return num(snap.v, 0) + '채';
+    var m = trim(snap.memo);
+    if (m) return m;
+    if (isArray(snap.photos) && snap.photos.length) return '';
+    return '내용 없음';
+  }
+
+  function snapPhotos(key, snap, other, dir) {
+    var box = mkEl('div', 'pend-photos');
+    var list = (snap && isArray(snap.photos)) ? snap.photos : [];
+    var otherIds = photoIds(other ? other.photos : null);
+    var shown = 0;
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      var mark = (otherIds.indexOf(p.i) < 0) ? (dir === 'after' ? '추가' : '삭제') : '';
+      var src = readImage(p.i);
+      if (!src) {
+        box.appendChild(mkEl('span', 'pend-miss', (mark ? mark + ' ' : '') + '사진'));
+        shown++;
+        continue;
+      }
+      var wrap = mkEl('div', 'pend-thumb');
+      var img = document.createElement('img');
+      img.setAttribute('src', src);
+      img.setAttribute('alt', '사진');
+      wrap.appendChild(img);
+      if (mark) wrap.appendChild(mkEl('span', 'pend-mark', mark));
+      box.appendChild(wrap);
+      shown++;
+    }
+    if (!shown) box.appendChild(mkEl('span', 'pend-none', '사진 없음'));
+    return box;
+  }
+
+  function snapBlock(label, key, snap, other, dir) {
+    var b = mkEl('div', 'pend-side ' + dir);
+    b.appendChild(mkEl('div', 'pend-cap', label));
+    var v = snapValueText(key, snap);
+    if (v) b.appendChild(mkEl('div', 'pend-txt', v));
+    if (itemKind(key) !== 'laundry') b.appendChild(snapPhotos(key, snap, other, dir));
+    return b;
+  }
+
+  // 변경 전/후 비교 한 칸(요청자·시각 · 승인/반려)
+  function pendCard(ctx) {
+    var pe = ctx.pe;
+    var box = mkEl('div', 'pend-one');
+    var who = ctx.room === 'meter'
+      ? (METER_NAME[ctx.key] || itemLabel(ctx.key))
+      : (itemLabel(ctx.key) + ' · ' + shortName(ctx.room));
+    box.appendChild(mkEl('div', 'pend-head', '⏳ ' + who + ' · ' + (pe.by || '직원') + ' 요청' +
+      (pe.at > 0 ? (' · ' + formatStamp(pe.at)) : '')));
+    var head = mkEl('div', 'pend-meta', ctx.room === 'meter'
+      ? attendMonthLabel(ctx.month || text(ctx.date).slice(0, 7))
+      : formatDateKo(ctx.date));
+    box.appendChild(head);
+    var grid = mkEl('div', 'pend-grid');
+    grid.appendChild(snapBlock('변경 전', ctx.key, pe.before, pe.after, 'before'));
+    grid.appendChild(snapBlock('변경 후', ctx.key, pe.after, pe.before, 'after'));
+    box.appendChild(grid);
+    if (isOwner()) {
+      var acts = mkEl('div', 'pend-acts');
+      var ok = mkEl('button', 'pend-btn ok', '✅ 승인');
+      ok.setAttribute('type', 'button');
+      ok.setAttribute('data-act', 'approveEdit');
+      ok.setAttribute('data-date', ctx.date);
+      ok.setAttribute('data-room', ctx.room);
+      ok.setAttribute('data-key', ctx.key);
+      var no = mkEl('button', 'pend-btn no', '❌ 반려');
+      no.setAttribute('type', 'button');
+      no.setAttribute('data-act', 'rejectEdit');
+      no.setAttribute('data-date', ctx.date);
+      no.setAttribute('data-room', ctx.room);
+      no.setAttribute('data-key', ctx.key);
+      acts.appendChild(ok);
+      acts.appendChild(no);
+      box.appendChild(acts);
+    }
+    return box;
+  }
+
+  function setPendTag(id, on) {
+    var n = el(id);
+    if (!n) return;
+    if (on) n.classList.remove('hidden'); else n.classList.add('hidden');
+    if (on) n.textContent = '⏳ 사장님 승인 대기 중';
+  }
+
+  // 항목별 배지 · 사장님 변경 전/후 미리보기 · 상단 승인 대기 요약을 그린다
+  function renderPendingUi() {
+    var staff = !isOwner();
+    var past = staff && isPastDate();
+    var notice = el('pastLockNotice');
+    if (notice) {
+      if (past) notice.classList.remove('hidden'); else notice.classList.add('hidden');
+    }
+    var sub = el('pastLockSub');
+    if (sub && past) {
+      sub.textContent = formatDateKo(state.date) + ' 기록은 직원이 고칠 수 없어요. 오늘 날짜를 고르면 다시 적을 수 있어요.';
+    }
+    var title = el('pastLockTitle');
+    if (title) title.textContent = '지난 날짜는 직원이 수정할 수 없어요';
+    var r = cur();
+    for (var i = 0; i < STAFF_ITEMS.length; i++) {
+      var key = STAFF_ITEMS[i];
+      var pe = pendingIn(r, key);
+      setPendTag('pendTag-' + key, !!pe);
+      var box = el('pendBox-' + key);
+      if (!box) continue;
+      if (pe && !staff) {
+        clearNode(box);
+        box.appendChild(pendCard({ date: state.date, room: state.active, key: key, pe: pe }));
+        box.classList.remove('hidden');
+      } else {
+        clearNode(box);
+        box.classList.add('hidden');
+      }
+    }
+    for (var m = 0; m < METER_KINDS.length; m++) {
+      var kind = METER_KINDS[m];
+      var mp = meterPending(kind);
+      setPendTag('pendTag-' + kind, !!mp);
+      var mb = el('pendBox-' + kind);
+      if (!mb) continue;
+      if (mp && !staff) {
+        clearNode(mb);
+        mb.appendChild(pendCard({ date: state.date, month: monthKey(), room: 'meter', key: kind, pe: mp }));
+        mb.classList.remove('hidden');
+      } else {
+        clearNode(mb);
+        mb.classList.add('hidden');
+      }
+    }
+
+    var card = el('approveCard');
+    if (!card) return;
+    if (staff) { card.classList.add('hidden'); return; }
+    var list = pendingList();
+    var cnt = el('approveCount');
+    if (cnt) cnt.textContent = list.length + '건';
+    var box2 = el('approveList');
+    if (box2) {
+      clearNode(box2);
+      for (var j = 0; j < list.length; j++) {
+        var ctx = list[j];
+        box2.appendChild(pendCard({ date: ctx.date, month: ctx.month, room: ctx.room, key: ctx.key, pe: ctx.pe }));
+      }
+    }
+    var empty = el('approveEmpty');
+    if (empty) {
+      if (list.length) empty.classList.add('hidden'); else empty.classList.remove('hidden');
+    }
+    if (list.length) card.classList.remove('hidden'); else card.classList.add('hidden');
+  }
+
+  // 지난 날짜 · 승인 대기 항목은 직원이 누를 수 없게 잠근다
+  function setLockedNode(node, locked) {
+    if (!node) return;
+    if (locked) {
+      node.setAttribute('disabled', 'disabled');
+      node.classList.add('locked');
+    } else {
+      node.removeAttribute('disabled');
+      node.classList.remove('locked');
+    }
+  }
+
+  function lockByField(field, locked) {
+    each('[data-field="' + field + '"]', function (n) { setLockedNode(n, locked); });
+  }
+
+  function applyStaffLocks() {
+    var staff = !isOwner();
+    var past = staff && isPastDate();
+    var r = cur();
+    var i;
+    for (i = 0; i < NOTE_ITEMS.length; i++) {
+      setLockedNode(el('niMemo' + i), staff && (past || !!pendingIn(r, 'note' + i)));
+    }
+    setLockedNode(el('supplies'), staff && (past || !!pendingIn(r, 'supplies')));
+    lockByField('laundryOut', staff && (past || !!pendingIn(r, 'laundryOut')));
+    lockByField('laundryIn', staff && (past || !!pendingIn(r, 'laundryIn')));
+    var sub = el('modeSub');
+    if (sub) {
+      if (past) sub.textContent = '지난 날짜는 사장님만 고칠 수 있어요';
+      else if (staff) sub.textContent = '특이사항·객실비품보충요청만 적을 수 있어요';
+      else sub.textContent = '모든 항목을 고칠 수 있어요';
+    }
+  }
+
   var state;
   try { state = load(); } catch (e) { state = baseState(); }
 
   // 화면이 쓰는 rooms는 그 날짜의 저장 칸을 그대로 가리킨다(고치면 바로 그 날짜에 저장)
   state.rooms = dayObj(state.date).rooms;
+  // 이미 저장된 내용은 확정본으로 한 번 맞춰 둔다(예전 저장분도 다시 고치면 승인 대상)
+  try { ensureBaselines(); } catch (e3) {}
   // 앱을 새로 열면 항상 직원으로 시작(사장님은 비밀번호를 거쳐야 한다)
 
   // 전달받은 공유 링크(#s=…)가 있으면 그 내용으로 채운다(받은 객실만 덮어씀)
@@ -1795,7 +2620,7 @@
       var e = meterEntry(key, false);
       list = e ? e.photos : [];
     }
-    var canChange = (kind === 'req') ? isOwner() : true;
+    var canChange = canPhotoChange(where);
     // 목록이 그대로면 다시 그리지 않는다(메모를 칠 때마다 사진을 새로 읽지 않게)
     var sig = (canChange ? '1' : '0') + '|';
     for (var si = 0; si < list.length; si++) sig += list[si].i + ',';
@@ -1898,6 +2723,7 @@
     if (addPhotoError === 'quota') return '폰 저장 공간이 부족해 사진을 담지 못했어요. 지난 사진을 지우고 다시 올려 주세요.';
     if (addPhotoError === 'limit') return '사진은 한 항목에 ' + PHOTO_MAX_ITEMS + '장까지 올릴 수 있어요.';
     if (addPhotoError === 'owner') return '사장님만 사진을 올릴 수 있어요.';
+    if (addPhotoError === 'locked') return '지난 날짜이거나 사장님 승인을 기다리는 항목이라 사진을 바꿀 수 없어요.';
     return '사진을 읽지 못했어요. 다른 사진으로 다시 시도해 주세요.';
   }
 
@@ -1905,6 +2731,11 @@
   function addPhoto(where, dataUrl, quiet) {
     var parts = text(where).split(':');
     addPhotoError = '';
+    if (!canPhotoChange(where)) {
+      addPhotoError = 'locked';
+      if (!quiet) toast(photoErrText());
+      return false;
+    }
     var list;
     if (parts[0] === 'meter') {
       var me = meterEntry(parts[1], true);
@@ -1975,6 +2806,11 @@
       toast('사장님만 사진을 지울 수 있어요.');
       return false;
     }
+    if (!canPhotoChange(where)) {
+      addPhotoError = 'locked';
+      toast(photoErrText());
+      return false;
+    }
     var list = photoWhereList(where);
     if (!list) return false;
     var idx = -1;
@@ -1983,7 +2819,8 @@
     }
     if (idx < 0) return false;
     list.splice(idx, 1);
-    removeImage(id);
+    // 확정본·승인 대기 요청이 아직 쓰는 사진이면 본문은 남긴다
+    if (!imageProtected(id)) removeImage(id);
     recordEdit(false, text(where).indexOf('meter:') === 0 ? 'm'
       : (text(where).indexOf('sup:') === 0 ? 's' : 'n'));
     render(false);
@@ -2202,20 +3039,94 @@
     return text(date).slice(0, 7);
   }
 
-  function attendOf(date, who) {
+  // 출근 기록 한 칸: {h:헤윰, o:오롯} 또는 예전 true/false
+  function attendRec(date, who) {
     var d = state.attendance[text(date)];
     if (!d || typeof d !== 'object') return null;
+    if (!Object.prototype.hasOwnProperty.call(d, who)) return null;
     var v = d[who];
-    return (v === true) ? true : (v === false ? false : null);
+    // 예전 저장분: true = 출근(객실 미지정) · false = 미출근
+    if (v === true) return { h: false, o: false, legacy: true, marked: true };
+    if (v === false) return { h: false, o: false, legacy: false, marked: true };
+    if (v && typeof v === 'object') {
+      return { h: v.h === true, o: v.o === true, legacy: false, marked: true };
+    }
+    return null;
   }
 
+  // 그날 출근했는지(둘 중 하나라도 청소했거나 예전 true 기록)
+  function attended(rec) {
+    return !!rec && (rec.h === true || rec.o === true || rec.legacy === true);
+  }
+
+  function attendOf(date, who) {
+    var rec = attendRec(date, who);
+    if (!rec) return null;
+    return attended(rec);
+  }
+
+  // 그 달 일한 일수 합계 = 체크된 객실 수(헤윰 1 + 오롯 1). 둘 다 한 날은 2일.
   function attendCount(month, who) {
     var n = 0;
     for (var k in state.attendance) {
       if (!Object.prototype.hasOwnProperty.call(state.attendance, k)) continue;
       if (text(k).slice(0, 7) !== month) continue;
-      var d = state.attendance[k];
-      if (d && d[who] === true) n++;
+      var rec = attendRec(k, who);
+      if (!rec) continue;
+      if (rec.h) n++;
+      if (rec.o) n++;
+      if (rec.legacy) n++;
+    }
+    return n;
+  }
+
+  // 그 달 출근한 날 수(둘 다 한 날도 1일)
+  function attendDayCount(month, who) {
+    var n = 0;
+    for (var k in state.attendance) {
+      if (!Object.prototype.hasOwnProperty.call(state.attendance, k)) continue;
+      if (text(k).slice(0, 7) !== month) continue;
+      if (attended(attendRec(k, who))) n++;
+    }
+    return n;
+  }
+
+  // 헤윰만/오롯만/둘 다/객실 미지정(예전 기록) 날 수
+  function attendMix(month, who) {
+    var out = { hOnly: 0, oOnly: 0, both: 0, legacy: 0 };
+    for (var k in state.attendance) {
+      if (!Object.prototype.hasOwnProperty.call(state.attendance, k)) continue;
+      if (text(k).slice(0, 7) !== month) continue;
+      var rec = attendRec(k, who);
+      if (!rec) continue;
+      if (rec.h && rec.o) out.both++;
+      else if (rec.h) out.hOnly++;
+      else if (rec.o) out.oOnly++;
+      else if (rec.legacy) out.legacy++;
+    }
+    return out;
+  }
+
+  // '총 N일 (헤윰 X · 오롯 Y)' 꼴 요약
+  function attendSumText(month, who) {
+    var h = attendRoomCount(month, who, HEYUM);
+    var o = attendRoomCount(month, who, OROT);
+    var mix = attendMix(month, who);
+    var s = '총 ' + (h + o + mix.legacy) + '일 (헤윰 ' + h + ' · 오롯 ' + o;
+    if (mix.legacy) s += ' · 미지정 ' + mix.legacy;
+    return s + ')';
+  }
+
+  // 객실별 청소 횟수(헤윰만·오롯만·둘 다인 날 모두 각각 센다)
+  function attendRoomCount(month, who, room) {
+    var n = 0;
+    for (var k in state.attendance) {
+      if (!Object.prototype.hasOwnProperty.call(state.attendance, k)) continue;
+      if (text(k).slice(0, 7) !== month) continue;
+      var rec = attendRec(k, who);
+      if (!rec) continue;
+      if (room === HEYUM && rec.h) n++;
+      else if (room === OROT && rec.o) n++;
     }
     return n;
   }
@@ -2225,8 +3136,7 @@
     for (var k in state.attendance) {
       if (!Object.prototype.hasOwnProperty.call(state.attendance, k)) continue;
       if (text(k).slice(0, 7) !== month) continue;
-      var d = state.attendance[k];
-      if (d && d[who] === true) out.push(Number(text(k).slice(8, 10)));
+      if (attended(attendRec(k, who))) out.push(Number(text(k).slice(8, 10)));
     }
     out.sort(function (a, b) { return a - b; });
     return out;
@@ -2237,43 +3147,107 @@
     return m ? (Number(m[1]) + '년 ' + Number(m[2]) + '월') : text(month);
   }
 
-  // 같은 버튼을 한 번 더 누르면 그날 기록을 지운다(미기록으로 돌아감)
-  function setAttendance(who, value) {
+  function writeAtt(date, who, val) {
+    var d = text(date);
+    if (!state.attendance[d] || typeof state.attendance[d] !== 'object') state.attendance[d] = {};
+    state.attendance[d][who] = val;
+  }
+
+  function clearAtt(date, who) {
+    var d = state.attendance[text(date)];
+    if (!d || typeof d !== 'object') return;
+    delete d[who];
+    var left = 0;
+    for (var i = 0; i < STAFF_NAMES.length; i++) {
+      var v = d[STAFF_NAMES[i]];
+      if (v === true || v === false || (v && typeof v === 'object')) left++;
+    }
+    if (!left) delete state.attendance[text(date)];
+  }
+
+  // 객실 버튼(헤윰·오롯)을 하나씩 켜고 끈다. 둘 다 켜진 날도 출근 일수는 1일.
+  function setAttendanceRoom(who, room) {
     if (!isOwner()) { toast('사장님만 출근 체크할 수 있어요.'); return false; }
     if (!isStaffName(who)) return false;
     var date = state.date;
-    var next = (value === true);
-    if (attendOf(date, who) === next) {
-      var day = state.attendance[date];
-      if (day && typeof day === 'object') {
-        delete day[who];
-        var left = 0;
-        for (var i = 0; i < STAFF_NAMES.length; i++) {
-          if (day[STAFF_NAMES[i]] === true || day[STAFF_NAMES[i]] === false) left++;
-        }
-        if (!left) delete state.attendance[date];
-      }
+    var rec = attendRec(date, who);
+    var h = rec ? rec.h : false;
+    var o = rec ? rec.o : false;
+    if (room === 'h' || room === 'o') {
+      if (room === 'h') h = !h; else o = !o;
+      if (!h && !o) writeAtt(date, who, false);
+      else writeAtt(date, who, { h: h, o: o });
     } else {
-      if (!state.attendance[date] || typeof state.attendance[date] !== 'object') state.attendance[date] = {};
-      state.attendance[date][who] = next;
+      // 미출근: 이미 미출근으로 적혀 있으면 한 번 더 눌러 기록을 지운다
+      if (rec && rec.marked && !attended(rec)) clearAtt(date, who);
+      else writeAtt(date, who, false);
     }
     render(false);
     saveNow();
     return true;
   }
 
-  function setAttDays(id, list) {
+  // 예전 방식(출근/미출근 만)도 그대로 동작하게 남겨 둔다
+  function setAttendance(who, value) {
+    if (!isOwner()) { toast('사장님만 출근 체크할 수 있어요.'); return false; }
+    if (!isStaffName(who)) return false;
+    var date = state.date;
+    var next = (value === true);
+    if (attendOf(date, who) === next) clearAtt(date, who);
+    else writeAtt(date, who, next ? true : false);
+    render(false);
+    saveNow();
+    return true;
+  }
+
+  function attendDateLabels(month, who) {
+    // 매달 1일~말일 중 출근한 날을 '11/1(일)' 꼴로 모두 모은다
+    var out = [];
+    var m = /^(\d{4})-(\d{2})$/.exec(text(month));
+    if (!m) return out;
+    var mm = Number(m[2]);
+    for (var d = 1; d <= 31; d++) {
+      var iso = text(month) + '-' + pad2(d);
+      if (!RE_DATE.test(iso)) continue;
+      var dt = parseISO(iso);
+      if (!dt || (dt.getMonth() + 1) !== mm || dt.getDate() !== d) continue;
+      var rec = attendRec(iso, who);
+      if (!attended(rec)) continue;
+      var rooms = [];
+      if (rec.h) rooms.push('헤윰');
+      if (rec.o) rooms.push('오롯');
+      if (!rooms.length) rooms.push('객실 미지정');
+      out.push(mm + '/' + d + '(' + WEEKDAY_KO[dt.getDay()] + ') ' + rooms.join('·'));
+    }
+    return out;
+  }
+
+  function setAttDays(id, month, who) {
     var n = el(id);
     if (!n) return;
+    var list = attendDateLabels(month, who);
     if (!list.length) {
       n.classList.add('off');
       n.textContent = '';
       return;
     }
-    var parts = [], i;
-    for (i = 0; i < list.length; i++) parts.push(list[i] + '일');
-    n.textContent = '출근한 날: ' + parts.join(' · ');
+    // 잘리지 않게 전부 이어서 보여 준다(줄바꿈은 화면이 알아서 한다)
+    n.textContent = '일한 날: ' + list.join(', ');
     n.classList.remove('off');
+  }
+
+  // 객실별 청소 횟수 줄(헤윰만 · 오롯만 · 둘 다)
+  function setAttRooms(id, month, who) {
+    var n = el(id);
+    if (!n) return;
+    var mix = attendMix(month, who);
+    var parts = [];
+    if (mix.hOnly) parts.push('헤윰만 ' + mix.hOnly + '일');
+    if (mix.oOnly) parts.push('오롯만 ' + mix.oOnly + '일');
+    if (mix.both) parts.push('둘 다 ' + mix.both + '일');
+    if (mix.legacy) parts.push('객실 미지정 ' + mix.legacy + '일');
+    n.textContent = parts.join(' · ');
+    if (parts.length) n.classList.remove('off'); else n.classList.add('off');
   }
 
   // 출근 체크는 사장님 모드에서만 보인다. 직원 모드에서는 그리지 않고 display:none 으로 숨긴다.
@@ -2290,10 +3264,13 @@
 
     var dl = el('attDate');
     if (dl) dl.textContent = formatDateKo(state.date) + ' 출근';
-    each('[data-act="att"]', function (b) {
+    each('[data-act="attRoom"]', function (b) {
       var who = b.getAttribute('data-who');
-      var want = (b.getAttribute('data-value') === '1');
-      setOn(b, attendOf(state.date, who) === want);
+      var room = b.getAttribute('data-room');
+      var rec = attendRec(state.date, who);
+      var on = room === 'h' ? (!!rec && rec.h)
+        : (room === 'o' ? (!!rec && rec.o) : (!!rec && rec.marked && !attended(rec)));
+      setOn(b, on);
     });
 
     var mk = attendMonthKey(state.date);
@@ -2302,13 +3279,15 @@
     var mEl = el('attMonth');
     if (mEl) mEl.textContent = attendMonthLabel(mk);
     var s1 = el('attSumSe');
-    if (s1) s1.textContent = '총 ' + se + '일 출근';
+    if (s1) s1.textContent = attendSumText(mk, '이세경');
     var s2 = el('attSumPark');
-    if (s2) s2.textContent = '총 ' + park + '일 출근';
+    if (s2) s2.textContent = attendSumText(mk, '박은주');
     var s3 = el('attSumTotal');
     if (s3) s3.textContent = '총 ' + (se + park) + '일';
-    setAttDays('attDaysSe', attendDays(mk, '이세경'));
-    setAttDays('attDaysPark', attendDays(mk, '박은주'));
+    setAttRooms('attRoomsSe', mk, '이세경');
+    setAttRooms('attRoomsPark', mk, '박은주');
+    setAttDays('attDaysSe', mk, '이세경');
+    setAttDays('attDaysPark', mk, '박은주');
   }
 
   // 카톡 문구에 넣을 이번 달 계량기 요약(사진 본문은 넣지 않는다)
@@ -2419,14 +3398,18 @@
 
   // [💾 저장] : 지금 내용을 바로 저장하고 누가·언제 고쳤는지 남긴다
   function doSave() {
+    var made = 0;
+    try { made = applyCommitRules(); } catch (e0) { made = 0; }
     saveStampFields();
     recordEdit(false);
     saveNow();
     updateSaveSub();
+    render(true);
     var now = new Date().getTime();
     var sent = false;
     try { sent = syncPush(); } catch (e) { sent = false; }
-    if (!sent) toast('저장됐어요 · ' + hhmm(now));
+    if (made > 0) toast('사장님 승인 요청 ' + made + '건을 보냈어요 · 승인 전까지 기존 내용 그대로예요');
+    else if (!sent) toast('저장됐어요 · ' + hhmm(now));
     else if (lastPushResult === 'ok') toast('모든 기기에 저장·동기화됐어요');
     else if (lastPushResult === 'fail') { /* 업로드 실패 안내는 syncPush가 이미 띄웠다 */ }
     else toast('저장 중…');
@@ -3058,9 +4041,17 @@
     for (i = 0; i < SHORT_KEYS.length; i++) {
       k = SHORT_KEYS[i];
       if (!p.rooms[k]) continue;
-      state.rooms[SHORT_ROOM[k]] = p.rooms[k];
+      var prevRoom = state.rooms[SHORT_ROOM[k]];
+      var freshRoom = p.rooms[k];
+      // 받은 내용으로 덮어쓰되, 확정본·승인 대기 기록은 그대로 둔다
+      if (prevRoom && freshRoom) {
+        if (prevRoom.committed) freshRoom.committed = prevRoom.committed;
+        if (prevRoom.pendingEdits) freshRoom.pendingEdits = prevRoom.pendingEdits;
+      }
+      state.rooms[SHORT_ROOM[k]] = freshRoom;
       names.push(shortName(SHORT_ROOM[k]));
     }
+    try { ensureBaselines(); } catch (e1) {}
     if (!names.length) return '';
     // 받는 사람의 작성자(모드)는 바꾸지 않는다. 사장님 링크를 직원이 열어도 직원으로 남는다.
     if (p.writer && isStaffName(p.writer) && !isOwner()) state.writer = p.writer;
@@ -3096,7 +4087,20 @@
 
   function canEdit(field) {
     if (isOwner()) return true;
-    return !OWNER_ONLY[field];
+    field = text(field);
+    if (OWNER_ONLY[field]) return false;
+    // 지난 날짜는 직원이 고칠 수 없다(사장님은 그대로 고칠 수 있다)
+    if (isPastDate()) return false;
+    // 사장님 승인을 기다리는 항목은 직원이 다시 고칠 수 없다
+    if (field === 'noteItems') {
+      for (var i = 0; i < NOTE_ITEMS.length; i++) if (pendingFor('note' + i)) return false;
+      return true;
+    }
+    if (field === 'supplies' || field === 'laundryOut' || field === 'laundryIn') {
+      return !pendingFor(field);
+    }
+    if (field.indexOf('note') === 0) return !pendingFor(field);
+    return true;
   }
 
   // 작성자 고르기: 사장님은 비밀번호를 거친다
@@ -3572,6 +4576,8 @@
     renderMeters();
     renderAttendance();
     applyModeUi();
+    applyStaffLocks();
+    renderPendingUi();
     renderFix();
     updateSaveSub();
     save();
@@ -3780,6 +4786,8 @@
       selectWriter(btn.getAttribute('data-value'));
     } else if (act === 'att') {
       setAttendance(btn.getAttribute('data-who'), btn.getAttribute('data-value') === '1');
+    } else if (act === 'attRoom') {
+      setAttendanceRoom(btn.getAttribute('data-who'), btn.getAttribute('data-room'));
     } else if (act === 'luggageTime') {
       if (!canEdit('luggageFrom')) return;
       var pair = String(btn.getAttribute('data-value') || '').split('-');
@@ -3839,6 +4847,10 @@
       switchDate(todayISO());
     } else if (act === 'gotoDate') {
       switchDate(btn.getAttribute('data-value'));
+    } else if (act === 'approveEdit') {
+      approveEdit(btn.getAttribute('data-date'), btn.getAttribute('data-room'), btn.getAttribute('data-key'));
+    } else if (act === 'rejectEdit') {
+      rejectEdit(btn.getAttribute('data-date'), btn.getAttribute('data-room'), btn.getAttribute('data-key'));
     } else if (act === 'reset') {
       if (isOwner()) openSheet(); else toast('사장님만 초기화할 수 있어요.');
     } else if (act === 'resetRoom') {
@@ -3881,6 +4893,8 @@
       var idx = Math.round(num(node.getAttribute('data-idx'), -1));
       var it = noteItemAt(idx);
       if (!it) return;
+      // 지난 날짜·승인 대기 중인 항목은 직원이 고칠 수 없다
+      if (!canEdit('note' + idx)) { render(true); return; }
       it.memo = node.value;
       cur().touched = true;
       stampNoteItem(it);
@@ -3998,6 +5012,14 @@
       if (dayHasContent(dk)) return true;
     }
     if (state.log && state.log.length) return true;
+    for (var rk in state.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(state.byDate, rk)) continue;
+      var rday = state.byDate[rk];
+      if (!rday || !rday.rooms) continue;
+      for (var ri = 0; ri < ROOM_KEYS.length; ri++) {
+        if (hasKeys((rday.rooms[ROOM_KEYS[ri]] || {}).pendingEdits)) return true;
+      }
+    }
     for (var mk in state.meters) {
       if (!Object.prototype.hasOwnProperty.call(state.meters, mk)) continue;
       var day = state.meters[mk];
@@ -4020,6 +5042,32 @@
   }
 
   // 저장된 상태가 가리키는 사진 아이디(모든 날짜·모든 계량기)
+  function addSnapPhotoIds(map, add) {
+    if (!map || typeof map !== 'object') return;
+    for (var k in map) {
+      if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+      var s = map[k];
+      if (!s || !isArray(s.photos)) continue;
+      for (var i = 0; i < s.photos.length; i++) add(s.photos[i] ? s.photos[i].i : '');
+    }
+  }
+
+  // 승인 대기 요청의 변경 전·후 사진도 함께 올려야 사장님 폰에서 미리 볼 수 있다
+  function addPendingPhotoIds(map, add) {
+    if (!map || typeof map !== 'object') return;
+    for (var k in map) {
+      if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+      var e = map[k];
+      if (!e || typeof e !== 'object') continue;
+      if (e.before && isArray(e.before.photos)) {
+        for (var i = 0; i < e.before.photos.length; i++) add(e.before.photos[i] ? e.before.photos[i].i : '');
+      }
+      if (e.after && isArray(e.after.photos)) {
+        for (var j = 0; j < e.after.photos.length; j++) add(e.after.photos[j] ? e.after.photos[j].i : '');
+      }
+    }
+  }
+
   function collectImageIds() {
     var out = [], seen = {};
     function add(id) {
@@ -4049,6 +5097,8 @@
             for (c = 0; c < it.photos.length; c++) add(it.photos[c] ? it.photos[c].i : '');
           }
         }
+        addSnapPhotoIds(r.committed, add);
+        addPendingPhotoIds(r.pendingEdits, add);
       }
     }
     for (var mk in state.meters) {
@@ -4060,6 +5110,8 @@
         if (!me || !isArray(me.photos)) continue;
         for (var p = 0; p < me.photos.length; p++) add(me.photos[p] ? me.photos[p].i : '');
       }
+      addSnapPhotoIds(mday.committed, add);
+      addPendingPhotoIds(mday.pendingEdits, add);
     }
     return out;
   }
@@ -4249,6 +5301,7 @@
     state.log = cleanLog(data.log);
     if (typeof data.pw === 'string' && data.pw) state.pw = data.pw;
     state.rooms = dayObj(state.date).rooms;
+    try { ensureBaselines(); } catch (e0) {}
     if (at > 0) rememberSyncedAt(at);
     pendingRemote = null;
     saveNow();
@@ -4587,11 +5640,36 @@
     // 사장님 전용 출근 체크(검증용)
     attendance: {
       get: function (date, who) { return attendOf(date || state.date, who); },
+      rec: function (date, who) { return attendRec(date || state.date, who); },
       set: function (who, value) { return setAttendance(who, value === true || value === 1 || value === '1'); },
+      // 객실 버튼(헤윰 'h' · 오롯 'o' · 미출근 'none')을 한 번 누른 것과 같게
+      toggleRoom: function (who, room) { return setAttendanceRoom(who, room); },
+      roomCount: function (who, room, date) {
+        return attendRoomCount(attendMonthKey(date || state.date), who,
+          room === 'h' ? HEYUM : (room === 'o' ? OROT : ''));
+      },
+      roomCounts: function (who, date) {
+        var mk = attendMonthKey(date || state.date);
+        return { h: attendRoomCount(mk, who, HEYUM), o: attendRoomCount(mk, who, OROT) };
+      },
+      dayCount: function (who, date) { return attendDayCount(attendMonthKey(date || state.date), who); },
+      mix: function (who, date) { return attendMix(attendMonthKey(date || state.date), who); },
+      sumText: function (who) { return attendSumText(attendMonthKey(state.date), who); },
+      roomPressed: function (who, room) {
+        var rec = attendRec(state.date, who);
+        if (room === 'h') return !!rec && rec.h;
+        if (room === 'o') return !!rec && rec.o;
+        return !!rec && rec.marked && !attended(rec);
+      },
+      roomsText: function (who) {
+        var n = el(who === '박은주' ? 'attRoomsPark' : 'attRoomsSe');
+        return n ? text(n.textContent) : '';
+      },
       month: function () { return attendMonthKey(state.date); },
       monthLabel: attendMonthLabel,
       count: attendCount,
       days: attendDays,
+      dateLabels: function (who) { return attendDateLabels(attendMonthKey(state.date), who); },
       record: function () { return state.attendance; },
       visible: function () {
         var n = el('attendanceCard');
@@ -4615,14 +5693,114 @@
       },
       dateLabel: function () { var n = el('attDate'); return n ? text(n.textContent) : ''; },
       pressed: function (who, value) {
-        var nodes = document.querySelectorAll('[data-act="att"]'), out = false, i;
-        for (i = 0; i < nodes.length; i++) {
-          if (nodes[i].getAttribute('data-who') !== who) continue;
-          if (String(nodes[i].getAttribute('data-value')) !== String(value)) continue;
-          out = nodes[i].getAttribute('aria-pressed') === 'true';
-        }
-        return out;
+        // 예전 검증과의 호환: 1 = 그날 출근(헤윰·오롯 중 하나라도) · 0 = 미출근
+        var rec = attendRec(state.date, who);
+        if (String(value) === '1') return attended(rec);
+        return !!rec && rec.marked && !attended(rec);
       }
+    },
+    // 입력칸을 직접 친 것과 같은 경로(잠금 검증용)
+    inputNote: function (idx, value) {
+      var node = el('niMemo' + Math.round(num(idx, -1)));
+      if (node) node.value = text(value);
+      onInput({ type: 'input', target: {
+        value: text(value),
+        getAttribute: function (k) {
+          return k === 'data-input' ? 'noteMemo' : (k === 'data-idx' ? String(idx) : null);
+        }
+      } });
+      return text((noteItemAt(Math.round(num(idx, -1))) || {}).memo);
+    },
+    inputText: function (field, value) {
+      onInput({ type: 'input', target: {
+        value: text(value),
+        getAttribute: function (k) { return k === 'data-input' ? field : null; }
+      } });
+      return text(cur()[field]);
+    },
+    // 지난 날짜 잠금 · 승인 대기(검증용)
+    approval: {
+      staffItems: function () { return STAFF_ITEMS.slice(0); },
+      pastLocked: function () { return !isOwner() && isPastDate(); },
+      canPhotoChange: canPhotoChange,
+      canEdit: canEdit,
+      label: itemLabel,
+      pending: function (key, roomKey, date) {
+        var t = pendingTarget(date, roomKey || state.active, key);
+        return (t && t.map[text(key)]) ? t.map[text(key)] : null;
+      },
+      list: pendingList,
+      count: function () { return pendingList().length; },
+      approve: function (key, roomKey, date) { return approveEdit(date, roomKey || state.active, key); },
+      reject: function (key, roomKey, date) { return rejectEdit(date, roomKey || state.active, key); },
+      committed: function (key, roomKey, date) {
+        var d = RE_DATE.test(text(date)) ? text(date) : state.date;
+        var day = state.byDate[d];
+        var r = (day && day.rooms) ? day.rooms[roomKey || state.active] : null;
+        return (r && r.committed) ? (r.committed[text(key)] || null) : null;
+      },
+      meterCommitted: function (kind, date) {
+        var d = RE_DATE.test(text(date)) ? text(date) : state.date;
+        var md = meterDay(d.slice(0, 7), false);
+        if (!md || !md.committed) return null;
+        return md.committed[text(kind)] || null;
+      },
+      meterPending: function (kind) {
+        var md = meterDay(monthKey(), false);
+        if (!md || !md.pendingEdits) return null;
+        return md.pendingEdits[text(kind)] || null;
+      },
+      tag: function (key) {
+        var n = el('pendTag-' + text(key));
+        if (!n) return null;
+        return { hidden: n.classList.contains('hidden'), text: text(n.textContent) };
+      },
+      box: function (key) {
+        var n = el('pendBox-' + text(key));
+        if (!n) return null;
+        return { hidden: n.classList.contains('hidden'), text: nodeText(n), kids: (n.children ? n.children.length : 0) };
+      },
+      card: function () {
+        var n = el('approveCard');
+        var c = el('approveCount');
+        return {
+          hidden: n ? n.classList.contains('hidden') : true,
+          count: c ? text(c.textContent) : '',
+          rows: (el('approveList') && el('approveList').children) ? el('approveList').children.length : 0,
+          text: nodeText(el('approveList'))
+        };
+      },
+      buttons: function () {
+        var out = { approve: 0, reject: 0 };
+        function walk(n) {
+          if (!n) return;
+          if (n.getAttribute) {
+            var a = n.getAttribute('data-act');
+            if (a === 'approveEdit') out.approve++;
+            else if (a === 'rejectEdit') out.reject++;
+          }
+          if (n.children) {
+            for (var i = 0; i < n.children.length; i++) walk(n.children[i]);
+          }
+        }
+        walk(el('approveList'));
+        for (var i = 0; i < STAFF_ITEMS.length; i++) walk(el('pendBox-' + STAFF_ITEMS[i]));
+        walk(el('pendBox-water'));
+        walk(el('pendBox-gas'));
+        return out;
+      },
+      notice: function () {
+        var n = el('pastLockNotice');
+        return n ? !n.classList.contains('hidden') : false;
+      },
+      noticeText: function () {
+        return nodeText(el('pastLockTitle')) + ' ' + nodeText(el('pastLockSub'));
+      },
+      locked: function (id) {
+        var n = el(id);
+        return n ? (n.getAttribute('disabled') === 'disabled') : null;
+      },
+      modeSub: function () { var n = el('modeSub'); return n ? text(n.textContent) : ''; }
     },
     photoConfig: function () {
       return { maxSide: PHOTO_MAX_SIDE, quality: PHOTO_QUALITY, max: PHOTO_MAX_ITEMS, prefix: IMG_PREFIX };
