@@ -274,9 +274,11 @@
   .photothumb .ph-x{position:absolute; top:3px; right:3px; width:22px; height:22px; border:0;
     border-radius:999px; background:rgba(15,25,40,.68); color:#fff; font-size:12px; font-weight:800;
     line-height:22px; padding:0; text-align:center;}
-  .photoadd{width:78px; height:78px; min-height:0; border:1px dashed #bfcbdb; border-radius:11px;
-    background:#fff; color:var(--accent); font-size:12px; font-weight:800; line-height:1.25; padding:4px;}
+  .photoadd{width:auto; min-width:96px; max-width:140px; height:78px; min-height:0; border:1px dashed #bfcbdb;
+    border-radius:11px; background:#fff; color:var(--accent); font-size:12px; font-weight:800;
+    line-height:1.2; padding:5px 8px; text-align:center;}
   .photoadd .pa-ico{display:block; font-size:18px; line-height:1.25;}
+  .photoadd .pa-sub{display:block; margin-top:3px; font-size:9.5px; font-weight:700; color:#93a2b3;}
   .photoadd:active{background:#f1f5fb;}
   .ph-sum{font-size:11.5px; font-weight:700; color:#8b98a8; margin:7px 0 0;}
   /* 월간 계량기 */
@@ -657,31 +659,10 @@
     </div>
 
     <div class="noteitem" id="ni3">
-      <div class="ni-head"><span class="ni-name">청소</span><span class="ni-mark" id="niMark3">없음</span><span class="ni-who" id="niWho3">작성: 아직 없음</span></div>
-      <textarea id="niMemo3" data-input="noteMemo" data-idx="3" rows="2" placeholder="청소가 필요한 곳·상태를 적어 주세요"></textarea>
+      <div class="ni-head"><span class="ni-name">기타</span><span class="ni-mark" id="niMark3">없음</span><span class="ni-who" id="niWho3">작성: 아직 없음</span></div>
+      <textarea id="niMemo3" data-input="noteMemo" data-idx="3" rows="2" placeholder="그 밖에 전할 내용을 적어 주세요"></textarea>
       <div class="photos" id="niPhotos3"></div>
       <p class="ph-sum hidden" id="niSum3"></p>
-    </div>
-
-    <div class="noteitem" id="ni4">
-      <div class="ni-head"><span class="ni-name">비품</span><span class="ni-mark" id="niMark4">없음</span><span class="ni-who" id="niWho4">작성: 아직 없음</span></div>
-      <textarea id="niMemo4" data-input="noteMemo" data-idx="4" rows="2" placeholder="객실에 놓인 비품 상태를 적어 주세요"></textarea>
-      <div class="photos" id="niPhotos4"></div>
-      <p class="ph-sum hidden" id="niSum4"></p>
-    </div>
-
-    <div class="noteitem" id="ni5">
-      <div class="ni-head"><span class="ni-name">고객 요청</span><span class="ni-mark" id="niMark5">없음</span><span class="ni-who" id="niWho5">작성: 아직 없음</span></div>
-      <textarea id="niMemo5" data-input="noteMemo" data-idx="5" rows="2" placeholder="고객이 부탁한 내용을 적어 주세요"></textarea>
-      <div class="photos" id="niPhotos5"></div>
-      <p class="ph-sum hidden" id="niSum5"></p>
-    </div>
-
-    <div class="noteitem" id="ni6">
-      <div class="ni-head"><span class="ni-name">기타</span><span class="ni-mark" id="niMark6">없음</span><span class="ni-who" id="niWho6">작성: 아직 없음</span></div>
-      <textarea id="niMemo6" data-input="noteMemo" data-idx="6" rows="2" placeholder="그 밖에 전할 내용을 적어 주세요"></textarea>
-      <div class="photos" id="niPhotos6"></div>
-      <p class="ph-sum hidden" id="niSum6"></p>
     </div>
   </section>
 
@@ -802,17 +783,14 @@
   </div>
 </div>
 
-<!-- 사진 고르기(숨김 입력) -->
-<input type="file" id="niFile0" class="hidden" accept="image/*" data-photo="note" data-idx="0">
-<input type="file" id="niFile1" class="hidden" accept="image/*" data-photo="note" data-idx="1">
-<input type="file" id="niFile2" class="hidden" accept="image/*" data-photo="note" data-idx="2">
-<input type="file" id="niFile3" class="hidden" accept="image/*" data-photo="note" data-idx="3">
-<input type="file" id="niFile4" class="hidden" accept="image/*" data-photo="note" data-idx="4">
-<input type="file" id="niFile5" class="hidden" accept="image/*" data-photo="note" data-idx="5">
-<input type="file" id="niFile6" class="hidden" accept="image/*" data-photo="note" data-idx="6">
-<input type="file" id="meterFileWater" class="hidden" accept="image/*" data-photo="meter" data-kind="water">
-<input type="file" id="meterFileGas" class="hidden" accept="image/*" data-photo="meter" data-kind="gas">
-<input type="file" id="reqFile" class="hidden" accept="image/*" data-photo="req">
+<!-- 사진 고르기(숨김 입력) — 여러 장을 한 번에 고를 수 있다 -->
+<input type="file" id="niFile0" class="hidden" accept="image/*" multiple data-photo="note" data-idx="0">
+<input type="file" id="niFile1" class="hidden" accept="image/*" multiple data-photo="note" data-idx="1">
+<input type="file" id="niFile2" class="hidden" accept="image/*" multiple data-photo="note" data-idx="2">
+<input type="file" id="niFile3" class="hidden" accept="image/*" multiple data-photo="note" data-idx="3">
+<input type="file" id="meterFileWater" class="hidden" accept="image/*" multiple data-photo="meter" data-kind="water">
+<input type="file" id="meterFileGas" class="hidden" accept="image/*" multiple data-photo="meter" data-kind="gas">
+<input type="file" id="reqFile" class="hidden" accept="image/*" multiple data-photo="req">
 
 <noscript><p style="padding:20px">이 화면을 쓰려면 브라우저에서 자바스크립트를 켜 주세요.</p></noscript>
 
@@ -873,8 +851,11 @@
   };
 
   // 특이사항: 항목마다 따로 메모·사진·작성자를 남긴다(예전 태그 버튼은 없앰)
-  var NOTE_ITEMS = ['파손 있음', '오염 확인', '분실물 있음', '청소', '비품', '고객 요청', '기타'];
-  // 예전 저장본의 체크 태그는 같은 이름의 항목 메모로만 옮긴다
+  var NOTE_ITEMS = ['파손 있음', '오염 확인', '분실물 있음', '기타'];
+  // '기타'는 예전에 있던 항목·모르는 이름의 메모와 사진이 모이는 자리다
+  var NOTE_ETC = NOTE_ITEMS.length - 1;
+  // 예전 저장분·링크의 항목 번호는 이만큼까지 받아 준다(그 뒤 번호는 모두 '기타')
+  var NOTE_LEGACY_MAX = 6;
 
 
   // 월간 계량기: 매달 수도 7일 · 도시가스 25일
@@ -913,11 +894,16 @@
     return Math.min(lim[1], Math.max(lim[0], Math.round(v)));
   }
 
-  // 특이사항 항목 7개를 빈 값으로
+  // 특이사항 항목 하나의 빈 값
+  function emptyNoteItem(label) {
+    return { label: text(label), memo: '', photos: [], by: '', at: 0, photoNote: '' };
+  }
+
+  // 특이사항 항목 4개를 빈 값으로
   function emptyNoteItems() {
     var out = [];
     for (var i = 0; i < NOTE_ITEMS.length; i++) {
-      out.push({ label: NOTE_ITEMS[i], memo: '', photos: [], by: '', at: 0, photoNote: '' });
+      out.push(emptyNoteItem(NOTE_ITEMS[i]));
     }
     return out;
   }
@@ -1065,10 +1051,10 @@
     if (src.luggage !== undefined) dst.luggage = !!src.luggage;
     if (src.touched !== undefined) dst.touched = !!src.touched;
 
-    // 특이사항: 항목별(새 방식)
+    // 특이사항: 항목별(새 방식). 예전 저장분처럼 항목 수가 달라도 기타로 모아 안전하게 살린다
     if (isArray(src.noteItems)) {
-      for (var ni = 0; ni < NOTE_ITEMS.length && ni < src.noteItems.length; ni++) {
-        readNoteItem(dst.noteItems[ni], src.noteItems[ni]);
+      for (var ni = 0; ni < src.noteItems.length; ni++) {
+        putNoteItem(dst.noteItems, src.noteItems[ni], noteTargetIndex(ni, src.noteItems[ni] ? src.noteItems[ni].label : ''));
       }
     } else if (typeof src.notes === 'string' || isArray(src.noteTags)) {
       // 예전 방식(태그 + 한 칸 메모)은 같은 이름의 항목·'기타'로 옮긴다(내용을 잃지 않게)
@@ -1080,7 +1066,7 @@
           if (mi >= 0 && !trim(dst.noteItems[mi].memo)) dst.noteItems[mi].memo = src.noteTags[ti];
         }
       }
-      var lastItem = dst.noteItems[NOTE_ITEMS.length - 1];
+      var lastItem = dst.noteItems[NOTE_ETC];
       var legacyText = (typeof src.notes === 'string') ? trim(src.notes) : '';
       if (legacyText && !trim(lastItem.memo)) lastItem.memo = legacyText;
       if (hasNoteItem(lastItem) && src.notesBy && (src.notesBy === OWNER_NAME || isStaffName(src.notesBy))) {
@@ -1089,6 +1075,54 @@
       }
     }
     return dst;
+  }
+
+  // 저장분·링크의 항목 번호·이름을 지금 항목 자리로 옮긴다.
+  // 자리가 없는 이름(예전 항목명·모르는 이름)은 '기타'로 모은다.
+  function noteTargetIndex(idx, label) {
+    var lbl = trim(label);
+    var i;
+    if (lbl) {
+      i = NOTE_ITEMS.indexOf(lbl);
+      return i >= 0 ? i : NOTE_ETC;
+    }
+    if (!(idx >= 0)) return -1;
+    if (idx < NOTE_ETC) return idx;                       // 파손·오염·분실물은 자리가 그대로
+    if (idx <= NOTE_LEGACY_MAX) return NOTE_ETC;          // 예전 3~6번은 '기타'로
+    return -1;                                            // 그 밖의 번호는 버린다
+  }
+
+  // 옮겨 온 글이 어느 항목이었는지 앞머리에 붙일 이름(지금 항목이면 빈 값)
+  function noteMoveLabel(label) {
+    var lbl = trim(label);
+    if (!lbl || NOTE_ITEMS.indexOf(lbl) >= 0) return '';
+    return lbl;
+  }
+
+  // 항목 하나를 받아 담는다. '기타'로 몰려온 글·사진은 앞머리에 옛 항목 이름을 붙인다.
+  function putNoteItem(list, src, to) {
+    if (!list || !src || typeof src !== 'object') return null;
+    if (!(to >= 0) || !list[to]) return null;
+    var target = list[to];
+    var tmp = emptyNoteItem(target.label);
+    readNoteItem(tmp, src);
+    var moveLabel = noteMoveLabel(src.label);
+    var memo = trim(tmp.memo);
+    if (memo) {
+      var piece = moveLabel ? (moveLabel + ': ' + memo) : memo;
+      target.memo = trim(target.memo) ? (trim(target.memo) + '\n' + piece) : piece;
+      target.memo = target.memo.slice(0, 800);
+    }
+    if (isArray(tmp.photos)) {
+      if (!isArray(target.photos)) target.photos = [];
+      for (var i = 0; i < tmp.photos.length && target.photos.length < PHOTO_MAX_ITEMS; i++) {
+        target.photos.push(tmp.photos[i]);
+      }
+    }
+    if (tmp.by && (!target.by || tmp.at > target.at)) { target.by = tmp.by; target.at = tmp.at; }
+    else if (tmp.at > target.at) { target.at = tmp.at; }
+    if (!trim(target.photoNote) && trim(tmp.photoNote)) target.photoNote = tmp.photoNote;
+    return target;
   }
 
   // 특이사항 항목 하나를 안전하게 읽는다
@@ -1657,6 +1691,10 @@
       var tx = document.createElement('span');
       tx.textContent = '사진 추가';
       add.appendChild(tx);
+      var sub = document.createElement('span');
+      sub.className = 'pa-sub';
+      sub.textContent = '여러 장 가능';
+      add.appendChild(sub);
       box.appendChild(add);
     }
   }
@@ -1701,28 +1739,49 @@
     return false;
   }
 
-  // 사진 한 장을 해당 칸에 붙인다(용량 초과 등은 토스트로 안내)
-  function addPhoto(where, dataUrl) {
+  // 사진을 담지 못한 까닭(여러 장 올릴 때 안내 문구를 한 번에 정한다)
+  var addPhotoError = '';
+
+  function photoErrText() {
+    if (addPhotoError === 'quota') return '폰 저장 공간이 부족해 사진을 담지 못했어요. 지난 사진을 지우고 다시 올려 주세요.';
+    if (addPhotoError === 'limit') return '사진은 한 항목에 ' + PHOTO_MAX_ITEMS + '장까지 올릴 수 있어요.';
+    if (addPhotoError === 'owner') return '사장님만 사진을 올릴 수 있어요.';
+    return '사진을 읽지 못했어요. 다른 사진으로 다시 시도해 주세요.';
+  }
+
+  // 사진 한 장을 해당 칸에 붙인다(용량 초과 등은 토스트로 안내). quiet면 안내는 부르는 쪽이 한다.
+  function addPhoto(where, dataUrl, quiet) {
     var parts = text(where).split(':');
+    addPhotoError = '';
     var list;
     if (parts[0] === 'meter') {
       var me = meterEntry(parts[1], true);
       list = me ? me.photos : null;
     } else if (parts[0] === 'req') {
-      if (!isOwner()) { toast('사장님만 사진을 올릴 수 있어요.'); return false; }
+      if (!isOwner()) {
+        addPhotoError = 'owner';
+        if (!quiet) toast(photoErrText());
+        return false;
+      }
       list = photoWhereList(where);
     } else {
       list = photoWhereList(where);
     }
     if (!list) return false;
-    if (!dataUrl) { toast('사진을 읽지 못했어요. 다른 사진으로 다시 시도해 주세요.'); return false; }
+    if (!dataUrl) {
+      addPhotoError = 'read';
+      if (!quiet) toast(photoErrText());
+      return false;
+    }
     if (list.length >= PHOTO_MAX_ITEMS) {
-      toast('사진은 한 항목에 ' + PHOTO_MAX_ITEMS + '장까지 올릴 수 있어요.');
+      addPhotoError = 'limit';
+      if (!quiet) toast(photoErrText());
       return false;
     }
     var id = newPhotoId();
     if (!saveImage(id, dataUrl)) {
-      toast('폰 저장 공간이 부족해 사진을 담지 못했어요. 지난 사진을 지우고 다시 올려 주세요.');
+      addPhotoError = 'quota';
+      if (!quiet) toast(photoErrText());
       return false;
     }
     var now = new Date().getTime();
@@ -1747,7 +1806,7 @@
     }
     render(false);
     saveNow();
-    toast('사진을 올렸어요.');
+    if (!quiet) toast('사진을 올렸어요.');
     return true;
   }
 
@@ -1796,21 +1855,74 @@
     closePhoto();
   }
 
+  // 사진 고르기: 고른 사진 여러 장을 차례로 줄여 한 번에 담는다(여러 장 선택 지원)
   function handlePhotoFile(node) {
     if (!node || !node.files || !node.files.length) return false;
     if (node.__busy) return false;
-    node.__busy = true;
-    var file = node.files[0];
     var where = (node.getAttribute('data-photo') === 'meter')
       ? ('meter:' + text(node.getAttribute('data-kind')))
       : (node.getAttribute('data-photo') === 'req'
         ? 'req:'
         : ('note:' + Math.round(num(node.getAttribute('data-idx'), -1))));
-    compressImage(file, function (dataUrl) {
+    // 고른 파일을 미리 복사한다(입력칸을 비워도 담을 수 있게)
+    var files = [], fi;
+    for (fi = 0; fi < node.files.length; fi++) files.push(node.files[fi]);
+    if (!files.length) return false;
+    function resetInput() { try { node.value = ''; } catch (e) {} }
+    if (text(where).indexOf('req:') === 0 && !isOwner()) {
+      toast('사장님만 사진을 올릴 수 있어요.');
+      resetInput();
+      return false;
+    }
+    var list = photoWhereList(where);
+    var have = 0;
+    if (list) {
+      have = list.length;
+    } else if (text(where).indexOf('meter:') === 0) {
+      // 아직 이번 달 칸이 없어도 담을 수 있다(장수는 0에서 시작)
+      var prevMeter = meterEntry(text(where).split(':')[1], false);
+      have = prevMeter ? prevMeter.photos.length : 0;
+    } else {
+      resetInput();
+      return false;
+    }
+    var room = PHOTO_MAX_ITEMS - have;
+    if (room <= 0) {
+      toast('사진은 한 항목에 ' + PHOTO_MAX_ITEMS + '장까지 올릴 수 있어요.');
+      resetInput();
+      return false;
+    }
+    var take = Math.min(files.length, room);
+    var cut = files.length > take;
+    node.__busy = true;
+    var at = 0, added = 0, failed = 0;
+
+    function finish() {
       node.__busy = false;
-      addPhoto(where, dataUrl);
-      try { node.value = ''; } catch (e) {}
-    });
+      resetInput();
+      if (added > 0) {
+        var tail = '';
+        if (cut) tail += ' (한 항목에 ' + PHOTO_MAX_ITEMS + '장까지만 담았어요)';
+        if (failed > 0) tail += ' (' + failed + '장은 담지 못했어요)';
+        toast('사진 ' + added + '장을 올렸어요.' + tail);
+      } else {
+        toast(photoErrText());
+      }
+    }
+
+    function next() {
+      if (at >= take) { finish(); return; }
+      var file = files[at];
+      at++;
+      compressImage(file, function (dataUrl) {
+        if (!dataUrl) { failed++; }
+        else if (addPhoto(where, dataUrl, true)) { added++; }
+        else { failed++; }
+        next();
+      });
+    }
+
+    next();
     return true;
   }
 
@@ -2313,15 +2425,20 @@
         var one = o.nx[k];
         if (!one || typeof one !== 'object') continue;
         var idx = Math.round(num(one.i, -1));
-        if (!(idx >= 0 && idx < NOTE_ITEMS.length)) continue;
-        var it = noteItems[idx];
-        it.memo = safeStr(one.m, 400);
-        if (one.w === OWNER_NAME || isStaffName(one.w)) it.by = one.w;
-        it.at = minuteToMs(one.t);
+        var to = noteTargetIndex(idx, one.l);
+        if (to < 0) continue;
+        var pn = '';
         if (num(one.c, 0) > 0) {
-          it.photoNote = '사진 ' + Math.min(PHOTO_MAX_ITEMS, Math.round(num(one.c, 0))) + '장 (보낸 폰에 있음)';
+          pn = '사진 ' + Math.min(PHOTO_MAX_ITEMS, Math.round(num(one.c, 0))) + '장 (보낸 폰에 있음)';
         }
-        if (typeof one.pn === 'string' && trim(one.pn)) it.photoNote = safeStr(one.pn, 40);
+        if (typeof one.pn === 'string' && trim(one.pn)) pn = safeStr(one.pn, 40);
+        putNoteItem(noteItems, {
+          label: safeStr(one.l, 20),
+          memo: safeStr(one.m, 400),
+          by: (one.w === OWNER_NAME || isStaffName(one.w)) ? one.w : '',
+          at: minuteToMs(one.t),
+          photoNote: pn
+        }, to);
       }
     }
     var src = {
@@ -3488,6 +3605,8 @@
       return true;
     },
     addNotePhoto: function (idx, dataUrl) { return addPhoto('note:' + Math.round(num(idx, -1)), dataUrl); },
+    // 사진 고르기 입력칸 처리(여러 장 선택 검증용)
+    handlePhotoFile: handlePhotoFile,
     // 사장님 요청 메모(사장님만)
     setReqMemo: function (value) {
       var r = cur();
