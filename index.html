@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>능놀스테이 체크리스트</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="description" content="능놀스테이 직원·사장님이 하루 인원과 비품을 손가락으로 눌러 기록하고 카톡으로 바로 전달하는 체크리스트">
+<meta name="description" content="능놀스테이 직원·사장님이 헤윰·오롯 객실별로 인원과 비품을 손가락으로 눌러 기록하고 카톡으로 바로 전달하는 체크리스트">
 <meta name="theme-color" content="#1d5bd6">
 <meta name="color-scheme" content="light">
 <!-- 홈 화면에 추가(앱처럼 실행) -->
@@ -53,6 +53,7 @@
     box-shadow:0 1px 2px rgba(16,30,50,.05);}
   .card h2{font-size:15px; margin:0 0 12px; letter-spacing:-.3px; display:flex; align-items:center; gap:7px;}
   .card h2 .dot{width:6px; height:16px; border-radius:3px; background:var(--accent);}
+  .card h2 .badge{margin-left:auto;}
   .field{margin:0 0 15px;}
   .field:last-child{margin-bottom:0;}
   .label{font-size:12.5px; color:var(--muted); font-weight:700; margin-bottom:7px;
@@ -72,6 +73,12 @@
   .seg button.on .sub{color:var(--accent);}
   .seg button.on.yes{color:var(--green); background:var(--green-soft);}
   .seg button.on.no{color:#41536b; background:#fff;}
+  /* 객실 탭 배지 */
+  .room-badge{display:inline-block; margin-top:5px; padding:2px 9px; border-radius:999px;
+    font-size:10.5px; font-weight:800; letter-spacing:-.2px; color:#5b6b7f; background:#e7ecf3;}
+  .room-badge.filled{background:var(--green-soft); color:var(--green);}
+  .seg button.on .room-badge{background:var(--accent-soft); color:var(--accent);}
+  .seg button.on .room-badge.filled{background:var(--green-soft); color:var(--green);}
   /* 스테퍼 */
   .stepper{display:flex; align-items:center; gap:10px; background:#f1f4f8; border-radius:14px; padding:4px;}
   .stepper button{width:54px; height:48px; border:0; border-radius:11px; background:#fff;
@@ -128,10 +135,22 @@
     box-shadow:0 4px 12px rgba(12,122,86,.24);}
   /* 토스트 */
   #toast{position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom)); transform:translate(-50%, 12px);
-    z-index:40; max-width:88vw; text-align:center; background:rgba(20,32,46,.94); color:#fff;
+    z-index:60; max-width:88vw; text-align:center; background:rgba(20,32,46,.94); color:#fff;
     font-size:13.5px; font-weight:600; line-height:1.4; padding:11px 16px; border-radius:12px;
     opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;}
   #toast.show{opacity:1; transform:translate(-50%, 0);}
+  /* 지우기 선택 시트 */
+  .sheet-bg{position:fixed; left:0; right:0; top:0; bottom:0; z-index:50;
+    background:rgba(12,20,32,.45); display:flex; align-items:flex-end; justify-content:center;
+    padding:16px 12px calc(16px + env(safe-area-inset-bottom));}
+  .sheet{width:100%; max-width:520px; background:#fff; border-radius:18px; padding:18px 16px 14px;
+    box-shadow:0 -8px 30px rgba(10,20,35,.25);}
+  .sheet b{display:block; font-size:16px; margin-bottom:6px; letter-spacing:-.3px;}
+  .sheet-note{font-size:12.5px; color:var(--muted); font-weight:600; margin:0 0 14px; line-height:1.5;}
+  .sheet-btn{display:block; width:100%; min-height:50px; border:0; border-radius:13px;
+    font-size:15px; font-weight:800; margin:0 0 8px; background:#eef1f5; color:#3f4f66;}
+  .sheet-btn.danger{background:#fdecec; color:#b42318;}
+  .sheet-btn.ghost{background:#fff; color:#6b7a8d; border:1px solid var(--line); margin-bottom:0;}
   /* 자바스크립트가 꺼진 화면(아이폰 '미리보기' 등)에서 보이는 안내 */
   .nomode{margin:12px 12px 0; padding:14px 16px; border-radius:14px;
     background:#fff4e5; border:2px solid #f0a33c; color:#6b3f05;
@@ -152,7 +171,7 @@
 <header class="topbar">
   <div class="brand">
     <b>능놀스테이 체크리스트</b>
-    <span>누르기만 하면 카톡 전달까지</span>
+    <span id="brandSub">누르기만 하면 카톡 전달까지</span>
   </div>
   <a class="peek" href="#preview">문구 보기</a>
 </header>
@@ -168,16 +187,19 @@
     </div>
 
     <div class="field">
-      <div class="label">숙소 / 객실</div>
+      <div class="label">숙소 / 객실 <span class="hint">객실마다 따로 저장돼요</span></div>
       <div class="seg grid2" id="stayGroup">
         <button type="button" data-act="stay" data-value="능놀스테이 헤윰(3층)">
           <span class="sub">능놀스테이</span><span>헤윰 · 3층</span>
+          <span class="room-badge" id="badge-heyum">미입력</span>
         </button>
         <button type="button" data-act="stay" data-value="능놀스테이 오롯(6층)">
           <span class="sub">능놀스테이</span><span>오롯 · 6층</span>
+          <span class="room-badge" id="badge-orot">미입력</span>
         </button>
         <button type="button" class="wide" data-act="stay" data-value="custom">
           <span class="sub">기타</span><span>직접입력</span>
+          <span class="room-badge" id="badge-custom">미입력</span>
         </button>
       </div>
       <input type="text" id="stayCustom" class="hidden" data-input="stayCustom"
@@ -198,7 +220,7 @@
 
   <!-- 인원 · 숙박 -->
   <section class="card">
-    <h2><span class="dot"></span>인원 · 숙박</h2>
+    <h2><span class="dot"></span>인원 · 숙박 <span class="badge" id="roomTag">헤윰 · 3층</span></h2>
 
     <div class="field">
       <div class="label">성인 <span class="hint">명</span></div>
@@ -391,6 +413,15 @@
   <!-- 미리보기 -->
   <section class="card" id="preview">
     <h2><span class="dot"></span>카톡 전송 문구</h2>
+
+    <div class="field">
+      <div class="label">보낼 범위 <span class="hint">두 객실을 한 번에 보낼 수 있어요</span></div>
+      <div class="seg">
+        <button type="button" data-act="sendMode" data-value="current">현재 객실만</button>
+        <button type="button" data-act="sendMode" data-value="both">헤윰+오롯 둘 다</button>
+      </div>
+    </div>
+
     <pre id="previewText"></pre>
     <p class="note">이 문구 그대로 카톡에 붙여넣으면 됩니다. 수정은 위 항목을 다시 눌러 주세요.</p>
   </section>
@@ -399,12 +430,23 @@
 <div class="bar">
   <div class="bar-inner">
     <button type="button" class="btn-reset" data-act="reset">초기화</button>
-    <button type="button" class="btn-copy" data-act="copy">카톡 복사하기</button>
-    <button type="button" class="btn-share" data-act="share">바로 공유하기</button>
+    <button type="button" class="btn-copy" id="btnCopy" data-act="copy">카톡 복사하기</button>
+    <button type="button" class="btn-share" id="btnShare" data-act="share">바로 공유하기</button>
   </div>
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
+
+<!-- 지우기 범위 선택 -->
+<div id="sheet" class="sheet-bg hidden" data-act="closeSheet">
+  <div class="sheet">
+    <b>어디까지 지울까요?</b>
+    <p class="sheet-note">헤윰·오롯 값을 따로 저장하니, 지울 범위를 골라 주세요. 취소하면 아무것도 지워지지 않아요.</p>
+    <button type="button" class="sheet-btn" id="sheetRoomBtn" data-act="resetRoom">현재 객실만 비우기</button>
+    <button type="button" class="sheet-btn danger" data-act="resetAllRooms">두 객실 모두 비우기</button>
+    <button type="button" class="sheet-btn ghost" data-act="closeSheet">취소</button>
+  </div>
+</div>
 
 <noscript><p style="padding:20px">이 화면을 쓰려면 브라우저에서 자바스크립트를 켜 주세요.</p></noscript>
 
@@ -412,16 +454,22 @@
 (function () {
   'use strict';
 
-  var KEY = 'stay_checklist.v1';
+  // 저장 키: v2(객실별 분리 저장). 예전 v1 저장분은 첫 실행 때 자동으로 옮겨 온다.
+  var KEY = 'stay_checklist.v2';
+  var LEGACY_KEY = 'stay_checklist.v1';
+
+  var HEYUM = '능놀스테이 헤윰(3층)';
+  var OROT = '능놀스테이 오롯(6층)';
+  var CUSTOM = 'custom';
+  var ROOM_KEYS = [HEYUM, OROT, CUSTOM];
+  var BOTH_KEYS = [HEYUM, OROT];
+  var DIVIDER = '──────────────';
 
   var LIMITS = {
     adult: [0, 30], child: [0, 20], nights: [0, 30],
     smallTowel: [0, 70], bigTowel: [0, 70], blanketCount: [0, 20],
     bigBag: [0, 40], smallBag: [0, 40]
   };
-
-  // 숙소는 능놀스테이 헤윰·오롯(필요시 직접입력)만 쓴다. 저장값이 다른 이름이면 기본값으로 되돌린다.
-  var STAY_OPTIONS = ['능놀스테이 헤윰(3층)', '능놀스테이 오롯(6층)', 'custom'];
 
   var NOTE_LABELS = ['파손 없음', '오염 확인', '분실물 있음', '주차 안내'];
   var SUPPLY_LABELS = ['작은수건', '큰수건', '큰쓰레기봉투', '작은쓰레기봉투', '휴지',
@@ -434,13 +482,28 @@
     return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
   }
 
-  function defaults() {
+  function el(id) { return document.getElementById(id); }
+
+  function text(v) { return (v === undefined || v === null) ? '' : String(v); }
+
+  function trim(v) { return text(v).replace(/^\s+|\s+$/g, ''); }
+
+  function num(v, fallback) {
+    var n = Number(v);
+    return (isFinite(n) ? n : fallback);
+  }
+
+  function isArray(v) { return Object.prototype.toString.call(v) === '[object Array]'; }
+
+  function clamp(field, v) {
+    var lim = LIMITS[field] || [0, 99];
+    return Math.min(lim[1], Math.max(lim[0], Math.round(v)));
+  }
+
+  // ---------- 객실별 기본값 ----------
+  function emptyRoom() {
     return {
-      date: todayISO(),
-      stay: '능놀스테이 헤윰(3층)',
       stayCustom: '',
-      writer: '직원',
-      writerCustom: '',
       adult: 2,
       child: 0,
       nationality: '한국인',
@@ -458,24 +521,22 @@
       notes: '',
       supplies: '',
       noteTags: [],
-      supplyTags: []
+      supplyTags: [],
+      touched: false
     };
   }
 
-  function el(id) { return document.getElementById(id); }
-
-  function text(v) { return (v === undefined || v === null) ? '' : String(v); }
-
-  function trim(v) { return text(v).replace(/^\s+|\s+$/g, ''); }
-
-  function num(v, fallback) {
-    var n = Number(v);
-    return (isFinite(n) ? n : fallback);
-  }
-
-  function clamp(field, v) {
-    var lim = LIMITS[field] || [0, 99];
-    return Math.min(lim[1], Math.max(lim[0], Math.round(v)));
+  function baseState() {
+    var s = {
+      date: todayISO(),
+      writer: '직원',
+      writerCustom: '',
+      active: HEYUM,
+      sendMode: 'current',
+      rooms: {}
+    };
+    for (var i = 0; i < ROOM_KEYS.length; i++) s.rooms[ROOM_KEYS[i]] = emptyRoom();
+    return s;
   }
 
   // 저장소: 사생활 보호 모드·file://·쿠키 차단 등에서 접근이 막혀도 앱은 그대로 동작하게 한다.
@@ -486,9 +547,9 @@
     canStore = true;
   } catch (e) { canStore = false; }
 
-  function readStore() {
+  function readStore(key) {
     if (!canStore) return null;
-    try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    try { return localStorage.getItem(key); } catch (e) { return null; }
   }
 
   function writeStore() {
@@ -496,41 +557,82 @@
     try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; }
   }
 
-  // 저장된 값 읽기 (형식이 깨져 있어도 안전하게 기본값으로)
+  // 저장된 객실 값을 안전하게 읽어 온다(형식이 깨져 있어도 기본값 유지)
+  function readRoomInto(dst, src) {
+    if (!src || typeof src !== 'object') return dst;
+    if (typeof src.stayCustom === 'string') dst.stayCustom = src.stayCustom;
+    if (typeof src.nationality === 'string') dst.nationality = src.nationality;
+    if (typeof src.natMemo === 'string') dst.natMemo = src.natMemo;
+    if (typeof src.notes === 'string') dst.notes = src.notes;
+    if (typeof src.supplies === 'string') dst.supplies = src.supplies;
+    if (isArray(src.noteTags)) {
+      dst.noteTags = src.noteTags.filter(function (x) { return typeof x === 'string'; });
+    }
+    if (isArray(src.supplyTags)) {
+      dst.supplyTags = src.supplyTags.filter(function (x) { return typeof x === 'string'; });
+    }
+    dst.adult = clamp('adult', num(src.adult, dst.adult));
+    dst.child = clamp('child', num(src.child, dst.child));
+    dst.nights = clamp('nights', num(src.nights, dst.nights));
+    dst.smallTowel = clamp('smallTowel', num(src.smallTowel, dst.smallTowel));
+    dst.bigTowel = clamp('bigTowel', num(src.bigTowel, dst.bigTowel));
+    dst.blanketCount = clamp('blanketCount', num(src.blanketCount, dst.blanketCount));
+    dst.bigBag = clamp('bigBag', num(src.bigBag, dst.bigBag));
+    dst.smallBag = clamp('smallBag', num(src.smallBag, dst.smallBag));
+    if (src.checkin !== undefined) dst.checkin = !!src.checkin;
+    if (src.topper !== undefined) dst.topper = !!src.topper;
+    if (src.blanket !== undefined) dst.blanket = !!src.blanket;
+    if (src.kidsRoom !== undefined) dst.kidsRoom = !!src.kidsRoom;
+    if (src.touched !== undefined) dst.touched = !!src.touched;
+    return dst;
+  }
+
   var dateRolled = false;
+
   function load() {
-    var s = defaults();
-    var raw = readStore();
+    var s = baseState();
+    var raw = readStore(KEY);
+    var v = null;
     if (raw) {
-      var v = null;
-      try { v = JSON.parse(raw); } catch (e2) { v = null; }
-      if (v && typeof v === 'object') {
-        if (typeof v.date === 'string') s.date = v.date;
-        if (typeof v.stay === 'string' && STAY_OPTIONS.indexOf(v.stay) >= 0) s.stay = v.stay;
-        if (typeof v.stayCustom === 'string') s.stayCustom = v.stayCustom;
-        if (typeof v.writer === 'string') s.writer = v.writer;
-        if (typeof v.writerCustom === 'string') s.writerCustom = v.writerCustom;
-        if (typeof v.nationality === 'string') s.nationality = v.nationality;
-        if (typeof v.natMemo === 'string') s.natMemo = v.natMemo;
-        if (typeof v.notes === 'string') s.notes = v.notes;
-        if (typeof v.supplies === 'string') s.supplies = v.supplies;
-        if (Object.prototype.toString.call(v.noteTags) === '[object Array]') s.noteTags = v.noteTags.filter(function (x) { return typeof x === 'string'; });
-        if (Object.prototype.toString.call(v.supplyTags) === '[object Array]') s.supplyTags = v.supplyTags.filter(function (x) { return typeof x === 'string'; });
-        s.adult = clamp('adult', num(v.adult, s.adult));
-        s.child = clamp('child', num(v.child, s.child));
-        s.nights = clamp('nights', num(v.nights, s.nights));
-        s.smallTowel = clamp('smallTowel', num(v.smallTowel, s.smallTowel));
-        s.bigTowel = clamp('bigTowel', num(v.bigTowel, s.bigTowel));
-        s.blanketCount = clamp('blanketCount', num(v.blanketCount, s.blanketCount));
-        s.bigBag = clamp('bigBag', num(v.bigBag, s.bigBag));
-        s.smallBag = clamp('smallBag', num(v.smallBag, s.smallBag));
-        if (v.checkin !== undefined) s.checkin = !!v.checkin;
-        if (v.topper !== undefined) s.topper = !!v.topper;
-        if (v.blanket !== undefined) s.blanket = !!v.blanket;
-        if (v.kidsRoom !== undefined) s.kidsRoom = !!v.kidsRoom;
+      try { v = JSON.parse(raw); } catch (e1) { v = null; }
+    }
+
+    if (v && typeof v === 'object') {
+      if (typeof v.date === 'string') s.date = v.date;
+      if (typeof v.writer === 'string') s.writer = v.writer;
+      if (typeof v.writerCustom === 'string') s.writerCustom = v.writerCustom;
+      if (typeof v.active === 'string' && ROOM_KEYS.indexOf(v.active) >= 0) s.active = v.active;
+      if (v.sendMode === 'both' || v.sendMode === 'current') s.sendMode = v.sendMode;
+      if (v.rooms && typeof v.rooms === 'object') {
+        for (var i = 0; i < ROOM_KEYS.length; i++) {
+          var k = ROOM_KEYS[i];
+          if (v.rooms[k]) readRoomInto(s.rooms[k], v.rooms[k]);
+        }
+      }
+    } else {
+      // 예전(v1) 저장분: 한 객실짜리 값이므로 그 객실 칸으로 옮긴다.
+      var lraw = readStore(LEGACY_KEY);
+      var lv = null;
+      if (lraw) {
+        try { lv = JSON.parse(lraw); } catch (e2) { lv = null; }
+      }
+      if (lv && typeof lv === 'object') {
+        var lkey = (typeof lv.stay === 'string' && ROOM_KEYS.indexOf(lv.stay) >= 0) ? lv.stay : CUSTOM;
+        readRoomInto(s.rooms[lkey], lv);
+        if (lkey === CUSTOM) {
+          var nm = (typeof lv.stayCustom === 'string' && trim(lv.stayCustom)) ? lv.stayCustom
+            : (typeof lv.stay === 'string' && ROOM_KEYS.indexOf(lv.stay) < 0 ? lv.stay : '');
+          s.rooms[CUSTOM].stayCustom = nm;
+        }
+        s.rooms[lkey].touched = true;
+        s.active = lkey;
+        if (typeof lv.date === 'string') s.date = lv.date;
+        if (typeof lv.writer === 'string') s.writer = lv.writer;
+        if (typeof lv.writerCustom === 'string') s.writerCustom = lv.writerCustom;
       }
     }
-    // 날짜가 지났으면 오늘로 자동 갱신 (다른 항목은 그대로 이어서 씀)
+
+    // 날짜가 지났으면 오늘로 자동 갱신 (객실 값은 그대로 이어서 씀)
     if (!s.date || s.date !== todayISO()) {
       if (s.date) dateRolled = true;
       s.date = todayISO();
@@ -539,7 +641,7 @@
   }
 
   var state;
-  try { state = load(); } catch (e) { state = defaults(); }
+  try { state = load(); } catch (e) { state = baseState(); }
 
   var saveTimer = null;
   function save() {
@@ -555,6 +657,31 @@
     writeStore();
   }
 
+  // ---------- 현재 객실 ----------
+  function cur() { return state.rooms[state.active]; }
+
+  function shortName(key) {
+    if (key === HEYUM) return '헤윰 · 3층';
+    if (key === OROT) return '오롯 · 6층';
+    var r = state.rooms[CUSTOM];
+    return (r && trim(r.stayCustom)) ? trim(r.stayCustom) : '직접입력';
+  }
+
+  function fullName(key) {
+    if (key === CUSTOM) {
+      var r = state.rooms[CUSTOM];
+      return (r && trim(r.stayCustom)) ? trim(r.stayCustom) : '숙소 미지정';
+    }
+    return text(key);
+  }
+
+  function badge(key) {
+    var r = state.rooms[key];
+    if (!r || !r.touched) return '미입력';
+    var n = r.adult + r.child;
+    return n > 0 ? ('총 ' + n + '명') : '입력됨';
+  }
+
   // ---------- 문구 만들기 ----------
   function formatDateKo(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text(iso));
@@ -564,24 +691,20 @@
     return (Number(m[2])) + '/' + (Number(m[3])) + '(' + wd[d.getDay()] + ')';
   }
 
-  function stayName(s) {
-    if (s.stay === 'custom') return trim(s.stayCustom) || '숙소 미지정';
-    return text(s.stay);
-  }
-
-  function writerName(s) {
-    if (s.writer === 'custom') return trim(s.writerCustom) || '이름 미입력';
-    return text(s.writer);
+  function writerName() {
+    if (state.writer === 'custom') return trim(state.writerCustom) || '이름 미입력';
+    return text(state.writer);
   }
 
   function tagList(labels, pick) {
     var out = [];
-    for (var i = 0; i < labels.length; i++) {
+    var i;
+    for (i = 0; i < labels.length; i++) {
       if (pick.indexOf(labels[i]) >= 0) out.push(labels[i]);
     }
     // 목록에 없는 값(이전 버전 저장분 등)도 뒤에 붙여 준다
-    for (var j = 0; j < pick.length; j++) {
-      if (labels.indexOf(pick[j]) < 0) out.push(pick[j]);
+    for (i = 0; i < pick.length; i++) {
+      if (labels.indexOf(pick[i]) < 0) out.push(pick[i]);
     }
     return out;
   }
@@ -595,26 +718,53 @@
     return parts.length ? parts.join(' · ') : '없음';
   }
 
-  function buildMessage(s) {
+  function roomMessage(key, r) {
+    r = r || state.rooms[key];
     var L = [];
-    L.push('[' + stayName(s) + '] ' + formatDateKo(s.date) + ' 능놀스테이 체크리스트');
+    L.push('[' + fullName(key) + '] ' + formatDateKo(state.date) + ' 능놀스테이 체크리스트');
     L.push('');
-    L.push('· 인원: 성인 ' + s.adult + ' · 유아 ' + s.child + ' · 총 ' + (s.adult + s.child) + '명');
-    L.push('· 국적: ' + text(s.nationality) + (trim(s.natMemo) ? ' (' + trim(s.natMemo) + ')' : ''));
-    L.push('· 숙박: ' + s.nights + '박');
-    L.push('· 당일 입실: ' + (s.checkin ? '있음 (오늘 입실)' : '없음 (공실)'));
+    L.push('· 인원: 성인 ' + r.adult + ' · 유아 ' + r.child + ' · 총 ' + (r.adult + r.child) + '명');
+    L.push('· 국적: ' + text(r.nationality) + (trim(r.natMemo) ? ' (' + trim(r.natMemo) + ')' : ''));
+    L.push('· 숙박: ' + r.nights + '박');
+    L.push('· 당일 입실: ' + (r.checkin ? '있음 (오늘 입실)' : '없음 (공실)'));
     L.push('');
-    L.push('· 작은 수건 ' + s.smallTowel + '장 / 큰 수건 ' + s.bigTowel + '장');
-    L.push('· 토퍼: ' + (s.topper ? '비치함 O' : '없음 X'));
-    L.push('· 추가 이불: ' + (s.blanket ? ('있음 O · ' + s.blanketCount + '채') : '없음 X'));
-    L.push('· 키즈룸: ' + (s.kidsRoom ? '오픈 O' : '닫음 X'));
-    L.push('· 쓰레기봉투: 큰 ' + s.bigBag + '장 / 작은 ' + s.smallBag + '장');
+    L.push('· 작은 수건 ' + r.smallTowel + '장 / 큰 수건 ' + r.bigTowel + '장');
+    L.push('· 토퍼: ' + (r.topper ? '비치함 O' : '없음 X'));
+    L.push('· 추가 이불: ' + (r.blanket ? ('있음 O · ' + r.blanketCount + '채') : '없음 X'));
+    L.push('· 키즈룸: ' + (r.kidsRoom ? '오픈 O' : '닫음 X'));
+    L.push('· 쓰레기봉투: 큰 ' + r.bigBag + '장 / 작은 ' + r.smallBag + '장');
     L.push('');
-    L.push('· 특이사항: ' + joinParts(tagList(NOTE_LABELS, s.noteTags).concat([s.notes])));
-    L.push('· 비품 요청: ' + joinParts(tagList(SUPPLY_LABELS, s.supplyTags).concat([s.supplies])));
+    L.push('· 특이사항: ' + joinParts(tagList(NOTE_LABELS, r.noteTags).concat([r.notes])));
+    L.push('· 비품 요청: ' + joinParts(tagList(SUPPLY_LABELS, r.supplyTags).concat([r.supplies])));
     L.push('');
-    L.push('작성: ' + writerName(s));
+    L.push('작성: ' + writerName());
     return L.join('\n');
+  }
+
+  function stubMessage(key) {
+    return '[' + fullName(key) + '] ' + formatDateKo(state.date) + ' · 아직 입력 안 함';
+  }
+
+  function buildCurrent() {
+    return roomMessage(state.active, cur());
+  }
+
+  function buildBoth() {
+    var out = [];
+    for (var i = 0; i < BOTH_KEYS.length; i++) {
+      var k = BOTH_KEYS[i];
+      var r = state.rooms[k];
+      out.push(r.touched ? roomMessage(k, r) : stubMessage(k));
+    }
+    // 직접입력 객실을 쓰고 있으면 그 객실도 함께 보낸다
+    if (state.rooms[CUSTOM] && state.rooms[CUSTOM].touched) {
+      out.push(roomMessage(CUSTOM, state.rooms[CUSTOM]));
+    }
+    return out.join('\n\n' + DIVIDER + '\n\n');
+  }
+
+  function buildOutgoing() {
+    return state.sendMode === 'both' ? buildBoth() : buildCurrent();
   }
 
   // ---------- 화면 그리기 ----------
@@ -630,6 +780,7 @@
 
   function setSummary(id, prefix, labels) {
     var node = el(id);
+    if (!node) return;
     if (!labels.length) {
       node.classList.add('hidden');
       node.textContent = '';
@@ -639,15 +790,34 @@
     node.textContent = prefix + ': ' + labels.join(' · ');
   }
 
+  function setBadge(id, key) {
+    var node = el(id);
+    if (!node) return;
+    var b = badge(key);
+    node.textContent = b;
+    if (b === '미입력') node.classList.remove('filled');
+    else node.classList.add('filled');
+  }
+
   function render(syncText) {
+    var room = cur();
+
     el('date').value = text(state.date);
 
     each('[data-act="stay"]', function (b) {
-      setOn(b, b.getAttribute('data-value') === state.stay);
+      setOn(b, b.getAttribute('data-value') === state.active);
     });
     var sc = el('stayCustom');
-    if (state.stay === 'custom') sc.classList.remove('hidden'); else sc.classList.add('hidden');
-    if (syncText) sc.value = text(state.stayCustom);
+    if (state.active === CUSTOM) sc.classList.remove('hidden'); else sc.classList.add('hidden');
+    if (syncText) sc.value = text(room.stayCustom);
+
+    setBadge('badge-heyum', HEYUM);
+    setBadge('badge-orot', OROT);
+    setBadge('badge-custom', CUSTOM);
+
+    el('roomTag').textContent = shortName(state.active);
+    el('brandSub').textContent = shortName(state.active) + ' · ' +
+      (room.touched ? badge(state.active) + ' 작성 중' : '새로 작성');
 
     each('[data-act="writer"]', function (b) {
       setOn(b, b.getAttribute('data-value') === state.writer);
@@ -656,44 +826,53 @@
     if (state.writer === 'custom') wc.classList.remove('hidden'); else wc.classList.add('hidden');
     if (syncText) wc.value = text(state.writerCustom);
 
-    el('numAdult').textContent = String(state.adult);
-    el('numChild').textContent = String(state.child);
-    el('totalGuests').textContent = '총 ' + (state.adult + state.child) + '명';
-    el('numNights').textContent = String(state.nights);
-    el('numSmallTowel').textContent = String(state.smallTowel);
-    el('numBigTowel').textContent = String(state.bigTowel);
-    el('numBigBag').textContent = String(state.bigBag);
-    el('numSmallBag').textContent = String(state.smallBag);
-    el('numBlanket').textContent = String(state.blanketCount);
+    el('numAdult').textContent = String(room.adult);
+    el('numChild').textContent = String(room.child);
+    el('totalGuests').textContent = '총 ' + (room.adult + room.child) + '명';
+    el('numNights').textContent = String(room.nights);
+    el('numSmallTowel').textContent = String(room.smallTowel);
+    el('numBigTowel').textContent = String(room.bigTowel);
+    el('numBigBag').textContent = String(room.bigBag);
+    el('numSmallBag').textContent = String(room.smallBag);
+    el('numBlanket').textContent = String(room.blanketCount);
 
     each('[data-act="set"]', function (b) {
       var f = b.getAttribute('data-field');
       var v = b.getAttribute('data-value');
-      setOn(b, String(state[f]) === v);
+      setOn(b, String(room[f]) === v);
     });
 
     var row = el('blanketRow');
-    if (state.blanket) row.classList.remove('hidden'); else row.classList.add('hidden');
+    if (room.blanket) row.classList.remove('hidden'); else row.classList.add('hidden');
 
     each('[data-act="tag"]', function (b) {
-      var arr = state[b.getAttribute('data-target')] || [];
+      var arr = room[b.getAttribute('data-target')] || [];
       setOn(b, arr.indexOf(b.getAttribute('data-label')) >= 0);
     });
 
-    setSummary('noteSummary', '선택', tagList(NOTE_LABELS, state.noteTags));
-    setSummary('supplySummary', '요청', tagList(SUPPLY_LABELS, state.supplyTags));
+    setSummary('noteSummary', '선택', tagList(NOTE_LABELS, room.noteTags));
+    setSummary('supplySummary', '요청', tagList(SUPPLY_LABELS, room.supplyTags));
 
     if (syncText) {
-      el('natMemo').value = text(state.natMemo);
-      el('notes').value = text(state.notes);
-      el('supplies').value = text(state.supplies);
+      el('natMemo').value = text(room.natMemo);
+      el('notes').value = text(room.notes);
+      el('supplies').value = text(room.supplies);
     }
 
-    el('previewText').textContent = buildMessage(state);
+    each('[data-act="sendMode"]', function (b) {
+      setOn(b, b.getAttribute('data-value') === state.sendMode);
+    });
+
+    var both = state.sendMode === 'both';
+    el('btnCopy').textContent = both ? '둘 다 복사' : '카톡 복사하기';
+    el('btnShare').textContent = both ? '둘 다 공유' : '바로 공유하기';
+    el('sheetRoomBtn').textContent = '현재 객실(' + shortName(state.active) + ')만 비우기';
+
+    el('previewText').textContent = buildOutgoing();
     save();
   }
 
-  // ---------- 토스트 ----------
+  // ---------- 토스트 / 시트 ----------
   var toastTimer = null;
   function toast(msg) {
     var t = el('toast');
@@ -705,6 +884,9 @@
       t.classList.remove('show');
     }, 2400);
   }
+
+  function openSheet() { el('sheet').classList.remove('hidden'); }
+  function closeSheet() { el('sheet').classList.add('hidden'); }
 
   // ---------- 복사 / 공유 ----------
   function legacyCopy(str) {
@@ -751,15 +933,18 @@
   }
 
   function doCopy() {
-    var msg = buildMessage(state);
+    var msg = buildOutgoing();
+    var both = state.sendMode === 'both';
     copyText(msg, function (ok) {
-      if (ok) toast('복사했어요. 카톡 창에 붙여넣기 하세요.');
+      if (ok) toast(both ? '두 객실 문구를 복사했어요. 카톡에 붙여넣기 하세요.'
+        : (shortName(state.active) + ' 문구를 복사했어요. 카톡에 붙여넣기 하세요.'));
       else toast('복사가 안 됐어요. 아래 문구를 길게 눌러 복사해 주세요.');
     });
   }
 
   function doShare() {
-    var msg = buildMessage(state);
+    var msg = buildOutgoing();
+    var both = state.sendMode === 'both';
     if (navigator.share) {
       try {
         navigator.share({ title: '능놀스테이 체크리스트', text: msg }).then(function () {
@@ -772,45 +957,59 @@
       } catch (e) {}
     }
     copyText(msg, function (ok) {
-      if (ok) toast('이 브라우저는 공유를 지원하지 않아 복사했어요. 카톡에 붙여넣기 하세요.');
+      if (ok) toast(both ? '이 브라우저는 공유를 지원하지 않아 두 객실 문구를 복사했어요.'
+        : '이 브라우저는 공유를 지원하지 않아 복사했어요. 카톡에 붙여넣기 하세요.');
       else toast('공유를 지원하지 않아요. 아래 문구를 길게 눌러 복사해 주세요.');
     });
   }
 
-  // ---------- 이벤트 ----------
+  // ---------- 값 바꾸기 ----------
   function step(field, delta) {
     if (!(field in LIMITS)) return;
-    state[field] = clamp(field, num(state[field], 0) + delta);
+    var r = cur();
+    r[field] = clamp(field, num(r[field], 0) + delta);
+    r.touched = true;
   }
 
   function setField(field, value) {
-    if (field in LIMITS) { state[field] = clamp(field, num(value, state[field])); return; }
+    var r = cur();
+    if (field in LIMITS) { r[field] = clamp(field, num(value, r[field])); r.touched = true; return; }
     if (field === 'checkin' || field === 'topper' || field === 'blanket' || field === 'kidsRoom') {
-      state[field] = (value === 'true');
+      r[field] = (value === 'true');
+      r.touched = true;
       return;
     }
-    state[field] = value;
+    r[field] = value;
+    r.touched = true;
   }
 
   function toggleTag(target, label) {
-    var arr = state[target];
-    if (!arr) { arr = []; state[target] = arr; }
+    var r = cur();
+    var arr = r[target];
+    if (!arr) { arr = []; r[target] = arr; }
     var i = arr.indexOf(label);
     if (i >= 0) arr.splice(i, 1); else arr.push(label);
+    r.touched = true;
+  }
+
+  function resetCurrent() {
+    var name = shortName(state.active);
+    state.rooms[state.active] = emptyRoom();
+    closeSheet();
+    render(true);
+    saveNow();
+    toast(name + ' 값만 비웠어요. 다른 객실은 그대로예요.');
   }
 
   function resetAll() {
-    var keepWriter = state.writer;
-    var keepWriterCustom = state.writerCustom;
-    var fresh = defaults();
-    fresh.writer = keepWriter;
-    fresh.writerCustom = keepWriterCustom;
-    state = fresh;
+    for (var i = 0; i < ROOM_KEYS.length; i++) state.rooms[ROOM_KEYS[i]] = emptyRoom();
+    closeSheet();
     render(true);
     saveNow();
-    toast('처음 상태로 되돌렸어요.');
+    toast('두 객실 값을 모두 비웠어요. 날짜와 작성자는 그대로예요.');
   }
 
+  // ---------- 이벤트 ----------
   function onClick(ev) {
     var node = ev.target;
     var btn = null;
@@ -829,8 +1028,16 @@
       setField(field, btn.getAttribute('data-value'));
       render(false);
     } else if (act === 'stay') {
-      state.stay = btn.getAttribute('data-value');
+      var next = btn.getAttribute('data-value');
+      if (ROOM_KEYS.indexOf(next) >= 0 && next !== state.active) {
+        state.active = next;
+        render(true);
+        saveNow();
+      }
+    } else if (act === 'sendMode') {
+      state.sendMode = (btn.getAttribute('data-value') === 'both') ? 'both' : 'current';
       render(false);
+      saveNow();
     } else if (act === 'writer') {
       state.writer = btn.getAttribute('data-value');
       render(false);
@@ -842,7 +1049,13 @@
     } else if (act === 'share') {
       doShare();
     } else if (act === 'reset') {
-      if (window.confirm('작성한 내용을 모두 지우고 처음 상태로 돌아갈까요?')) resetAll();
+      openSheet();
+    } else if (act === 'resetRoom') {
+      resetCurrent();
+    } else if (act === 'resetAllRooms') {
+      resetAll();
+    } else if (act === 'closeSheet') {
+      closeSheet();
     }
   }
 
@@ -850,9 +1063,19 @@
     var node = ev.target;
     var field = node && node.getAttribute ? node.getAttribute('data-input') : null;
     if (!field) return;
-    state[field] = node.value;
-    if (field === 'stayCustom' && state.stay !== 'custom') state.stay = 'custom';
-    if (field === 'writerCustom' && state.writer !== 'custom') state.writer = 'custom';
+    if (field === 'date') {
+      state.date = node.value;
+      render(false);
+      return;
+    }
+    if (field === 'writerCustom') {
+      state.writerCustom = node.value;
+      render(false);
+      return;
+    }
+    var room = cur();
+    room[field] = node.value;
+    room.touched = true;
     render(false);
   }
 
@@ -884,12 +1107,40 @@
 
   // 검증용(앱 동작에는 영향 없음)
   window.__stayApp = {
+    KEYS: { heyum: HEYUM, orot: OROT, custom: CUSTOM },
     getState: function () { return state; },
-    buildMessage: function () { return buildMessage(state); },
-    setState: function (patch) {
-      for (var k in patch) if (Object.prototype.hasOwnProperty.call(patch, k)) state[k] = patch[k];
-      render(true);
+    room: function (key) { return state.rooms[key]; },
+    active: function () { return state.active; },
+    setActive: function (key) {
+      if (ROOM_KEYS.indexOf(key) >= 0) { state.active = key; render(true); }
+      return state.active;
     },
+    setSendMode: function (mode) {
+      state.sendMode = (mode === 'both') ? 'both' : 'current';
+      render(false);
+      return state.sendMode;
+    },
+    step: function (field, delta) { step(field, delta); render(false); },
+    setField: function (field, value) { setField(field, value); render(false); },
+    toggleTag: function (target, label) { toggleTag(target, label); render(false); },
+    setText: function (field, value) {
+      if (field === 'date') { state.date = value; render(false); return; }
+      if (field === 'writerCustom') { state.writerCustom = value; render(false); return; }
+      var r = cur();
+      r[field] = value;
+      r.touched = true;
+      render(false);
+    },
+    badge: badge,
+    shortName: shortName,
+    buildCurrent: buildCurrent,
+    buildBoth: buildBoth,
+    buildOutgoing: buildOutgoing,
+    resetCurrent: resetCurrent,
+    resetAll: resetAll,
+    openSheet: openSheet,
+    closeSheet: closeSheet,
+    isSheetOpen: function () { return !el('sheet').classList.contains('hidden'); },
     render: render,
     showToast: toast
   };
