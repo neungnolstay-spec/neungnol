@@ -158,10 +158,6 @@
   .btn-reset{flex:0 0 64px; min-height:46px; background:#eef1f5; color:#52627a; font-size:13px;}
   .btn-copy{flex:1; min-height:46px; background:var(--accent-soft); color:var(--accent); font-size:13.5px;}
   .btn-copy.link{background:var(--accent); color:#fff; box-shadow:0 3px 10px rgba(29,91,214,.24);}
-  /* 직원에게 앱 링크 보내기 */
-  .btn-staff{width:100%; min-height:46px; border:1px solid #efdf7a; background:#fffdf0;
-    color:#4a4000; border-radius:12px; font-size:14px; font-weight:800; letter-spacing:-.3px;}
-  .btn-staff:active{background:#fff8d6;}
   /* 전달받은 내용 안내 */
   .notice{display:flex; align-items:flex-start; gap:10px; margin:12px 12px 0;
     padding:12px 10px 12px 13px; background:#e9f7ef; border:1px solid #bfe6d0;
@@ -413,11 +409,6 @@
         <button type="button" data-act="writer" data-value="이세경">이세경</button>
         <button type="button" data-act="writer" data-value="박은주">박은주</button>
       </div>
-    </div>
-
-    <div class="field">
-      <div class="label">직원에게 앱 보내기 <span class="hint">빈 체크리스트 주소만 전달</span></div>
-      <button type="button" class="btn-staff" id="btnStaff" data-act="staffLink">💬 직원에게 앱 링크 보내기</button>
     </div>
   </section>
 
@@ -3333,25 +3324,6 @@
     toast(copied ? '카톡에 바로 붙여넣을 수 있게 복사했어요!' : '공유를 지원하지 않아요. 아래 문구를 길게 눌러 복사해 주세요.');
   }
 
-  // [직원에게 앱 링크 보내기] : 빈 앱 주소만 전달
-  function doStaffLink() {
-    var url = appBaseUrl();
-    var msg = '능놀스테이 체크리스트 앱\n' + url +
-      '\n\n폰에서 열고 홈 화면에 추가하면 앱처럼 씁니다.';
-    var copied = silentCopy(msg);
-    if (navigator.share) {
-      try {
-        navigator.share({ title: '능놀스테이 체크리스트 앱', text: msg }).then(function () {
-          if (copied) toast('앱 주소를 복사해 두었어요. 카톡에 붙여넣어도 됩니다.');
-        }, function () {
-          if (copied) toast('앱 주소를 복사해 두었어요. 카톡에 붙여넣어 보내세요.');
-        });
-        return;
-      } catch (e) {}
-    }
-    toast(copied ? '직원분께 보낼 앱 주소를 복사했어요.' : '주소를 길게 눌러 복사해 주세요. ' + url);
-  }
-
   // ---------- 값 바꾸기 ----------
   function step(field, delta) {
     if (!(field in LIMITS)) return;
@@ -3476,8 +3448,6 @@
       doCopyLink();
     } else if (act === 'kakao') {
       doKakao();
-    } else if (act === 'staffLink') {
-      doStaffLink();
     } else if (act === 'closeNotice') {
       hideShareNotice();
     } else if (act === 'modeBadge') {
@@ -4247,7 +4217,6 @@
     showNotice: showShareNotice,
     hideNotice: hideShareNotice,
     doKakao: doKakao,
-    doStaffLink: doStaffLink,
     doSave: doSave,
     saveNow: saveNow,
     log: function () { return state.log.slice(0); },
