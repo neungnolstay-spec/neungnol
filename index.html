@@ -198,6 +198,19 @@
     font-size:12.5px; font-weight:700; color:#5a6a7e; min-height:34px;}
   .chip.has{color:var(--green); border-color:#bfe6d0; background:var(--green-soft);}
   .chip.on{border-color:var(--accent); background:var(--accent); color:#fff;}
+  /* 사장님 전용: 직원 출근 체크(직원 모드에서는 display:none 으로 완전히 숨김) */
+  #attendanceCard{border:1px solid #f0dfae; background:#fffdf6;}
+  .att-row{display:flex; align-items:center; gap:8px; margin:0 0 8px;}
+  .att-row .att-name{flex:0 0 72px; font-size:13.5px; font-weight:800;}
+  .att-row .seg{flex:1; padding:3px; gap:4px;}
+  .att-row .seg button{min-height:40px; font-size:13.5px;}
+  .att-sum{margin-top:10px; padding:10px 12px; border-radius:12px; background:#f4f7fb;}
+  .att-sum .att-line{display:flex; justify-content:space-between; align-items:center; gap:8px;
+    font-size:13px; font-weight:700; margin:4px 0;}
+  .att-sum .att-line b{font-variant-numeric:tabular-nums; color:var(--accent);}
+  .att-sum .att-line .badge{margin-left:6px;}
+  .att-days{font-size:11.5px; color:#8b98a8; font-weight:600; margin:0 0 6px;}
+  .att-days.off{display:none;}
   /* 비밀번호 시트 */
   .pw-label{font-size:12px; font-weight:700; color:var(--muted); margin:10px 0 5px;}
   .pw-input{width:100%; min-height:54px; border:1px solid var(--line); border-radius:13px;
@@ -712,6 +725,36 @@
     </div>
   </section>
 
+  <!-- 사장님 전용: 직원 출근 체크 + 이번 달 합계 (직원 모드에서는 완전히 숨김) -->
+  <section class="card hidden" id="attendanceCard" data-owneronly="1" style="display:none">
+    <h2><span class="dot"></span>직원 출근 체크 <span class="lockchip">🔒 사장님만</span> <span class="badge" id="attDate">오늘</span></h2>
+
+    <div class="att-row">
+      <span class="att-name">이세경</span>
+      <div class="seg">
+        <button type="button" data-act="att" data-who="이세경" data-value="1">출근</button>
+        <button type="button" data-act="att" data-who="이세경" data-value="0">미출근</button>
+      </div>
+    </div>
+    <div class="att-row">
+      <span class="att-name">박은주</span>
+      <div class="seg">
+        <button type="button" data-act="att" data-who="박은주" data-value="1">출근</button>
+        <button type="button" data-act="att" data-who="박은주" data-value="0">미출근</button>
+      </div>
+    </div>
+
+    <div class="att-sum">
+      <div class="att-line"><span>이세경</span><b id="attSumSe">총 0일 출근</b></div>
+      <p class="att-days off" id="attDaysSe"></p>
+      <div class="att-line"><span>박은주</span><b id="attSumPark">총 0일 출근</b></div>
+      <p class="att-days off" id="attDaysPark"></p>
+      <div class="att-line"><span>이번 달 합계 <span class="badge" id="attMonth">-</span></span><b id="attSumTotal">총 0일</b></div>
+    </div>
+
+    <p class="note">날짜를 바꾸면 그날 출근 기록이 보이고, 위 합계는 그 달 출근 일수입니다. 한 번 더 누르면 기록이 지워지고, [💾 저장]을 누르면 다른 폰에도 함께 저장돼요. 카톡 문구·공유 링크에는 들어가지 않습니다.</p>
+  </section>
+
   <!-- 미리보기 -->
   <section class="card" id="preview">
     <h2><span class="dot"></span>카톡 전송 문구 <span class="badge" id="sendScopeTag">헤윰+오롯 둘 다</span></h2>
@@ -775,7 +818,7 @@
 <div id="sheet" class="sheet-bg hidden" data-act="closeSheet">
   <div class="sheet">
     <b>어디까지 지울까요?</b>
-    <p class="sheet-note">헤윰·오롯 값을 따로 저장하니, 지울 범위를 골라 주세요. 취소하면 아무것도 지워지지 않아요.</p>
+    <p class="sheet-note">헤윰·오롯 값을 따로 저장하니, 지울 범위를 골라 주세요. 취소하면 아무것도 지워지지 않아요. 사장님이 체크한 직원 출근 기록은 지워지지 않아요.</p>
     <button type="button" class="sheet-btn" id="sheetRoomBtn" data-act="resetRoom">현재 객실만 비우기</button>
     <button type="button" class="sheet-btn danger" data-act="resetAllRooms">두 객실 모두 비우기</button>
     <button type="button" class="sheet-btn ghost" data-act="closeSheet">취소</button>
@@ -981,6 +1024,7 @@
       log: [],
       byDate: {},
       meters: {},
+      attendance: {},
       rooms: {}
     };
     for (var i = 0; i < ROOM_KEYS.length; i++) s.rooms[ROOM_KEYS[i]] = emptyRoom();
@@ -1013,6 +1057,7 @@
         pw: state.pw,
         byDate: state.byDate,
         meters: state.meters,
+        attendance: state.attendance,
         log: state.log
       }));
       return true;
@@ -1272,6 +1317,28 @@
     return e;
   }
 
+  // ---------- 사장님 전용: 직원 출근 체크 ----------
+  // 날짜별로 { '이세경': true, '박은주': false } 를 남긴다. 기록이 없는 날은 값이 아예 없다.
+  function cleanAttendance(v) {
+    var out = {};
+    if (!v || typeof v !== 'object') return out;
+    for (var dk in v) {
+      if (!Object.prototype.hasOwnProperty.call(v, dk)) continue;
+      if (!RE_DATE.test(dk)) continue;
+      var src = v[dk];
+      if (!src || typeof src !== 'object') continue;
+      var day = {};
+      var any = false;
+      for (var i = 0; i < STAFF_NAMES.length; i++) {
+        var who = STAFF_NAMES[i];
+        var val = src[who];
+        if (val === true || val === false) { day[who] = val; any = true; }
+      }
+      if (any) out[dk] = day;
+    }
+    return out;
+  }
+
   function emptyDayFrom(srcRooms) {
     var day = { rooms: {} };
     for (var i = 0; i < ROOM_KEYS.length; i++) {
@@ -1298,6 +1365,7 @@
       if (typeof v.pw === 'string' && v.pw) s.pw = v.pw;
       if (isArray(v.log)) s.log = cleanLog(v.log);
       s.meters = cleanMeters(v.meters);
+      s.attendance = cleanAttendance(v.attendance);
       for (dk in v.byDate) {
         if (!Object.prototype.hasOwnProperty.call(v.byDate, dk)) continue;
         if (!RE_DATE.test(dk) || !v.byDate[dk] || typeof v.byDate[dk] !== 'object') continue;
@@ -2101,6 +2169,120 @@
       }
       renderPhotos(k === 'water' ? 'waterPhotos' : 'gasPhotos', 'meter', k);
     }
+  }
+
+  // ---------- 사장님 전용: 직원 출근 체크(하루 기록 + 이번 달 합계) ----------
+  function attendMonthKey(date) {
+    return text(date).slice(0, 7);
+  }
+
+  function attendOf(date, who) {
+    var d = state.attendance[text(date)];
+    if (!d || typeof d !== 'object') return null;
+    var v = d[who];
+    return (v === true) ? true : (v === false ? false : null);
+  }
+
+  function attendCount(month, who) {
+    var n = 0;
+    for (var k in state.attendance) {
+      if (!Object.prototype.hasOwnProperty.call(state.attendance, k)) continue;
+      if (text(k).slice(0, 7) !== month) continue;
+      var d = state.attendance[k];
+      if (d && d[who] === true) n++;
+    }
+    return n;
+  }
+
+  function attendDays(month, who) {
+    var out = [];
+    for (var k in state.attendance) {
+      if (!Object.prototype.hasOwnProperty.call(state.attendance, k)) continue;
+      if (text(k).slice(0, 7) !== month) continue;
+      var d = state.attendance[k];
+      if (d && d[who] === true) out.push(Number(text(k).slice(8, 10)));
+    }
+    out.sort(function (a, b) { return a - b; });
+    return out;
+  }
+
+  function attendMonthLabel(month) {
+    var m = /^(\d{4})-(\d{2})$/.exec(text(month));
+    return m ? (Number(m[1]) + '년 ' + Number(m[2]) + '월') : text(month);
+  }
+
+  // 같은 버튼을 한 번 더 누르면 그날 기록을 지운다(미기록으로 돌아감)
+  function setAttendance(who, value) {
+    if (!isOwner()) { toast('사장님만 출근 체크할 수 있어요.'); return false; }
+    if (!isStaffName(who)) return false;
+    var date = state.date;
+    var next = (value === true);
+    if (attendOf(date, who) === next) {
+      var day = state.attendance[date];
+      if (day && typeof day === 'object') {
+        delete day[who];
+        var left = 0;
+        for (var i = 0; i < STAFF_NAMES.length; i++) {
+          if (day[STAFF_NAMES[i]] === true || day[STAFF_NAMES[i]] === false) left++;
+        }
+        if (!left) delete state.attendance[date];
+      }
+    } else {
+      if (!state.attendance[date] || typeof state.attendance[date] !== 'object') state.attendance[date] = {};
+      state.attendance[date][who] = next;
+    }
+    render(false);
+    saveNow();
+    return true;
+  }
+
+  function setAttDays(id, list) {
+    var n = el(id);
+    if (!n) return;
+    if (!list.length) {
+      n.classList.add('off');
+      n.textContent = '';
+      return;
+    }
+    var parts = [], i;
+    for (i = 0; i < list.length; i++) parts.push(list[i] + '일');
+    n.textContent = '출근한 날: ' + parts.join(' · ');
+    n.classList.remove('off');
+  }
+
+  // 출근 체크는 사장님 모드에서만 보인다. 직원 모드에서는 그리지 않고 display:none 으로 숨긴다.
+  function renderAttendance() {
+    var card = el('attendanceCard');
+    if (!card) return;
+    if (!isOwner()) {
+      card.classList.add('hidden');
+      try { card.style.display = 'none'; } catch (e) {}
+      return;
+    }
+    card.classList.remove('hidden');
+    try { card.style.display = ''; } catch (e2) {}
+
+    var dl = el('attDate');
+    if (dl) dl.textContent = formatDateKo(state.date) + ' 출근';
+    each('[data-act="att"]', function (b) {
+      var who = b.getAttribute('data-who');
+      var want = (b.getAttribute('data-value') === '1');
+      setOn(b, attendOf(state.date, who) === want);
+    });
+
+    var mk = attendMonthKey(state.date);
+    var se = attendCount(mk, '이세경');
+    var park = attendCount(mk, '박은주');
+    var mEl = el('attMonth');
+    if (mEl) mEl.textContent = attendMonthLabel(mk);
+    var s1 = el('attSumSe');
+    if (s1) s1.textContent = '총 ' + se + '일 출근';
+    var s2 = el('attSumPark');
+    if (s2) s2.textContent = '총 ' + park + '일 출근';
+    var s3 = el('attSumTotal');
+    if (s3) s3.textContent = '총 ' + (se + park) + '일';
+    setAttDays('attDaysSe', attendDays(mk, '이세경'));
+    setAttDays('attDaysPark', attendDays(mk, '박은주'));
   }
 
   // 카톡 문구에 넣을 이번 달 계량기 요약(사진 본문은 넣지 않는다)
@@ -3136,6 +3318,16 @@
     each('[data-staffonly="1"]', function (n) {
       if (owner) n.classList.add('hidden'); else n.classList.remove('hidden');
     });
+    // 사장님 전용 칸(예: 직원 출근 체크)은 직원 모드에서 아예 보이지 않게 한다
+    each('[data-owneronly="1"]', function (n) {
+      if (owner) {
+        n.classList.remove('hidden');
+        try { n.style.display = ''; } catch (e) {}
+      } else {
+        n.classList.add('hidden');
+        try { n.style.display = 'none'; } catch (e2) {}
+      }
+    });
     var ico = el('modeIco');
     var txt = el('modeTxt');
     var sub = el('modeSub');
@@ -3309,6 +3501,7 @@
     el('previewText').textContent = buildOutgoing();
     renderDateChips();
     renderMeters();
+    renderAttendance();
     applyModeUi();
     renderFix();
     updateSaveSub();
@@ -3516,6 +3709,8 @@
       }
     } else if (act === 'writer') {
       selectWriter(btn.getAttribute('data-value'));
+    } else if (act === 'att') {
+      setAttendance(btn.getAttribute('data-who'), btn.getAttribute('data-value') === '1');
     } else if (act === 'luggageTime') {
       if (!canEdit('luggageFrom')) return;
       var pair = String(btn.getAttribute('data-value') || '').split('-');
@@ -3739,6 +3934,15 @@
         if (e && isArray(e.photos) && e.photos.length) return true;
       }
     }
+    // 사장님이 남긴 출근 기록도 이 기기의 내용이다
+    for (var ak in state.attendance) {
+      if (!Object.prototype.hasOwnProperty.call(state.attendance, ak)) continue;
+      var ad = state.attendance[ak];
+      if (!ad || typeof ad !== 'object') continue;
+      for (var si = 0; si < STAFF_NAMES.length; si++) {
+        if (ad[STAFF_NAMES[si]] === true) return true;
+      }
+    }
     return false;
   }
 
@@ -3795,6 +3999,7 @@
       pw: text(state.pw),
       byDate: state.byDate,
       meters: state.meters,
+      attendance: state.attendance,
       log: state.log,
       updatedAt: at,
       updatedBy: writerName()
@@ -3954,7 +4159,7 @@
     try {
       localStorage.setItem(SYNC_BACKUP_KEY, JSON.stringify({
         at: new Date().getTime(), byDate: state.byDate, meters: state.meters,
-        log: state.log, pw: state.pw
+        attendance: state.attendance, log: state.log, pw: state.pw
       }));
     } catch (e) {}
     var next = {}, dk;
@@ -3967,6 +4172,7 @@
     }
     state.byDate = next;
     state.meters = cleanMeters(data.meters);
+    state.attendance = cleanAttendance(data.attendance);
     state.log = cleanLog(data.log);
     if (typeof data.pw === 'string' && data.pw) state.pw = data.pw;
     state.rooms = dayObj(state.date).rooms;
@@ -4257,6 +4463,46 @@
       return e ? e.photos.slice(0) : [];
     },
     meterSummary: meterLine,
+    // 사장님 전용 출근 체크(검증용)
+    attendance: {
+      get: function (date, who) { return attendOf(date || state.date, who); },
+      set: function (who, value) { return setAttendance(who, value === true || value === 1 || value === '1'); },
+      month: function () { return attendMonthKey(state.date); },
+      monthLabel: attendMonthLabel,
+      count: attendCount,
+      days: attendDays,
+      record: function () { return state.attendance; },
+      visible: function () {
+        var n = el('attendanceCard');
+        if (!n) return false;
+        if (n.classList.contains('hidden')) return false;
+        return text(n.style ? n.style.display : '') !== 'none';
+      },
+      display: function () {
+        var n = el('attendanceCard');
+        return (n && n.style && n.style.display) ? text(n.style.display) : '';
+      },
+      summary: function (who) {
+        var n = el(who === '박은주' ? 'attSumPark' : 'attSumSe');
+        return n ? text(n.textContent) : '';
+      },
+      total: function () { var n = el('attSumTotal'); return n ? text(n.textContent) : ''; },
+      monthText: function () { var n = el('attMonth'); return n ? text(n.textContent) : ''; },
+      daysText: function (who) {
+        var n = el(who === '박은주' ? 'attDaysPark' : 'attDaysSe');
+        return n ? text(n.textContent) : '';
+      },
+      dateLabel: function () { var n = el('attDate'); return n ? text(n.textContent) : ''; },
+      pressed: function (who, value) {
+        var nodes = document.querySelectorAll('[data-act="att"]'), out = false, i;
+        for (i = 0; i < nodes.length; i++) {
+          if (nodes[i].getAttribute('data-who') !== who) continue;
+          if (String(nodes[i].getAttribute('data-value')) !== String(value)) continue;
+          out = nodes[i].getAttribute('aria-pressed') === 'true';
+        }
+        return out;
+      }
+    },
     photoConfig: function () {
       return { maxSide: PHOTO_MAX_SIDE, quality: PHOTO_QUALITY, max: PHOTO_MAX_ITEMS, prefix: IMG_PREFIX };
     },
