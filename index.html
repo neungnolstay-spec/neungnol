@@ -3003,6 +3003,17 @@
     lockGroup('[data-act="step"]', !owner);
     lockGroup('[data-act="set"]', !owner);
     lockGroup('[data-lock="1"]', !owner);
+    // 상 종류는 상차림이 '있음'일 때만 고를 수 있다(사장님 모드에서만)
+    var styleOn = owner && !!cur().eventSetup;
+    each('[data-field="eventStyle"]', function (n) {
+      if (styleOn) {
+        n.removeAttribute('disabled');
+        n.classList.remove('locked');
+      } else {
+        n.setAttribute('disabled', 'disabled');
+        n.classList.add('locked');
+      }
+    });
     each('[data-staffonly="1"]', function (n) {
       if (owner) n.classList.add('hidden'); else n.classList.remove('hidden');
     });
@@ -3345,6 +3356,7 @@
                field === 'kidsRoom' || field === 'luggage' || field === 'eventSetup') {
       r[field] = (value === 'true');
     } else if (field === 'eventStyle') {
+      if (!cur().eventSetup) return;
       r[field] = (value === '우드' || value === '전통상') ? value : '';
     } else {
       r[field] = value;
