@@ -1933,26 +1933,38 @@
     }
   }
 
+  // 아이폰·아이패드인지: 이때만 공유 시트('이미지 저장')를 먼저 쓴다
+  function isAppleTouch() {
+    var ua = '';
+    try { ua = String(navigator.userAgent || ''); } catch (e) { ua = ''; }
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    try {
+      return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    } catch (e2) { return false; }
+  }
+
   // 사장님·직원 모두 쓸 수 있다. 아이폰은 공유 시트('이미지 저장')를 먼저 시도한다.
   function savePhotoFromView() {
     if (!viewId) { toast('사진을 먼저 열어 주세요.'); return false; }
     var src = readImage(viewId);
     if (!src) { toast('사진을 찾지 못했어요.'); return false; }
     var name = photoSaveName();
-    try {
-      if (navigator.canShare && typeof File === 'function' && typeof Blob === 'function') {
-        var file = photoDataToFile(src, name);
-        if (navigator.canShare({ files: [file] })) {
-          navigator.share({ files: [file], title: name }).then(function () {
-            toast('사진을 저장했어요.');
-          }, function (err) {
-            if (err && err.name === 'AbortError') return;
-            downloadPhotoFile(src, name);
-          });
-          return true;
+    if (isAppleTouch()) {
+      try {
+        if (navigator.canShare && typeof File === 'function' && typeof Blob === 'function') {
+          var file = photoDataToFile(src, name);
+          if (navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: name }).then(function () {
+              toast('사진을 저장했어요.');
+            }, function (err) {
+              if (err && err.name === 'AbortError') return;
+              downloadPhotoFile(src, name);
+            });
+            return true;
+          }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
     return downloadPhotoFile(src, name);
   }
 
