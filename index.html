@@ -46,6 +46,13 @@
   .brand{flex:1; min-width:0;}
   .brand b{display:block; font-size:17px; letter-spacing:-.4px;}
   .brand span{display:block; font-size:11.5px; color:var(--muted); margin-top:1px;}
+  /* 실시간 동기화 상태(제목 아래 줄에 작게) */
+  .brand #brandSub{display:inline;}
+  .syncbadge{display:inline-block; vertical-align:middle; margin:3px 0 0 6px; padding:2px 7px;
+    border-radius:999px; background:#eef1f5; color:#7c8899; font-size:10px; font-weight:800;
+    letter-spacing:-.2px; white-space:nowrap; line-height:1.4;}
+  .syncbadge.on{background:#e3f6ec; color:#0a7a4b;}
+  .syncbadge[data-sync="saving"]{background:#fff3d6; color:#8a6213;}
   .peek{
     flex:0 0 auto; text-decoration:none; color:var(--accent); font-size:13.5px; font-weight:700;
     background:var(--accent-soft); border-radius:999px; padding:9px 13px;
@@ -322,7 +329,7 @@
 <header class="topbar">
   <div class="brand">
     <b>능놀스테이 체크리스트</b>
-    <span id="brandSub">누르기만 하면 카톡 전달까지</span>
+    <span id="brandSub">누르기만 하면 카톡 전달까지</span><span class="syncbadge" id="syncBadge" data-sync="local" title="같은 주소를 연 폰끼리 맞춰지는 상태">오프라인(로컬 저장)</span>
   </div>
   <a class="peek" href="#preview">문구 보기</a>
 </header>
@@ -633,6 +640,32 @@
     </div>
   </section>
 
+  <!-- 이벤트 상차림: 사장님만 고른다(있음/없음 · 우드/전통상 · 메모) -->
+  <section class="card" id="eventCard">
+    <h2><span class="dot"></span>이벤트 상차림 <span class="lockchip" data-staffonly="1">🔒 사장님만</span></h2>
+
+    <div class="field">
+      <div class="label">상차림 <span class="hint">있음 / 없음</span></div>
+      <div class="seg">
+        <button type="button" class="yes" data-act="set" data-field="eventSetup" data-value="true" data-lock="1">있음 <span class="sub">O</span></button>
+        <button type="button" class="no" data-act="set" data-field="eventSetup" data-value="false" data-lock="1">없음 <span class="sub">X</span></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">상 종류 <span class="hint">우드 / 전통상</span></div>
+      <div class="seg">
+        <button type="button" data-act="set" data-field="eventStyle" data-value="우드" data-lock="1">우드</button>
+        <button type="button" data-act="set" data-field="eventStyle" data-value="전통상" data-lock="1">전통상</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">메모 <span class="hint">문구·색상·요청사항</span></div>
+      <textarea id="eventMemo" data-input="eventMemo" data-lock="1" rows="2" placeholder="예: 생일 문구, 핑크 계열, 꽃 2단"></textarea>
+    </div>
+  </section>
+
   <!-- 특이사항: 항목마다 메모 + 사진 + 작성자 -->
   <section class="card" id="noteCard">
     <h2><span class="dot"></span>특이사항 <span class="hint2">항목마다 메모·사진</span></h2>
@@ -815,6 +848,7 @@
     adult: 1, child: 1, nights: 1, smallTowel: 1, bigTowel: 1, blanketCount: 1,
     bigBag: 1, smallBag: 1, nationality: 1, natMemo: 1, checkin: 1,
     topper: 1, blanket: 1, kidsRoom: 1, stayCustom: 1,
+    eventSetup: 1, eventStyle: 1, eventMemo: 1,
     luggage: 1, luggageFrom: 1, luggageTo: 1, laundryOut: 1, laundryIn: 1,
     reqMemo: 1
   };
@@ -924,6 +958,9 @@
       blanket: false,
       blanketCount: 1,
       kidsRoom: false,
+      eventSetup: false,
+      eventStyle: '',
+      eventMemo: '',
       luggage: false,
       luggageFrom: '11:00',
       luggageTo: '15:00',
@@ -1048,6 +1085,12 @@
     if (src.topper !== undefined) dst.topper = !!src.topper;
     if (src.blanket !== undefined) dst.blanket = !!src.blanket;
     if (src.kidsRoom !== undefined) dst.kidsRoom = !!src.kidsRoom;
+    // 이벤트 상차림(사장님만): 있음/없음 · 우드/전통상 · 메모
+    if (src.eventSetup !== undefined) dst.eventSetup = !!src.eventSetup;
+    if (typeof src.eventStyle === 'string') {
+      dst.eventStyle = (src.eventStyle === '우드' || src.eventStyle === '전통상') ? src.eventStyle : '';
+    }
+    if (typeof src.eventMemo === 'string') dst.eventMemo = src.eventMemo.slice(0, 300);
     if (src.luggage !== undefined) dst.luggage = !!src.luggage;
     if (src.touched !== undefined) dst.touched = !!src.touched;
 
@@ -2055,7 +2098,12 @@
     saveNow();
     updateSaveSub();
     var now = new Date().getTime();
-    toast('저장됐어요 · ' + hhmm(now));
+    var sent = false;
+    try { sent = syncPush(); } catch (e) { sent = false; }
+    if (!sent) toast('저장됐어요 · ' + hhmm(now));
+    else if (lastPushResult === 'ok') toast('모든 기기에 저장·동기화됐어요');
+    else if (lastPushResult === 'fail') { /* 업로드 실패 안내는 syncPush가 이미 띄웠다 */ }
+    else toast('저장 중…');
     var b = el('btnSave');
     if (b) {
       b.classList.add('saved');
@@ -2278,6 +2326,10 @@
     L.push('· 추가 이불: ' + (r.blanket ? ('있음 O · ' + r.blanketCount + '채') : '없음 X'));
     L.push('· 키즈룸: ' + (r.kidsRoom ? '오픈 O' : '닫음 X'));
     L.push('· 고객 짐보관 요청: ' + (r.luggage ? ('있음 O · ' + luggageRange(r)) : '없음 X'));
+    L.push('· 이벤트 상차림: ' + (r.eventSetup
+      ? ('있음 O' + (trim(r.eventStyle) ? (' (' + trim(r.eventStyle) + ')') : '') +
+         (trim(r.eventMemo) ? (' - ' + trim(r.eventMemo)) : ''))
+      : '없음 X'));
     L.push('· 쓰레기봉투: 큰 ' + r.bigBag + '장 / 작은 ' + r.smallBag + '장');
     L.push('· 침구세탁: 출고 ' + r.laundryOut + '채 / 입고 ' + r.laundryIn + '채');
     L.push('');
@@ -2350,6 +2402,10 @@
     if (num(r.child, 0) !== 0) o.ch = clamp('child', num(r.child, 0));
     if (text(r.nationality) !== '한국인') o.na = text(r.nationality);
     if (trim(r.natMemo)) o.nm = text(r.natMemo);
+    // 이벤트 상차림(사장님만): 있음/없음 · 우드/전통상 · 메모
+    if (r.eventSetup) o.es = 1;
+    if (trim(r.eventStyle)) o.est = text(r.eventStyle);
+    if (trim(r.eventMemo)) o.esm = safeStr(text(r.eventMemo), 200);
     if (num(r.nights, 1) !== 1) o.ni = clamp('nights', num(r.nights, 1));
     if (r.checkin !== true) o.ci = r.checkin ? 1 : 0;
     if (num(r.smallTowel, 0) !== 0) o.st = clamp('smallTowel', num(r.smallTowel, 0));
@@ -2447,6 +2503,9 @@
       child: o.ch,
       nationality: safeStr(o.na, 20) || '한국인',
       natMemo: safeStr(o.nm, 120),
+      eventSetup: !!o.es,
+      eventStyle: (o.est === '우드' || o.est === '전통상') ? o.est : '',
+      eventMemo: safeStr(o.esm, 300),
       nights: o.ni,
       checkin: (o.ci === undefined ? true : !!o.ci),
       smallTowel: o.st,
@@ -3015,10 +3074,14 @@
   }
 
   // 입력칸 값을 바꿔 넣는다(그 칸에 커서가 있을 때는 건드리지 않는다)
+  function isFocused(node) {
+    try { return !!node && document.activeElement === node; } catch (e) { return false; }
+  }
+
   function setInputValue(id, q) {
     var node = el(id);
     if (!node) return;
-    try { if (document.activeElement === node) return; } catch (e) {}
+    if (isFocused(node)) return;
     if (text(node.value) !== String(q)) node.value = String(q);
   }
 
@@ -3058,7 +3121,7 @@
     });
     var sc = el('stayCustom');
     if (state.active === CUSTOM) sc.classList.remove('hidden'); else sc.classList.add('hidden');
-    if (syncText) sc.value = text(room.stayCustom);
+    if (syncText) setInputValue('stayCustom', text(room.stayCustom));
 
     setBadge('badge-heyum', HEYUM);
     setBadge('badge-orot', OROT);
@@ -3105,14 +3168,15 @@
     for (var nidx = 0; nidx < NOTE_ITEMS.length; nidx++) {
       if (syncText) {
         var nbox = el('niMemo' + nidx);
-        if (nbox) nbox.value = text(room.noteItems[nidx] ? room.noteItems[nidx].memo : '');
+        if (nbox && !isFocused(nbox)) nbox.value = text(room.noteItems[nidx] ? room.noteItems[nidx].memo : '');
       }
     }
 
     if (syncText) {
-      el('natMemo').value = text(room.natMemo);
-      el('supplies').value = text(room.supplies);
-      el('reqMemo').value = text(room.reqMemo);
+      setInputValue('natMemo', text(room.natMemo));
+      setInputValue('supplies', text(room.supplies));
+      setInputValue('reqMemo', text(room.reqMemo));
+      setInputValue('eventMemo', text(room.eventMemo));
     }
     // 짐보관 시간대는 빠른 선택을 눌러도 칸에 바로 보이게 한다
     setInputValue('luggageFrom', safeTime(room.luggageFrom, '11:00'));
@@ -3306,8 +3370,10 @@
     if (field in LIMITS) {
       r[field] = clamp(field, num(value, r[field]));
     } else if (field === 'checkin' || field === 'topper' || field === 'blanket' ||
-               field === 'kidsRoom' || field === 'luggage') {
+               field === 'kidsRoom' || field === 'luggage' || field === 'eventSetup') {
       r[field] = (value === 'true');
+    } else if (field === 'eventStyle') {
+      r[field] = (value === '우드' || value === '전통상') ? value : '';
     } else {
       r[field] = value;
     }
@@ -3460,6 +3526,7 @@
 
   function onInput(ev) {    var node = ev.target;
     if (!node || !node.getAttribute) return;
+    markTyping();
     if (String(node.type || '').toLowerCase() === 'file' && node.getAttribute('data-photo')) {
       handlePhotoFile(node);
       return;
@@ -3511,6 +3578,455 @@
     render(false);
   }
 
+  // ---------- Firebase 실시간 동기화 ----------
+  // 같은 주소를 연 폰들이 하나의 실시간 DB를 함께 본다.
+  // [💾 저장]을 누르면 이 기기의 내용(사진 포함)을 올리고, 다른 기기의 저장은 바로 받아 화면에 반영한다.
+  var FB_VERSION = '10.14.1';
+  var FB_ROOT = 'neungnol_v1';
+  var FB_CONFIG = {
+    apiKey: 'AIzaSyDlcF9T8yqhfesUv5XkROKjJdezFq2CHFM',
+    authDomain: 'neungnol-checklist.firebaseapp.com',
+    databaseURL: 'https://neungnol-checklist-default-rtdb.asia-southeast1.firebasedatabase.app',
+    projectId: 'neungnol-checklist',
+    storageBucket: 'neungnol-checklist.firebasestorage.app',
+    messagingSenderId: '449371435334',
+    appId: '1:449371435334:web:48a10122c15a2b708e7547'
+  };
+  // 이 기기에 남기는 동기화 기록(마지막으로 맞춘 시각·이미 올린 사진·받기 전 백업)
+  var SYNC_KEY = 'stay_checklist.sync';
+  var SYNC_IMG_KEY = 'stay_checklist.syncimg';
+  var SYNC_BACKUP_KEY = 'stay_checklist.backup';
+  var SYNC_TEXT = {
+    online: '☁️ 실시간 동기화',
+    saving: '저장 중…',
+    connecting: '연결 중…',
+    local: '오프라인(로컬 저장)'
+  };
+  var syncMode = 'local';
+  var syncStarted = false;
+  var fbDb = null, fbStateRef = null, fbImgRoot = null;
+  var lastPushedAt = 0;
+  var syncedAt = 0;
+  var pendingRemote = null;
+  var lastPushResult = ''; // '' 진행 중 · 'ok' 올림 · 'fail' 못 올림
+  var typingAt = 0;
+  var remoteTimer = null;
+  var baselineTried = false;
+
+  function setSyncMode(m) {
+    syncMode = SYNC_TEXT[m] ? m : 'local';
+    var n = el('syncBadge');
+    if (!n) return;
+    n.textContent = SYNC_TEXT[syncMode];
+    try { n.setAttribute('data-sync', syncMode); } catch (e) {}
+    if (syncMode === 'online') n.classList.add('on'); else n.classList.remove('on');
+  }
+
+  function syncBadgeText() {
+    var n = el('syncBadge');
+    return n ? text(n.textContent) : '';
+  }
+
+  function readSyncAt() {
+    var v = readJSON(SYNC_KEY);
+    return (v && typeof v === 'object') ? Math.max(0, Math.round(num(v.at, 0))) : 0;
+  }
+
+  function rememberSyncedAt(at) {
+    if (!(at > 0)) return;
+    syncedAt = at;
+    try { localStorage.setItem(SYNC_KEY, JSON.stringify({ at: at })); } catch (e) {}
+  }
+
+  function syncedImageIds() {
+    var v = readJSON(SYNC_IMG_KEY);
+    return (v && typeof v === 'object') ? v : {};
+  }
+
+  function markImageSynced(id) {
+    var m = syncedImageIds();
+    m[text(id)] = 1;
+    try { localStorage.setItem(SYNC_IMG_KEY, JSON.stringify(m)); } catch (e) {}
+  }
+
+  // 이 기기에 있는 내용이 있는지(빈 기기가 빈 내용을 올려 덮어쓰지 않게)
+  function localHasContent() {
+    for (var dk in state.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(state.byDate, dk)) continue;
+      if (dayHasContent(dk)) return true;
+    }
+    if (state.log && state.log.length) return true;
+    for (var mk in state.meters) {
+      if (!Object.prototype.hasOwnProperty.call(state.meters, mk)) continue;
+      var day = state.meters[mk];
+      if (!day || typeof day !== 'object') continue;
+      for (var i = 0; i < METER_KINDS.length; i++) {
+        var e = day[METER_KINDS[i]];
+        if (e && isArray(e.photos) && e.photos.length) return true;
+      }
+    }
+    return false;
+  }
+
+  // 저장된 상태가 가리키는 사진 아이디(모든 날짜·모든 계량기)
+  function collectImageIds() {
+    var out = [], seen = {};
+    function add(id) {
+      id = text(id);
+      if (!id || seen[id]) return;
+      seen[id] = 1;
+      out.push(id);
+    }
+    for (var dk in state.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(state.byDate, dk)) continue;
+      var day = state.byDate[dk];
+      if (!day || !day.rooms) continue;
+      for (var i = 0; i < ROOM_KEYS.length; i++) {
+        var r = day.rooms[ROOM_KEYS[i]];
+        if (!r) continue;
+        var a, b, c;
+        if (isArray(r.reqPhotos)) {
+          for (a = 0; a < r.reqPhotos.length; a++) add(r.reqPhotos[a] ? r.reqPhotos[a].i : '');
+        }
+        if (isArray(r.noteItems)) {
+          for (b = 0; b < r.noteItems.length; b++) {
+            var it = r.noteItems[b];
+            if (!it || !isArray(it.photos)) continue;
+            for (c = 0; c < it.photos.length; c++) add(it.photos[c] ? it.photos[c].i : '');
+          }
+        }
+      }
+    }
+    for (var mk in state.meters) {
+      if (!Object.prototype.hasOwnProperty.call(state.meters, mk)) continue;
+      var mday = state.meters[mk];
+      if (!mday || typeof mday !== 'object') continue;
+      for (var k = 0; k < METER_KINDS.length; k++) {
+        var me = mday[METER_KINDS[k]];
+        if (!me || !isArray(me.photos)) continue;
+        for (var p = 0; p < me.photos.length; p++) add(me.photos[p] ? me.photos[p].i : '');
+      }
+    }
+    return out;
+  }
+
+  // DB로 보낼 내용: 날짜별 체크리스트·계량기·수정 이력·사장님 비밀번호
+  // (화면에서 보고 있는 날짜·객실·작성자는 각 폰의 것이라 보내지 않는다)
+  function syncPayload(at) {
+    return {
+      v: 3,
+      pw: text(state.pw),
+      byDate: state.byDate,
+      meters: state.meters,
+      log: state.log,
+      updatedAt: at,
+      updatedBy: writerName()
+    };
+  }
+
+  function loadFbScripts(done) {
+    var urls = [
+      'https://www.gstatic.com/firebasejs/' + FB_VERSION + '/firebase-app-compat.js',
+      'https://www.gstatic.com/firebasejs/' + FB_VERSION + '/firebase-database-compat.js'
+    ];
+    var i = 0;
+    function next() {
+      if (i >= urls.length) { done(); return; }
+      var s = document.createElement('script');
+      s.src = urls[i++];
+      s.onload = next;
+      s.onerror = function () { done(); };
+      try { document.head.appendChild(s); } catch (e) { done(); }
+    }
+    next();
+  }
+
+  function startCloud() {
+    if (syncStarted) return;
+    syncStarted = true;
+    setSyncMode('connecting');
+    try {
+      if (typeof firebase !== 'undefined' && firebase && firebase.initializeApp && firebase.database) {
+        connectCloud();
+        return;
+      }
+      if (!document.head || !document.createElement) { setSyncMode('local'); return; }
+      loadFbScripts(connectCloud);
+    } catch (e) {
+      setSyncMode('local');
+    }
+  }
+
+  function connectCloud() {
+    try {
+      if (typeof firebase === 'undefined' || !firebase || !firebase.initializeApp || !firebase.database) {
+        setSyncMode('local');
+        return;
+      }
+      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+      fbDb = firebase.database();
+      fbStateRef = fbDb.ref(FB_ROOT + '/state');
+      fbImgRoot = fbDb.ref(FB_ROOT + '/images');
+      try {
+        fbDb.ref('.info/connected').on('value', function (snap) {
+          var on = false;
+          try { on = snap && snap.val() === true; } catch (e) { on = false; }
+          if (on) {
+            if (syncMode !== 'saving') setSyncMode('online');
+          } else {
+            setSyncMode('local');
+          }
+        });
+      } catch (e) {}
+      fbStateRef.on('value', onRemoteState, onRemoteError);
+    } catch (e) {
+      setSyncMode('local');
+    }
+  }
+
+  function onRemoteError() {
+    setSyncMode('local');
+  }
+
+  function onRemoteState(snap) {
+    var data = null;
+    try { data = (snap && snap.val) ? snap.val() : null; } catch (e) { data = null; }
+    if (!data || typeof data !== 'object' || !data.byDate) {
+      // 아직 DB가 비어 있다: 이 기기에 내용이 있으면 이 내용을 기준으로 올린다
+      if (!baselineTried && !lastPushedAt && localHasContent()) {
+        baselineTried = true;
+        syncPush({ quiet: true });
+      } else if (syncMode !== 'saving') {
+        setSyncMode('online');
+      }
+      return;
+    }
+    var at = Math.round(num(data.updatedAt, 0));
+    if (!(at > 0)) return;
+    if (at === lastPushedAt) {
+      if (syncMode !== 'saving') setSyncMode('online');
+      return;
+    }
+    if (at <= syncedAt) return;
+    applyRemote(data);
+  }
+
+  // 받는 도중에 입력 중이던 칸의 글자가 날아가지 않게 잠시 미룬다
+  function typingFresh() {
+    if (!typingAt) return false;
+    return (new Date().getTime() - typingAt) < 1500;
+  }
+
+  function unsavedTyping() {
+    var a = null;
+    try { a = document.activeElement; } catch (e) { a = null; }
+    if (!a || !a.getAttribute) return false;
+    var f = a.getAttribute('data-input');
+    if (!f) return false;
+    if (f === 'noteMemo') {
+      var it = noteItemAt(Math.round(num(a.getAttribute('data-idx'), -1)));
+      return !!it && text(a.value) !== text(it.memo);
+    }
+    if (f === 'supplies') return text(a.value) !== text(cur().supplies);
+    if (f === 'reqMemo') return text(a.value) !== text(cur().reqMemo);
+    if (f === 'natMemo') return text(a.value) !== text(cur().natMemo);
+    if (f === 'stayCustom') return text(a.value) !== text(cur().stayCustom);
+    return false;
+  }
+
+  function scheduleRemoteFlush() {
+    if (remoteTimer) clearTimeout(remoteTimer);
+    remoteTimer = setTimeout(function () {
+      remoteTimer = null;
+      if (!pendingRemote) return;
+      if (typingFresh() || unsavedTyping()) { scheduleRemoteFlush(); return; }
+      flushPendingRemote();
+    }, 1600);
+  }
+
+  function markTyping() {
+    typingAt = new Date().getTime();
+    if (pendingRemote) scheduleRemoteFlush();
+  }
+
+  function applyRemote(data) {
+    if (!data || !data.byDate) return false;
+    if (typingFresh() || unsavedTyping()) {
+      pendingRemote = data;
+      scheduleRemoteFlush();
+      return false;
+    }
+    return doApplyRemote(data);
+  }
+
+  function flushPendingRemote(force) {
+    if (!pendingRemote) return false;
+    if (!force && (typingFresh() || unsavedTyping())) return false;
+    var data = pendingRemote;
+    pendingRemote = null;
+    return doApplyRemote(data);
+  }
+
+  // 다른 기기의 저장분을 이 기기 화면·저장소에 그대로 옮긴다
+  function doApplyRemote(data) {
+    var at = Math.round(num(data.updatedAt, 0));
+    if (at > 0 && at <= syncedAt) return false;
+    // 지금 이 기기 내용을 한 번 백업해 둔다(사진 본문은 localStorage에 그대로 남아 있다)
+    try {
+      localStorage.setItem(SYNC_BACKUP_KEY, JSON.stringify({
+        at: new Date().getTime(), byDate: state.byDate, meters: state.meters,
+        log: state.log, pw: state.pw
+      }));
+    } catch (e) {}
+    var next = {}, dk;
+    for (dk in data.byDate) {
+      if (!Object.prototype.hasOwnProperty.call(data.byDate, dk)) continue;
+      if (!RE_DATE.test(dk)) continue;
+      var d = data.byDate[dk];
+      if (!d || typeof d !== 'object') continue;
+      next[dk] = emptyDayFrom(d.rooms || {});
+    }
+    state.byDate = next;
+    state.meters = cleanMeters(data.meters);
+    state.log = cleanLog(data.log);
+    if (typeof data.pw === 'string' && data.pw) state.pw = data.pw;
+    state.rooms = dayObj(state.date).rooms;
+    if (at > 0) rememberSyncedAt(at);
+    pendingRemote = null;
+    saveNow();
+    fetchMissingImages(function () {
+      render(true);
+      toast('다른 기기에서 저장한 최신 내용을 불러왔어요');
+    });
+    return true;
+  }
+
+  function missingImageIds() {
+    var ids = collectImageIds(), out = [];
+    for (var i = 0; i < ids.length; i++) {
+      if (!readImage(ids[i])) out.push(ids[i]);
+    }
+    return out;
+  }
+
+  // 이 기기에 없는 사진을 DB에서 받아 저장소에 넣는다
+  function fetchMissingImages(done) {
+    var ids = missingImageIds();
+    if (!ids.length || !fbImgRoot) { done(); return; }
+    var left = ids.length, finished = false;
+    var timer = setTimeout(function () {
+      if (finished) return;
+      finished = true;
+      done();
+    }, 8000);
+    function tick() {
+      left--;
+      if (left > 0 || finished) return;
+      finished = true;
+      clearTimeout(timer);
+      done();
+    }
+    for (var i = 0; i < ids.length; i++) {
+      (function (id) {
+        try {
+          fbImgRoot.child(id).once('value', function (snap) {
+            var v = null;
+            try { v = (snap && snap.val) ? snap.val() : null; } catch (e) { v = null; }
+            if (typeof v === 'string' && v) saveImage(id, v);
+            tick();
+          }, tick);
+        } catch (e) { tick(); }
+      })(ids[i]);
+    }
+  }
+
+  // 아직 DB에 없는 사진을 올린다(사진부터 올려야 다른 폰에서 바로 보인다)
+  function uploadMissingImages(done) {
+    if (!fbImgRoot) { done(); return; }
+    var ids = collectImageIds(), todo = [], i;
+    var synced = syncedImageIds();
+    for (i = 0; i < ids.length; i++) {
+      if (synced[ids[i]]) continue;
+      if (!readImage(ids[i])) continue;
+      todo.push(ids[i]);
+    }
+    if (!todo.length) { done(); return; }
+    var left = todo.length, finished = false;
+    var timer = setTimeout(function () {
+      if (finished) return;
+      finished = true;
+      done();
+    }, 25000);
+    function tick() {
+      left--;
+      if (left > 0 || finished) return;
+      finished = true;
+      clearTimeout(timer);
+      done();
+    }
+    for (i = 0; i < todo.length; i++) {
+      (function (id) {
+        try {
+          fbImgRoot.child(id).set(readImage(id), function (err) {
+            if (!err) markImageSynced(id);
+            tick();
+          });
+        } catch (e) { tick(); }
+      })(todo[i]);
+    }
+  }
+
+  // [💾 저장]이 부르는 업로드: 사진 → 내용 순서로 올리고 결과를 토스트로 알린다
+  function syncPush(opts) {
+    opts = opts || {};
+    if (!fbStateRef) return false;
+    var at = new Date().getTime();
+    if (at <= syncedAt) at = syncedAt + 1;
+    lastPushedAt = at;
+    pendingRemote = null;
+    lastPushResult = '';
+    setSyncMode('saving');
+    var settled = false;
+    var timer = setTimeout(function () {
+      if (settled) return;
+      settled = true;
+      lastPushResult = 'fail';
+      setSyncMode('local');
+      if (!opts.quiet) toast('인터넷이 약해 이 기기에만 저장했어요 · ' + hhmm(at));
+    }, 20000);
+    function fail(msg) {
+      if (settled) return;
+      settled = true;
+      lastPushResult = 'fail';
+      clearTimeout(timer);
+      setSyncMode('local');
+      if (!opts.quiet) toast(msg + ' · ' + hhmm(at));
+    }
+    function send() {
+      var payload;
+      try { payload = syncPayload(at); } catch (e) { payload = null; }
+      if (!payload) { fail('내용을 올리지 못했어요'); return; }
+      try {
+        fbStateRef.set(payload, function (err) {
+          if (settled) return;
+          if (err) { fail('인터넷 문제로 이 기기에만 저장했어요'); return; }
+          settled = true;
+          clearTimeout(timer);
+          lastPushResult = 'ok';
+          rememberSyncedAt(at);
+          setSyncMode('online');
+          if (!opts.quiet) toast('모든 기기에 저장·동기화됐어요');
+        });
+      } catch (e) {
+        fail('인터넷 문제로 이 기기에만 저장했어요');
+      }
+    }
+    uploadMissingImages(send);
+    return true;
+  }
+
+  syncedAt = readSyncAt();
+
   var initialized = false;
   var initTries = 0;
 
@@ -3522,6 +4038,8 @@
       document.addEventListener('click', onClick, false);
       document.addEventListener('input', onInput, false);
       document.addEventListener('change', onInput, false);
+      // 실시간 동기화 시작(Firebase를 못 불러오면 로컬 저장만으로 그대로 동작)
+      startCloud();
       if (sharedNames) {
         // 공유 링크로 열었다: 받은 내용을 알려 주고 주소창을 정리한다
         showShareNotice(sharedNames);
@@ -3738,7 +4256,25 @@
     closeSheet: closeSheet,
     isSheetOpen: function () { return !el('sheet').classList.contains('hidden'); },
     render: render,
-    showToast: toast
+    showToast: toast,
+    // 실시간 동기화(검증용)
+    sync: {
+      config: FB_CONFIG,
+      root: FB_ROOT,
+      mode: function () { return syncMode; },
+      badge: syncBadgeText,
+      start: startCloud,
+      push: function (quiet) { return syncPush({ quiet: !!quiet }); },
+      remote: function (obj) { onRemoteState({ val: function () { return obj; } }); return syncMode; },
+      apply: function (obj) { return applyRemote(obj); },
+      flush: function (force) { return flushPendingRemote(!!force); },
+      pending: function () { return !!pendingRemote; },
+      typing: markTyping,
+      ids: collectImageIds,
+      syncedAt: function () { return syncedAt; },
+      hasContent: localHasContent,
+      payload: function () { return syncPayload(new Date().getTime()); }
+    }
   };
 })();
 </script>
