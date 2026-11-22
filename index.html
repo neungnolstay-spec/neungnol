@@ -556,9 +556,9 @@
       <div id="luggageTimeBox" class="hidden" style="margin-top:10px">
         <div class="label">짐보관 시간대 <span class="hint">시작~끝</span></div>
         <div class="quick" id="luggageQuick">
-          <button type="button" data-act="luggageTime" data-value="10:00-14:00">10~14시</button>
-          <button type="button" data-act="luggageTime" data-value="11:00-15:00">11~15시</button>
-          <button type="button" data-act="luggageTime" data-value="12:00-16:00">12~16시</button>
+          <button type="button" data-act="luggageTime" data-lock="1" data-value="10:00-14:00">10~14시</button>
+          <button type="button" data-act="luggageTime" data-lock="1" data-value="11:00-15:00">11~15시</button>
+          <button type="button" data-act="luggageTime" data-lock="1" data-value="12:00-16:00">12~16시</button>
         </div>
         <div class="timerow">
           <input type="time" id="luggageFrom" data-input="luggageFrom" data-lock="1" step="600">
@@ -1612,7 +1612,7 @@
     }
     var canChange = (kind === 'req') ? isOwner() : true;
     // 목록이 그대로면 다시 그리지 않는다(메모를 칠 때마다 사진을 새로 읽지 않게)
-    var sig = '';
+    var sig = (canChange ? '1' : '0') + '|';
     for (var si = 0; si < list.length; si++) sig += list[si].i + ',';
     if (box.__phSig === sig) return;
     box.__phSig = sig;
